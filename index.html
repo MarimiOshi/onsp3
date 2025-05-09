@@ -28,6 +28,7 @@
                     </div>
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
+
                 <div class="serif-animation-container">
                     <div class="serif-area">
                         <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
@@ -38,6 +39,7 @@
                         <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
                     </div>
                 </div>
+
                 <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
@@ -60,24 +62,7 @@
             </div>
         </section>
 
-        <!-- ギャラリーセクション -->
-        <section id="gallerySection" class="mode-section standard-mode-layout" style="display:none;">
-            <h2>ギャラリー</h2>
-            <div class="gallery-controls">
-                <label for="galleryMemberFilter">メンバー:</label>
-                <select id="galleryMemberFilter"> <option value="all">全員</option> </select>
-                <label for="galleryTypeFilter">タイプ:</label>
-                <select id="galleryTypeFilter"> <option value="all">すべて</option> <option value="ero">EROのみ</option> <option value="hutuu">通常のみ</option> </select>
-                <div class="gallery-toggle-weak">
-                    <input type="checkbox" id="galleryWeakPointFilter">
-                    <label for="galleryWeakPointFilter">弱点画像のみ表示</label>
-                </div>
-                <button id="galleryRefreshButton" class="action-button small">更新</button>
-            </div>
-            <div id="galleryGrid" class="gallery-grid">
-                <p class="loading-message gallery-loading">ギャラリーを読み込み中...</p>
-            </div>
-        </section>
+        <!-- ギャラリーセクションは削除 -->
 
     </main>
 
@@ -92,14 +77,7 @@
                     <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders"><p>読み込み中...</p></div>
                     <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
                 </div>
-                <div class="setting-group">
-                    <h4>背景エフェクト</h4>
-                    <div class="effect-slider-item">
-                        <label for="modalPulseBrightnessSlider">明るさ:</label>
-                        <input type="range" id="modalPulseBrightnessSlider" min="0" max="5" step="1" value="3">
-                        <span class="slider-value" id="modalPulseBrightnessValue">3</span>
-                    </div>
-                </div>
+                <!-- 背景エフェクト設定グループ削除 -->
                 <div class="setting-group">
                     <h4>BPM設定</h4>
                     <div class="bpm-setting">
@@ -107,11 +85,7 @@
                         <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
                     </div>
                 </div>
-                <div class="setting-group" id="modalStickerSettingsGroup" style="display:none;">
-                    <h4>ステッカー</h4>
-                    <div id="modalStickerChoiceContainer" class.sticker-choice-container modal-sticker-choices"><p>読み込み中...</p></div>
-                    <button id="modalClearAllStickersButton" class="action-button small secondary">現在の画像の全ステッカー削除</button>
-                </div>
+                <!-- ステッカー設定グループ削除 -->
             </div>
             <div class="modal-footer">
                 <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
@@ -123,7 +97,7 @@
     <nav id="tabNavigation" class="tab-navigation-global-footer">
         <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
         <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
+        <!-- ギャラリーボタン削除 -->
     </nav>
 
     <script src="config.js"></script>
@@ -133,7 +107,7 @@
     <script src="js/ui/components.js"></script>
     <script src="js/modes/shikoshiko.js"></script>
     <script src="js/modes/counter.js"></script>
-    <script src="js/modes/gallery.js"></script>
+    <!-- gallery.js の読み込み削除 -->
     <script src="js/app.js"></script>
 </body>
 </html>
