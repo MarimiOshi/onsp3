@@ -15,13 +15,10 @@
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
 
-                <!-- BOX1: 上部メインエリア (画像、サイド情報、設定ボタン) -->
                 <div class="shikoshiko-box1">
                     <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                        <!-- 貼り付けられたステッカーはここにJSで追加 (ステッカー機能は廃止) -->
                     </div>
-
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
                             <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
@@ -30,16 +27,12 @@
                             <span class="icon-display">☆</span>
                         </button>
                     </div>
-
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
 
-                <!-- セリフとアニメーションのコンテナ -->
                 <div class="serif-animation-container">
                     <div class="serif-area">
-                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;">
-                            <!-- JSで画像タグを生成 -->
-                        </div>
+                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
                         <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
                     </div>
                     <div class="animation-area" id="shikoAnimationContainer">
@@ -48,8 +41,7 @@
                     </div>
                 </div>
 
-                <!-- 下部コントロールエリア (ボタンのみ) -->
-                <div class="shikoshiko-box2-controls-only">
+                <div class="shikoshiko-controls-bottom-area"> <!-- 操作ボタン専用エリア -->
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
                         <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
@@ -60,18 +52,20 @@
         </section>
 
         <!-- カウンターセクション -->
-        <section id="counterSection" class="mode-section standard-mode-layout" style="display:none;">
-            <h2>回数カウンター</h2>
-            <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
-            <div class="counter-controls">
-                <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
-            </div>
-            <div class="counter-grid" id="counterGrid">
-                <p class="loading-message">カウンター読み込み中...</p>
+        <section id="counterSection" class="mode-section standard-mode-container" style="display:none;">
+            <div class="standard-mode-content">
+                <h2>回数カウンター</h2>
+                <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
+                <div class="counter-controls">
+                    <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
+                </div>
+                <div class="counter-grid" id="counterGrid">
+                    <p class="loading-message">カウンター読み込み中...</p>
+                </div>
             </div>
         </section>
 
-        <!-- ギャラリーセクションは廃止のためHTMLから削除 -->
+        <!-- ギャラリーセクション (廃止) -->
 
     </main>
 
@@ -86,7 +80,6 @@
                     <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders"><p>読み込み中...</p></div>
                     <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
                 </div>
-                <!-- 背景エフェクト設定グループは廃止のため削除 -->
                 <div class="setting-group">
                     <h4>BPM設定</h4>
                     <div class="bpm-setting">
@@ -94,7 +87,6 @@
                         <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
                     </div>
                 </div>
-                <!-- ステッカー設定グループは廃止のため削除 -->
             </div>
             <div class="modal-footer">
                 <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
@@ -102,11 +94,10 @@
         </div>
     </div>
 
-    <!-- グローバルな下部タブナビゲーション -->
+    <!-- グローバルな下部タブナビゲーション (mainの外に配置) -->
     <nav id="tabNavigation" class="tab-navigation-global-footer">
         <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
         <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-        <!-- ギャラリーボタン削除 -->
     </nav>
 
     <script src="config.js"></script>
@@ -116,7 +107,6 @@
     <script src="js/ui/components.js"></script>
     <script src="js/modes/shikoshiko.js"></script>
     <script src="js/modes/counter.js"></script>
-    <!-- gallery.js の読み込み削除 -->
     <script src="js/app.js"></script>
 </body>
 </html>
