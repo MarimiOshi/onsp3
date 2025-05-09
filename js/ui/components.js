@@ -15,6 +15,7 @@ const UIComponents = {
             toggleButton.setAttribute('aria-expanded', 'false');
         } else console.warn(`Accordion elements not found (toggle: ${toggleSelector}, content: ${contentSelector})`);
     },
+
     createMemberWeightSliders: function(containerSelector, members, initialWeights = {}, onChangeCallback) {
         const container = DOMUtils.qs(containerSelector);
         if (!container) { console.error(`Slider container "${containerSelector}" not found.`); return null; }
@@ -29,8 +30,8 @@ const UIComponents = {
             const memberName = member.name;
             const initialValue = initialWeights[memberName] !== undefined ? initialWeights[memberName] : 3;
             const itemDiv = DOMUtils.createElement('div', { class: 'member-slider-item' });
-            const label = DOMUtils.createElement('label', { for: `weight-${memberName}` }, [`${memberName}:`]);
-            const slider = DOMUtils.createElement('input', { type: 'range', id: `weight-${memberName}`, min: '0', max: '5', step: '1', value: String(initialValue), dataset: { memberName: memberName } });
+            const label = DOMUtils.createElement('label', { for: `${containerSelector.substring(1)}-weight-${memberName}` }, [`${memberName}:`]); // IDが一意になるように
+            const slider = DOMUtils.createElement('input', { type: 'range', id: `${containerSelector.substring(1)}-weight-${memberName}`, min: '0', max: '5', step: '1', value: String(initialValue), dataset: { memberName: memberName } });
             const valueSpan = DOMUtils.createElement('span', { class: 'slider-value' }, [String(initialValue)]);
             DOMUtils.on(slider, 'input', (event) => {
                 const newValue = parseInt(event.target.value, 10);
@@ -43,6 +44,7 @@ const UIComponents = {
         });
         return sliders;
     },
+
     initGenericSlider: function(sliderSelector, valueDisplaySelector, onChangeCallback) {
         const slider = DOMUtils.qs(sliderSelector);
         const valueDisplay = DOMUtils.qs(valueDisplaySelector);
@@ -56,23 +58,30 @@ const UIComponents = {
             updateValue();
         } else console.warn(`Generic slider elements not found (slider: ${sliderSelector}, display: ${valueDisplaySelector})`);
     },
+
     showNotification: function(message, type = 'info', duration = 3000) {
-        console.log(`[Notification (${type})]: ${message}`);
-        // 実装例: 画面上部や下部に一時的なメッセージバーを表示する
+        const existingNotification = DOMUtils.qs('.app-notification');
+        if (existingNotification) existingNotification.remove(); // 既存があれば削除
+
         const notificationBar = DOMUtils.createElement('div', {
-            class: `app-notification notification-${type}`, // CSSでスタイリング
+            class: `app-notification notification-${type}`,
             role: 'alert'
         }, [message]);
+        // 画面上部に表示するように変更
+        notificationBar.style.top = '10px'; // 上からの位置
+        notificationBar.style.bottom = 'auto';
+        notificationBar.style.left = '50%';
+        notificationBar.style.transform = 'translateX(-50%)';
+
         document.body.appendChild(notificationBar);
         setTimeout(() => {
-            notificationBar.style.opacity = '0'; // フェードアウト
+            notificationBar.style.opacity = '0';
             setTimeout(() => {
-                if (notificationBar.parentNode) {
-                    notificationBar.parentNode.removeChild(notificationBar);
-                }
-            }, 500); // フェードアウト時間
+                if (notificationBar.parentNode) notificationBar.parentNode.removeChild(notificationBar);
+            }, 500);
         }, duration);
     },
+
     createStickerChoices: function(containerSelector, stickerPaths, onStickerSelectCallback) {
         const container = DOMUtils.qs(containerSelector);
         if (!container) { console.error(`Sticker choice container "${containerSelector}" not found.`); return; }
@@ -89,17 +98,86 @@ const UIComponents = {
                 const selectedButton = event.currentTarget;
                 const selectedPath = selectedButton.dataset.stickerPath;
                 const previouslySelected = DOMUtils.qs('.sticker-choice-button.selected', container);
-                if (previouslySelected) DOMUtils.removeClass(previouslySelected, 'selected');
 
-                // 同じボタンを再度クリックしたら選択解除、そうでなければ選択
-                if (previouslySelected === selectedButton) {
-                     if (typeof onStickerSelectCallback === 'function') onStickerSelectCallback(null); // 選択解除を通知
+                if (previouslySelected === selectedButton) { // 同じボタンを再度クリック
+                    DOMUtils.removeClass(selectedButton, 'selected');
+                    if (typeof onStickerSelectCallback === 'function') onStickerSelectCallback(null);
                 } else {
+                    if (previouslySelected) DOMUtils.removeClass(previouslySelected, 'selected');
                     DOMUtils.addClass(selectedButton, 'selected');
                     if (typeof onStickerSelectCallback === 'function') onStickerSelectCallback(selectedPath);
                 }
             });
             container.appendChild(button);
         });
+    },
+
+    // --- モーダル関連 ---
+    /**
+     * モーダルを開く
+     * @param {string} modalSelector - モーダル要素のCSSセレクタ
+     */
+    openModal: function(modalSelector) {
+        const modal = DOMUtils.qs(modalSelector);
+        if (modal) {
+            DOMUtils.toggleDisplay(modal, true);
+            // document.body.style.overflow = 'hidden'; // 背景スクロール禁止 (オプション)
+        } else {
+            console.warn(`Modal element "${modalSelector}" not found.`);
+        }
+    },
+
+    /**
+     * モーダルを閉じる
+     * @param {string} modalSelector - モーダル要素のCSSセレクタ
+     */
+    closeModal: function(modalSelector) {
+        const modal = DOMUtils.qs(modalSelector);
+        if (modal) {
+            DOMUtils.toggleDisplay(modal, false);
+            // document.body.style.overflow = ''; // 背景スクロール許可
+        } else {
+            console.warn(`Modal element "${modalSelector}" not found.`);
+        }
+    },
+
+    /**
+     * モーダルのセットアップ (開くボタン、閉じるボタン、モーダル外クリックで閉じる)
+     * @param {string} modalSelector
+     * @param {string} openButtonSelector
+     * @param {string} closeButtonSelector
+     */
+    setupModal: function(modalSelector, openButtonSelector, closeButtonSelector) {
+        const openButton = DOMUtils.qs(openButtonSelector);
+        const modal = DOMUtils.qs(modalSelector);
+        const closeButton = DOMUtils.qs(closeButtonSelector, modal); // モーダル内から検索
+
+        if (openButton) {
+            DOMUtils.on(openButton, 'click', () => this.openModal(modalSelector));
+        } else {
+            console.warn(`Modal open button "${openButtonSelector}" not found.`);
+        }
+
+        if (closeButton) {
+            DOMUtils.on(closeButton, 'click', () => this.closeModal(modalSelector));
+        } else if (modal) { // モーダルがあっても閉じるボタンがない場合がある
+             console.warn(`Modal close button "${closeButtonSelector}" not found inside "${modalSelector}".`);
+        }
+
+
+        if (modal) {
+            // モーダル外クリックで閉じる
+            DOMUtils.on(window, 'click', (event) => {
+                if (event.target === modal) { // モーダルの背景部分をクリックした場合
+                    this.closeModal(modalSelector);
+                }
+            });
+            // ESCキーで閉じる
+            DOMUtils.on(window, 'keydown', (event) => {
+                if (event.key === 'Escape' && modal.style.display !== 'none') {
+                    this.closeModal(modalSelector);
+                }
+            });
+        }
     }
 };
