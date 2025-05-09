@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ONSP Project</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="images/placeholder.png"> <!-- 適切なファビコンへのパスを指定してください -->
+    <link rel="icon" href="images/placeholder.png"> <!-- ファビコンパス -->
 </head>
 <body>
 
@@ -23,7 +23,6 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="mode-content-wrapper">
-                <!-- 設定エリア (アコーディオン等で開閉) -->
                 <div class="settings-panel" id="shikoshikoSettingsPanel">
                     <button class="accordion-toggle" id="shikoshikoSettingsToggle" aria-expanded="false">
                         設定 <span class="toggle-icon">▼</span>
@@ -32,7 +31,6 @@
                         <div class="setting-group">
                             <h4>メンバー出現率</h4>
                             <div class="slider-container member-sliders" id="shikoshikoMemberSliders">
-                                <!-- js/ui/components.js または shikoshiko.js でメンバー毎のスライダーを生成 -->
                                 <p>メンバー読み込み中...</p>
                             </div>
                             <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
@@ -54,8 +52,7 @@
                                 <span class="slider-value" id="pulseBrightnessValue">3</span>
                             </div>
                         </div>
-                         <!-- ステッカー関連UI (残す場合) -->
-                        <div class="setting-group" id="shikoshikoStickerSettingsGroup" style="display:none;"> <!-- 初期非表示 or 条件で表示 -->
+                        <div class="setting-group" id="shikoshikoStickerSettingsGroup" style="display:none;">
                             <h4>ステッカー</h4>
                             <div id="shikoshikoStickerChoiceContainer" class="sticker-choice-container">
                                 <p class="sticker-loading">ステッカー読込中...</p>
@@ -65,7 +62,6 @@
                     </div>
                 </div>
 
-                <!-- ゲーム表示エリア -->
                 <div class="game-display-area" id="shikoshikoGameArea">
                     <div class="game-header">
                         <h2 id="shikoshikoMemberName">メンバー名</h2>
@@ -81,15 +77,14 @@
                     </div>
                     <div class="member-image-container" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                        <!-- 貼り付けられたステッカーはこのエリアに絶対配置される -->
                     </div>
                     <div class="shiko-animation-container" id="shikoAnimationContainer">
-                        <img src="images/竿.png" alt="竿" id="saoImage" class="sao-image">
-                        <img src="images/しこしこ.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
+                        <!-- ★★★ 日本語ファイル名を変更した場合の例 ★★★ -->
+                        <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
+                        <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
                     </div>
                 </div>
 
-                <!-- 操作ボタンエリア -->
                 <div class="game-controls-area" id="shikoshikoControlsArea">
                     <button id="shikoshikoStartButton" class="action-button primary">開始</button>
                     <button id="shikoshikoFinishButton" class="action-button secondary" style="display: none;">フィニッシュ</button>
@@ -98,7 +93,6 @@
             </div>
         </section>
 
-        <!-- カウンターセクション -->
         <section id="counterSection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>回数カウンター</h2>
@@ -107,13 +101,11 @@
                     <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
                 </div>
                 <div class="counter-grid" id="counterGrid">
-                    <!-- js/modes/counter.js でメンバー毎のカウンターアイテムを生成 -->
                     <p class="loading-message">カウンター読み込み中...</p>
                 </div>
             </div>
         </section>
 
-        <!-- ギャラリーセクション -->
         <section id="gallerySection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>ギャラリー</h2>
@@ -121,7 +113,6 @@
                     <label for="galleryMemberFilter">メンバー:</label>
                     <select id="galleryMemberFilter">
                         <option value="all">全員</option>
-                        <!-- js/modes/gallery.js または ui/components.js でメンバーオプションを生成 -->
                     </select>
                     <label for="galleryTypeFilter">タイプ:</label>
                     <select id="galleryTypeFilter">
@@ -136,7 +127,6 @@
                     <button id="galleryRefreshButton" class="action-button small">更新</button>
                 </div>
                 <div id="galleryGrid" class="gallery-grid">
-                    <!-- js/modes/gallery.js で画像アイテムを生成 -->
                     <p class="loading-message gallery-loading">ギャラリーを読み込み中...</p>
                 </div>
             </div>
@@ -148,29 +138,17 @@
         <p>© ONSP Project 2024</p>
     </footer>
 
-    <!-- JavaScriptファイル読み込み (順番重要) -->
-    <!-- 外部ライブラリ (もしあれば) -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script> -->
-
-    <!-- 設定ファイル -->
     <script src="config.js"></script>
-    <!-- <script src="config_secret.js"></script> --> <!-- APIキーなど秘密情報はHTML直書きせず、環境変数などで管理推奨 -->
-
-    <!-- ユーティリティ & サービス -->
     <script src="js/utils/helpers.js"></script>
     <script src="js/services/storage.js"></script>
-
-    <!-- UI関連 -->
     <script src="js/ui/dom_utils.js"></script>
     <script src="js/ui/components.js"></script>
-
-    <!-- 各モードのロジック -->
     <script src="js/modes/shikoshiko.js"></script>
     <script src="js/modes/counter.js"></script>
     <script src="js/modes/gallery.js"></script>
-
-    <!-- アプリケーションメイン -->
     <script src="js/app.js"></script>
+</body>
+</html>
 
 </body>
 </html>
