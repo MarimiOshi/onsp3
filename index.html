@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> <!-- user-scalable=no を追加 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ONSP Project</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/placeholder.png">
@@ -13,52 +13,59 @@
 
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
-            <div class="mode-content-wrapper shikoshiko-tiktok-ui">
-                <!-- 左サイドのTikTok風情報エリア -->
-                <div class="tiktok-left-panel">
-                    <div class="tiktok-profile-icon-container">
-                        <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="tiktok-profile-icon">
+            <!-- mode-content-wrapper は削除し、直接 shikoshiko-tiktok-ui でレイアウト -->
+            <div class="shikoshiko-tiktok-ui">
+
+                <!-- 上部コンテンツエリア (画像、サイドパネル、設定ボタン) -->
+                <div class="tiktok-upper-content">
+                    <div class="tiktok-left-panel">
+                        <div class="tiktok-profile-icon-container">
+                            <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="tiktok-profile-icon">
+                        </div>
+                        <button class="tiktok-action-button tiktok-weak-point-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="">
+                            <span class="tiktok-icon">☆</span>
+                            <span class="tiktok-count" id="shikoshikoWeakPointCount"></span>
+                        </button>
                     </div>
-                    <button class="tiktok-action-button tiktok-weak-point-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="">
-                        <span class="tiktok-icon">☆</span> <!-- ☆ or ★ -->
-                        <span class="tiktok-count" id="shikoshikoWeakPointCount"></span> <!-- 将来的に弱点登録数など？ -->
-                    </button>
-                    <!-- 他のTikTok風アクションボタン（コメント、シェアなど）は今回は省略 -->
+
+                    <div class="member-image-container tiktok-image-main" id="shikoshikoMemberImageContainer">
+                        <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
+                        <!-- 貼り付けられたステッカー -->
+                    </div>
+
+                    <div class="shiko-animation-container tiktok-shiko-animation" id="shikoAnimationContainer">
+                        <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
+                        <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
+                    </div>
+
+                    <button class="tiktok-settings-button" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
 
-                <!-- メイン画像表示エリア (スワイプ可能にする) -->
-                <div class="member-image-container tiktok-image-main" id="shikoshikoMemberImageContainer">
-                    <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                    <!-- 貼り付けられたステッカー -->
+                <!-- 下部コンテンツエリア (情報、コントロール、タブナビ) -->
+                <div class="tiktok-lower-content">
+                    <div class="tiktok-bottom-info">
+                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
+                        <p id="shikoshikoMemberQuote" class="member-quote tiktok-quote">ここにセリフが表示されます</p>
+                    </div>
+
+                    <div class="game-controls-area-sticky-footer shikoshiko-footer-controls" id="shikoshikoControlsArea">
+                        <button id="shikoshikoSkipButton" class="action-button secondary fixed-left" style="display: none;">スキップ</button>
+                        <button id="shikoshikoStartButton" class="action-button primary main-action">開始</button>
+                        <button id="shikoshikoFinishButton" class="action-button primary fixed-right" style="display: none;">フィニッシュ</button>
+                    </div>
+
+                    <nav id="tabNavigation" class="tab-container-bottom-fixed"> <!-- タブナビをここへ移動 -->
+                        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
+                        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
+                        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
+                    </nav>
                 </div>
-
-                <!-- 下部の情報とアニメーションエリア -->
-                <div class="tiktok-bottom-info">
-                    <!-- メンバー名は削除 -->
-                    <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
-                    <p id="shikoshikoMemberQuote" class="member-quote tiktok-quote">ここにセリフが表示されます</p>
-                </div>
-
-                <div class="shiko-animation-container tiktok-shiko-animation" id="shikoAnimationContainer">
-                    <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
-                    <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
-                </div>
-
-                <!-- 設定ボタン (モーダルを開く) -->
-                <button class="tiktok-settings-button" id="openShikoshikoSettingsModal">⚙️</button>
-
-            </div>
-            <!-- 操作ボタンエリア (スマホでは下部固定) -->
-            <div class="game-controls-area-sticky-footer shikoshiko-footer-controls" id="shikoshikoControlsArea">
-                <button id="shikoshikoSkipButton" class="action-button secondary fixed-left" style="display: none;">スキップ</button>
-                <button id="shikoshikoStartButton" class="action-button primary main-action">開始</button>
-                <button id="shikoshikoFinishButton" class="action-button primary fixed-right" style="display: none;">フィニッシュ</button>
             </div>
         </section>
 
         <!-- カウンターセクション -->
         <section id="counterSection" class="mode-section" style="display:none;">
-            <div class="mode-content-wrapper">
+            <div class="mode-content-wrapper"> <!-- カウンターとギャラリーは従来の wrapper を使う -->
                 <h2>回数カウンター</h2>
                 <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
                 <div class="counter-controls">
@@ -135,14 +142,7 @@
         </div>
     </div>
 
-
-    <!-- タブナビゲーション (画面下部に固定) -->
-    <nav id="tabNavigation" class="tab-container-bottom-fixed">
-        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
-        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
-    </nav>
-
+    <!-- JavaScriptファイル読み込み -->
     <script src="config.js"></script>
     <script src="js/utils/helpers.js"></script>
     <script src="js/services/storage.js"></script>
