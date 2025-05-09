@@ -1,1 +1,160 @@
+/* ================================================================== */
+/* counter-mode.css - カウンターモード専用スタイル                  */
+/* ================================================================== */
 
+.mode-section#counterSection { /* IDで特定 */
+    background-color: var(--default-main-bg);
+    color: var(--default-text-color);
+    padding: 20px;
+    overflow-y: auto;
+    /* 下部タブナビとの重なりを避ける (app-main-content側で対応済みなので不要かも) */
+    /* padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px); */
+    max-width: var(--standard-mode-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0; /* ページ全体なので角丸なし */
+    box-shadow: none;
+    position: relative; /* h2のabsolute配置の基準にならないように */
+    display: flex !important; /* .active の display:flex より優先度を上げる */
+    flex-direction: column;
+}
+
+.mode-section#counterSection h2 {
+    text-align: center;
+    color: var(--default-text-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--default-border-color);
+    padding-bottom:10px;
+    flex-shrink: 0;
+}
+
+#counterGrid { /* counterGrid自体がスクロール対象になるように */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 5px; /* グリッド自体の内側パディング */
+}
+
+.counter-instruction {
+    text-align: center;
+    color: #5a67d8; /* 少しアクセントのある色 */
+    margin-bottom: 15px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+.counter-controls {
+    text-align: right;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+.counter-mode-button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #cbd5e0;
+    background-color: #f1f5f9;
+    color: #4a5568;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.counter-mode-button:hover {
+    background-color: #e2e8f0;
+    border-color: #a0aec0;
+}
+.counter-mode-button.decrease-mode-active {
+    background-color: #fbd38d; /* 黄色系 */
+    color: #744210; /* 暗いオレンジ */
+    border-color: #f6ad55;
+    font-weight: 600;
+}
+
+.counter-grid { /* CSS Grid を使用 */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 12px; /* アイテム間の隙間 */
+    margin-top: 0; /* 上の要素とのマージンは counter-instruction などで確保 */
+}
+.counter-item {
+    border: 1px solid var(--default-border-color);
+    border-radius: 6px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    aspect-ratio: 1 / 1; /* 正方形を保つ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    user-select: none;
+    outline: none;
+    transition: transform 0.1s ease-out, box-shadow 0.2s;
+}
+.counter-item:focus-visible {
+    box-shadow: 0 0 0 2px var(--member-accent-color, var(--default-accent-color));
+}
+.counter-item:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+.counter-item.clicked {
+    transform: scale(0.97);
+    background-color: #f7fafc; /* 少し暗く */
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+.counter-item img {
+    width: 55%; /* 親要素に対する割合 */
+    height: auto;
+    max-width: 55px; /* 最大サイズ */
+    max-height: 55px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 6px;
+    border: 2px solid var(--member-accent-color, #cbd5e0); /* メンバーカラーを枠線に */
+    transition: border-color 0.3s;
+}
+.counter-item img.image-error {
+    border-color: red !important;
+    content: url(../images/placeholder.png); /* CSSのcontentはimgでは効かないのでJS側で */
+}
+.counter-item .counter-member-name {
+    font-weight: 500;
+    color: #4a5568; /* 少し濃いめのグレー */
+    font-size: 0.8rem;
+    line-height: 1.2;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 90%;
+}
+.counter-item .count-number {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--member-accent-color, var(--default-accent-color)); /* メンバーカラー */
+    margin-top: 3px;
+    line-height: 1;
+    transition: color 0.3s ease-in-out;
+}
+
+
+/* --- レスポンシブ対応 (カウンターモード) --- */
+@media (max-width: 768px) {
+    .mode-section#counterSection h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    .counter-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* スマホでは少し小さく */
+        gap: 8px;
+    }
+    .counter-item { padding: 8px 5px; }
+    .counter-item img { max-width: 40px; max-height: 40px; }
+    .counter-item .counter-member-name { font-size: 0.7rem; }
+    .counter-item .count-number { font-size: 1em; }
+}
