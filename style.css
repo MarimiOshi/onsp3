@@ -1,36 +1,40 @@
 /* ================================================================== */
-/* style.css - ONSP Project (New Layout Specified & Fixes)          */
+/* style.css - ONSP Project (Layout/Color/Nav Fixes)                */
 /* ================================================================== */
 
 :root {
-    --default-accent-color: #6c757d; --default-main-bg: #f0f2f5; --default-content-bg: #ffffff;
-    --default-text-color: #343a40; --default-border-color: #dee2e6;
-    --member-accent-color: var(--default-accent-color); --member-main-bg: var(--default-main-bg);
-    --member-content-bg: var(--default-content-bg); --member-text-color: var(--default-text-color);
+    --default-accent-color: #4a5568; /* 少し濃いグレー */
+    --default-main-bg: #edf2f7;      /* 薄いグレー (明るめ) */
+    --default-content-bg: #ffffff;   /* 白 */
+    --default-text-color: #2d3748;   /* 濃いグレー (文字) */
+    --default-border-color: #e2e8f0; /* 明るいボーダー */
+
+    --member-accent-color: var(--default-accent-color);
+    --member-main-bg: var(--default-main-bg);
+    --member-content-bg: var(--default-content-bg);
+    --member-text-color: var(--default-text-color);
     --member-button-text-color: #ffffff;
-    --pulse-duration: 2s; --pulse-brightness-factor: 1.3; --pulse-hue: 0; --pulse-sat: 0%; --pulse-light: 80%;
-    --member-accent-color-rgb: 108, 117, 125;
+
+    --pulse-duration: 2s; --pulse-brightness-factor: 1.15; /* 少し抑えめ */
+    --pulse-hue: 0; --pulse-sat: 0%; --pulse-light: 80%;
+    --member-accent-color-rgb: 74, 85, 104;
     --shiko-animation-duration: 1000ms;
 
-    /* Layout Colors from image */
-    --box1-bg-color: #4CAF50;  /* 緑 (しこしこモードのメイン背景) */
-    --serif-bg-color: #E53935; /* 赤 */
-    --anime-bg-color: #E53935; /* 赤 */
-    --box2-bg-color: #1E88E5;  /* 青 (しこしこモードのフッター背景) */
+    --global-bg-color: #1A202C; /* 全体背景はダークグレー */
+    --global-text-color: #E2E8F0; /* 全体文字色は明るいグレー */
+    --global-text-on-dark-bg: #E2E8F0;
+    --global-text-on-light-bg: #2D3748;
 
-    --global-bg-color: #000000; /* アプリ全体の背景 */
-    --global-text-color: #ffffff;
-    --global-text-on-light-bg: #000000; /* 明るい背景の上の文字 */
-
-    --bottom-nav-height: 50px; /* 下部タブナビの高さ */
-    --shiko-controls-height: 55px; /* しこしこ操作ボタンエリアの高さ */
+    --bottom-nav-height: 55px; /* 下部タブナビの高さ */
+    --shiko-controls-height: 60px;
+    --serif-anime-container-height: 90px;
 }
 
 html { height: 100%; box-sizing: border-box; }
 *, *:before, *:after { box-sizing: inherit; }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0; background-color: var(--global-bg-color); color: var(--global-text-color);
     line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     display: flex; flex-direction: column;
@@ -38,157 +42,165 @@ body {
 }
 
 /* スクロールバー */
-::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #222; }
-::-webkit-scrollbar-thumb { background-color: #555; border-radius: 2px; }
-body { scrollbar-width: thin; scrollbar-color: #555 #222; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #2D3748; }
+::-webkit-scrollbar-thumb { background-color: #4A5568; border-radius: 3px; }
+body { scrollbar-width: thin; scrollbar-color: #4A5568 #2D3748; }
 
-/* メインコンテンツエリア */
-.app-main-content { flex-grow: 1; width: 100%; height: 100%; overflow: hidden; position: relative; }
-
-.mode-section {
-    display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;
-    overflow: hidden;
-}
-.mode-section.active { display: flex; flex-direction: column; }
-
-
-/* --- しこしこモード 新レイアウト --- */
-.shikoshiko-layout-container {
-    width: 100%; height: 100%; display: flex; flex-direction: column;
-    color: var(--global-text-on-light-bg); /* BOX1, セリフ、アニメ背景が明るいため */
-}
-
-/* BOX1: 上部メインエリア */
-.shikoshiko-box1 {
-    flex-grow: 1; /* 利用可能な垂直スペースを最大限使用 */
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    background-color: var(--member-main-bg, var(--box1-bg-color)); /* メンバーカラーまたはデフォルト緑 */
-}
-.member-image-container.main-image-area {
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-}
-#shikoshikoMemberImage { max-width: 100%; max-height: 100%; object-fit: contain; }
-#shikoshikoMemberImage.image-error { content: url(images/placeholder.png); }
-
-.side-info-panel.left-panel {
-    position: absolute; left: 10px; bottom: 10px;
-    display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 20;
-    color: var(--global-text-color); /* 暗い背景に白文字 */
-}
-.profile-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.6); }
-.profile-icon { width: 100%; height: 100%; object-fit: cover; }
-.action-icon-button { background: none; border: none; color: var(--global-text-color); cursor: pointer; text-align: center; padding: 0; font-size: 24px; }
-.action-icon-button.weak-point-button .icon-display { color: rgba(255,255,255,0.8); } /* 通常は白っぽく */
-.action-icon-button.weak-point-button.is-weak .icon-display { color: #ffd700; } /* 弱点時は黄色 */
-
-.settings-button-右上 {
-    position: absolute; top: 10px; right: 10px; z-index: 30;
-    background: rgba(0,0,0,0.3); border: none; color: var(--global-text-color);
-    font-size: 1.5rem; padding: 5px 8px; border-radius: 50%; cursor: pointer;
-}
-
-/* セリフとアニメーションのコンテナ */
-.serif-animation-container {
-    flex-shrink: 0; display: flex; height: 90px; /* 高さを少し調整 */
-}
-.serif-area {
-    flex-grow: 1; background-color: var(--serif-bg-color); padding: 8px 12px; /* padding調整 */
-    display: flex; flex-direction: column; justify-content: center;
-    overflow: hidden; color: var(--global-text-on-dark-bg); /* 赤背景なので白文字 */
-}
-.image-tags-container { text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.image-tag-item { background-color: rgba(0,0,0,0.15); color: inherit; padding: 1px 4px; margin-right: 3px; border-radius: 3px;}
-.member-quote {
-    font-size: 1em; /* 少し小さく */ font-weight: 500; margin: 0; text-align: left;
-    max-height: 2.8em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    line-height: 1.4;
-}
-.animation-area {
-    flex-shrink: 0; width: 90px; height: 100%;
-    background-color: var(--anime-bg-color); position: relative;
-    display: flex; justify-content: center; align-items: center;
-}
-.sao-image, .shikoshiko-image { /* サイズ統一 */
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    width: 100%; height: 100%; object-fit: contain; /* 親要素に合わせてリサイズ */
-}
-.shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
-@keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
-.shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
-
-
-/* BOX2: 下部コントロールエリア */
-.shikoshiko-box2 {
-    flex-shrink: 0; background-color: var(--box2-bg-color); padding: 5px;
-    display: flex; flex-direction: column;
+/* グローバルな下部タブナビゲーション */
+.tab-navigation-global-footer {
+    display: flex; justify-content: space-around;
+    background-color: #2D3748; /* ダークグレー系 */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.25);
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--bottom-nav-height);
+    z-index: 1000; /* 最前面 */
     padding-bottom: env(safe-area-inset-bottom);
-    color: var(--global-text-on-dark-bg); /* 青背景なので白文字 */
 }
-.main-controls {
-    display: flex; justify-content: space-around; align-items: center;
-    height: var(--shiko-controls-height); /* 固定高さ */
-    padding: 0 5px; /* 左右少しパディング */
-}
-.control-button {
-    padding: 8px 12px; /* 少し小さく */ font-size: 0.85em; cursor: pointer;
-    background-color: rgba(255,255,255,0.15); color: inherit;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 4px;
-    font-weight: bold; text-align: center; flex-grow: 1; margin: 0 3px;
-    max-width: 30%; /* 3ボタン均等に */
-}
-.control-button:disabled { background-color: rgba(120,120,120,0.2); color: #888; cursor: not-allowed; }
-.control-button.skip-button {}
-.control-button.start-finish-button {}
-
-
-/* 下部タブナビゲーション (BOX2内) */
-.tab-navigation-area {
-    display: flex; justify-content: space-around; background-color: transparent;
-    height: var(--bottom-nav-height); border-top: 1px solid rgba(255,255,255,0.15);
-    margin-top: 5px; /* コントロールとの間隔 */
-}
-.tab-navigation-area .tab-button {
+.tab-navigation-global-footer .tab-button {
     padding: 0; border: none; background-color: transparent; cursor: pointer;
-    font-size: 0.75rem; color: rgba(255,255,255,0.6); border-top: 3px solid transparent;
+    font-size: 0.8rem; color: #A0AEC0; /* やや薄いグレー */
+    border-top: 3px solid transparent;
     transition: color 0.2s, border-top-color 0.3s ease-out;
     font-weight: 500; text-align: center; position: relative; user-select: none;
     flex-grow: 1; display: flex; align-items: center; justify-content: center;
 }
-.tab-navigation-area .tab-button:hover { color: #fff; }
-.tab-navigation-area .tab-button.active { color: var(--member-accent-color, #fff); font-weight: 700; }
-.tab-navigation-area .tab-button.active::before {
-    content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 3px;
-    background-color: var(--member-accent-color, #fff); border-radius: 0 0 1px 1px;
+.tab-navigation-global-footer .tab-button:hover { color: #E2E8F0; }
+.tab-navigation-global-footer .tab-button.active {
+    color: var(--member-accent-color, #E2E8F0); font-weight: 600;
+}
+.tab-navigation-global-footer .tab-button.active::before {
+    content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 3px;
+    background-color: var(--member-accent-color, #E2E8F0); border-radius: 0 0 1px 1px;
 }
 
+/* メインコンテンツエリア */
+.app-main-content {
+    flex-grow: 1; width: 100%;
+    /* 下部ナビゲーション分の高さを確保 */
+    height: calc(100% - var(--bottom-nav-height) - env(safe-area-inset-bottom));
+    overflow: hidden; position: relative;
+}
 
-/* ステッカー、背景エフェクト、モーダルは前回とほぼ同様 */
-/* ただし、モーダル内のテキスト色などは調整が必要な場合がある */
-.sticker-choice-container { /* ... */ } .sticker-choice-button { /* ... */ } .sticker-choice-img { /* ... */ } .pasted-sticker { /* ... */ } @keyframes sticker-float { /* ... */ }
+.mode-section {
+    display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    overflow: hidden;
+    background-color: var(--global-bg-color); /* デフォルトはアプリ背景と同じ */
+}
+.mode-section.active { display: flex; flex-direction: column; }
+
+/* --- しこしこモード 新レイアウト --- */
+.shikoshiko-layout-container {
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    color: var(--global-text-on-light-bg); /* 基本は明るい背景上の文字色 */
+}
+.shikoshiko-box1 {
+    flex-grow: 1; position: relative; display: flex;
+    align-items: center; justify-content: center; overflow: hidden;
+    background-color: var(--member-main-bg, var(--default-main-bg)); /* メンバーカラーまたはデフォルト */
+}
+.member-image-container.main-image-area { /* 変更なし */ }
+#shikoshikoMemberImage { /* 変更なし */ } #shikoshikoMemberImage.image-error { /* 変更なし */ }
+.side-info-panel.left-panel { /* 変更なし */ color: var(--global-text-on-dark-bg); } /* BOX1が明るい色の場合があるので調整 */
+.profile-icon-wrapper { /* 変更なし */ } .profile-icon { /* 変更なし */ }
+.action-icon-button { /* 変更なし */ color: var(--global-text-on-dark-bg); }
+.action-icon-button.weak-point-button .icon-display { color: rgba(255,255,255,0.7); }
+.action-icon-button.weak-point-button.is-weak .icon-display { color: #ffd700; }
+.settings-button-右上 { /* 変更なし */ background: rgba(0,0,0,0.3); color: var(--global-text-on-dark-bg); }
+
+.serif-animation-container {
+    flex-shrink: 0; display: flex; height: var(--serif-anime-container-height);
+    background-color: var(--member-content-bg, var(--default-content-bg)); /* セリフとアニメの共通背景 */
+    border-top: 1px solid var(--member-accent-color, var(--default-border-color));
+    border-bottom: 1px solid var(--member-accent-color, var(--default-border-color));
+}
+.serif-area {
+    flex-grow: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden; color: var(--member-text-color, var(--default-text-color));
+}
+.image-tags-container {
+    text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--member-text-color, var(--default-text-color)); /* メンバーカラー反映 */
+}
+.image-tag-item {
+    background-color: rgba(0,0,0,0.05); /* 背景が明るいので少し暗く */
+    color: inherit; padding: 1px 4px; margin-right: 3px; border-radius: 3px;
+}
+.member-quote {
+    font-size: 1em; font-weight: 500; margin: 0; text-align: left;
+    max-height: 3em; /* 約2行分を確保 */ overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.5; color: var(--member-text-color, var(--default-text-color));
+}
+.animation-area {
+    flex-shrink: 0; width: var(--serif-anime-container-height); /* 正方形に */
+    height: 100%; position: relative;
+    display: flex; justify-content: center; align-items: center;
+    /* background-color: var(--member-content-bg, var(--default-content-bg)); */ /* 親と同じ背景 */
+    border-left: 1px solid var(--member-accent-color, var(--default-border-color));
+}
+.sao-image, .shikoshiko-image { /* 変更なし */ }
+@keyframes shikoUpDown { /* 変更なし */ } .shikoshiko-image.play { /* 変更なし */ }
+
+.shikoshiko-box2-controls-only { /* 下部コントロールエリア (ボタンのみ) */
+    flex-shrink: 0;
+    background-color: var(--member-content-bg, var(--default-content-bg));
+    /* padding: 5px; */ /* main-controls でpadding */
+    color: var(--member-text-color, var(--default-text-color));
+}
+.main-controls {
+    display: flex; justify-content: space-around; align-items: center;
+    height: var(--shiko-controls-height); padding: 0 10px;
+}
+.control-button {
+    padding: 8px 15px; font-size: 0.9em; cursor: pointer;
+    background-color: var(--member-accent-color, var(--default-accent-color));
+    color: var(--member-button-text-color, #fff);
+    border: none; border-radius: 5px;
+    font-weight: 500; text-align: center; flex-grow: 1; margin: 0 4px;
+    max-width: 32%; /* 3ボタン用 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.control-button.skip-button { background-color: #6c757d; } /* グレー系 */
+.control-button.start-finish-button {}
+.control-button:disabled { background-color: #adb5bd; color: #6c757d; }
+
+
+/* モーダル、ステッカー、背景エフェクト、通知 */
+/* 色はデフォルト（明るいテーマ）に戻す */
+.modal { /* 変更なし */ }
+.modal-content { background-color: var(--default-content-bg); color: var(--default-text-color); border-color: var(--default-border-color); box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+.modal-close-button { color: #999; } .modal-close-button:hover { color: #333; }
+.modal-content h2 { color: var(--default-text-color); }
+.modal-body .setting-group { border-bottom-color: #eee; }
+.modal-body .setting-group h4 { color: #495057; } .modal-body label { color: #495057; }
+.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #fff; color: var(--default-text-color); border-color: #ccc; }
+.modal-body .slider-value { background-color: #f1f3f5; color: var(--default-text-color); }
+.modal-footer { border-top-color: #eee; }
+.sticker-choice-container { background-color: #f8f9fa; border-color: #eee;}
+.sticker-choice-button { border-color: #ced4da; background-color: #fff;}
+.sticker-choice-button.selected { box-shadow: 0 0 0 2px var(--member-accent-color, var(--default-accent-color));}
+.pasted-sticker { /* 変更なし */ } @keyframes sticker-float { /* 変更なし */ }
 body.shikoshiko-active:not(.no-pulse) { animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out; }
-@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.5+1)); } 100% { background-color: var(--member-main-bg); } }
+@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.15)-1)*.5+1)); } 100% { background-color: var(--member-main-bg); } }
 body.no-pulse { animation: none !important; }
-.modal { /* ... */ } .modal-content { /* ... */ background-color: #1c1c1e; /* さらに少し濃いダークグレー */ color: var(--global-text-color); border-color: #38383a;}
-.modal-close-button { /* ... */ } .modal-content h2 { /* ... */ }
-.modal-body .setting-group { border-bottom-color: #38383a; }
-.modal-body .setting-group h4 { color: #eee; } .modal-body label { color: #ddd; }
-.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #2a2a2e; color: #fff; border-color: #4a4a4f; }
-.modal-body .slider-value { background-color: #3a3a3e; color: #fff; }
-.modal-footer { border-top-color: #38383a; }
-.modal-footer .action-button {} .modal-sticker-choices { /* ... */ }
-
+.app-notification { /* 変更なし */ }
 
 /* --- カウンターモード、ギャラリーモード --- */
-.mode-section:not(#shikoshikoModeSection) { /* しこしこ以外は通常スタイル */
-    background-color: var(--default-content-bg); color: var(--default-text-color);
+.mode-section:not(#shikoshikoModeSection) {
+    background-color: var(--default-main-bg); /* 全体背景と同じに */
+    color: var(--default-text-color);
     padding: 15px; overflow-y: auto;
-    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 15px); /* 下部タブがしこしこ専用になったので、このpaddingは不要になるかも */
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 15px);
 }
-.mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 {
+.mode-section:not(#shikoshikoModeSection) .mode-content-wrapper {
+     background-color: var(--default-content-bg); /* コンテンツエリアは白背景 */
+     border-radius: 8px;
+     padding: 20px;
+     height: auto; /* 内容に応じて高さを可変に */
+     min-height: calc(100% - 40px); /* paddingを考慮 */
+}
+.mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 { /* タイトル */
     position: static; background-color: transparent; margin-bottom: 20px;
     border-bottom: 1px solid var(--default-border-color); padding-bottom:10px;
     color: var(--default-text-color);
@@ -201,14 +213,14 @@ body.no-pulse { animation: none !important; }
 .gallery-item-info { color: #495057; border-top-color: #eee; }
 .gallery-controls label, .gallery-controls select, .gallery-controls input { color: var(--default-text-color); background-color: #fff; border-color: #ccc; }
 
-.app-notification { /* 変更なし */ } .app-notification.notification-success { /* ... */ } .app-notification.notification-error { /* ... */ } .app-notification.notification-info { /* ... */ }
-
 
 /* --- レスポンシブ対応 --- */
 @media (max-width: 768px) {
-    /* .tab-navigation-area .tab-button { font-size: 0.7rem; } */ /* 全体で調整 */
-    .mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 { font-size: 1.1rem; padding: 10px 8px; }
-    #counterSection .mode-content-wrapper, #gallerySection .mode-content-wrapper { padding-top: 45px; }
+    .tab-navigation-global-footer .tab-button { font-size: 0.75rem; } /* 下部タブナビ */
+    .mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 { font-size: 1.1rem; }
+    .mode-section:not(#shikoshikoModeSection) { padding: 10px; padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 10px); }
+    .mode-section:not(#shikoshikoModeSection) .mode-content-wrapper { padding: 15px; }
+
 
     /* しこしこモード スマホ調整 */
     .side-info-panel.left-panel { left: 5px; bottom: 5px; gap: 10px; }
@@ -216,28 +228,26 @@ body.no-pulse { animation: none !important; }
     .action-icon-button { font-size: 20px; }
     .settings-button-右上 { font-size: 1.3rem; top: 8px; right: 8px; padding: 5px 8px; }
 
-    .serif-animation-container { height: 80px; } /* スマホでは少し低く */
+    .serif-animation-container { height: 80px; }
     .serif-area { padding: 6px 10px; }
-    .member-quote { font-size: 0.9em; max-height: 2.6em; line-height: 1.3; }
+    .member-quote { font-size: 0.9em; max-height: 2.8em; line-height: 1.3; }
     .image-tags-container { font-size: 0.6em; }
     .animation-area { width: 80px; }
 
-    .shikoshiko-box2 { padding: 3px; }
-    .main-controls { height: calc(var(--shiko-controls-height) - 5px); padding: 0 3px;}
-    .control-button { font-size: 0.8em; padding: 6px 10px; min-width: 60px; }
-    .tab-navigation-area { height: calc(var(--bottom-nav-height) - 5px); }
-    .tab-navigation-area .tab-button { font-size: 0.7rem; }
+    .shikoshiko-box2-controls-only {}
+    .main-controls { height: calc(var(--shiko-controls-height) - 5px); padding: 0 5px;}
+    .control-button { font-size: 0.8em; padding: 7px 10px; min-width: 0; /* flex-growで幅調整 */ }
 
+    /* モーダル、カウンター、ギャラリーは前回とほぼ同様 */
     .modal-content { width: 95%; margin: 5vh auto; padding: 15px; max-height: 85vh; overflow-y: auto;}
     .modal-body .setting-group { margin-bottom: 10px; }
     .modal-body .member-slider-item label { min-width: 60px; }
-
-    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: 5px; }
-    .counter-item { padding: 5px 3px; }
-    .counter-item img { max-width: 28px; max-height: 28px; }
-    .counter-item .counter-member-name { font-size: 0.55rem; }
-    .counter-item .count-number { font-size: 0.8em; }
-    .gallery-controls { gap: 6px; }
-    .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; }
-    .gallery-thumbnail { height: 70px; }
+    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; }
+    .counter-item { padding: 6px 4px; }
+    .counter-item img { max-width: 30px; max-height: 30px; }
+    .counter-item .counter-member-name { font-size: 0.6rem; }
+    .counter-item .count-number { font-size: 0.9em; }
+    .gallery-controls { gap: 8px; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
+    .gallery-thumbnail { height: 80px; }
 }
