@@ -2,17 +2,9 @@
 
 const App = {
     elements: {
-        tabNavigation: null,
-        tabButtons: [],
-        modeSections: [],
-        appContainer: null,
-        // headerTitle: null, // ヘッダー削除に伴い不要
+        tabNavigation: null, tabButtons: [], modeSections: [], appContainer: null,
     },
-    state: {
-        activeTab: '#shikoshikoModeSection',
-        currentThemeColor: null,
-        config: {},
-    },
+    state: { activeTab: '#shikoshikoModeSection', currentThemeColor: null, config: {}, },
     modules: { shikoshiko: null, counter: null, gallery: null, },
 
     init: function() {
@@ -34,23 +26,15 @@ const App = {
         this.CounterMode = typeof CounterMode !== 'undefined' ? CounterMode : this.logDependencyError("CounterMode");
         this.GalleryMode = typeof GalleryMode !== 'undefined' ? GalleryMode : this.logDependencyError("GalleryMode");
 
-        this.elements.tabNavigation = this.DOMUtils.qs('#tabNavigation'); // 上部と下部の両方に対応するため、ここでは汎用的に
-        if (this.elements.tabNavigation) { // 最初のタブナビゲーション（下部固定用）を取得
-            this.elements.tabNavigation = this.DOMUtils.qs('.tab-container-bottom-fixed');
-            if (this.elements.tabNavigation) {
-                 this.elements.tabButtons = this.DOMUtils.qsa('.tab-button', this.elements.tabNavigation);
-            } else {
-                 console.error("Bottom tab navigation ('.tab-container-bottom-fixed') not found.");
-                 this.elements.tabButtons = [];
-            }
+        this.elements.tabNavigation = this.DOMUtils.qs('.tab-container-bottom-fixed'); // 下部固定タブを参照
+        if (this.elements.tabNavigation) {
+            this.elements.tabButtons = this.DOMUtils.qsa('.tab-button', this.elements.tabNavigation);
         } else {
-            console.error("Initial tab navigation ('#tabNavigation') not found.");
+            console.error("Bottom tab navigation ('.tab-container-bottom-fixed') not found.");
             this.elements.tabButtons = [];
         }
-
         this.elements.modeSections = this.DOMUtils.qsa('.mode-section');
         this.elements.appContainer = this.DOMUtils.qs('body');
-        // this.elements.headerTitle = this.DOMUtils.qs('.app-header h1'); // 削除
 
         if (this.ShikoshikoMode && typeof this.ShikoshikoMode.init === 'function') {
             this.modules.shikoshiko = Object.create(this.ShikoshikoMode);
@@ -68,15 +52,18 @@ const App = {
             this.modules.shikoshiko.setCounterModeDependency(this.modules.counter);
         }
 
-        // しこしこモードの設定モーダル初期化
-        if (this.UIComponents && this.modules.shikoshiko) { // shikoshikoモジュールが存在することも確認
+        if (this.UIComponents && this.modules.shikoshiko) {
             this.UIComponents.setupModal(
-                '#shikoshikoSettingsModal',
-                '#openShikoshikoSettingsModal',
-                '#closeShikoshikoSettingsModal'
+                '#shikoshikoSettingsModal',      // モーダルのセレクタ
+                '#openShikoshikoSettingsModal',  // 開くボタンのセレクタ
+                '#closeShikoshikoSettingsModal', // 閉じるボタンのセレクタ
+                () => { // 保存ボタンが押されたときのコールバック
+                    if (this.modules.shikoshiko && typeof this.modules.shikoshiko.saveModalSettings === 'function') {
+                        this.modules.shikoshiko.saveModalSettings();
+                    }
+                }
             );
         }
-
 
         this.addEventListeners();
         this.switchToTab(this.state.activeTab);
@@ -84,10 +71,10 @@ const App = {
     },
 
     logDependencyError: function(dependencyName) { /* 前回と同様 */
-        console.error(`${dependencyName} not loaded or defined! Application might not work correctly.`); return null;
+        console.error(`${dependencyName} not loaded or defined! App might not work correctly.`); return null;
     },
 
-    addEventListeners: function() { /* 前回と同様だが、下部固定タブに対応 */
+    addEventListeners: function() { /* 前回と同様 */
         if (this.elements.tabButtons.length === 0) { console.warn("No tab buttons found to attach listeners."); return; }
         this.elements.tabButtons.forEach(button => {
             this.DOMUtils.on(button, 'click', (event) => {
@@ -99,7 +86,11 @@ const App = {
         this.DOMUtils.on(document, 'keydown', (event) => {
             const activeModuleName = this.getModuleNameFromId(this.state.activeTab);
             if (activeModuleName && this.modules[activeModuleName] && typeof this.modules[activeModuleName].handleGlobalKeydown === 'function') {
-                this.modules[activeModuleName].handleGlobalKeydown(event);
+                // モーダル表示中はグローバルキーダウンを無効化 (ESCはモーダル側で処理)
+                const modalVisible = this.modules.shikoshiko && this.modules.shikoshiko.elements.settingsModal && this.modules.shikoshiko.elements.settingsModal.style.display !== 'none';
+                if (!modalVisible) {
+                    this.modules[activeModuleName].handleGlobalKeydown(event);
+                }
             }
         });
     },
@@ -130,17 +121,15 @@ const App = {
         return baseName.charAt(0).toLowerCase() + baseName.slice(1);
     },
 
-    applyTheme: function(hexColor) { /* 前回と同様だが、headerTitle関連削除 */
+    applyTheme: function(hexColor) { /* 前回と同様 */
         if (!this.Utils || !this.DOMUtils || !this.elements.appContainer) { console.warn("Cannot apply theme: Missing deps or appContainer."); return; }
         const rootStyle = document.documentElement.style; this.state.currentThemeColor = hexColor;
         if (hexColor) {
             const hsl = this.Utils.hexToHsl(hexColor);
             if (hsl) {
                 const [h, s, l] = hsl; const rgb = this.Utils.hslToRgb(h,s,l);
-                const mainBgLightness = Math.min(97, l + (100 - l) * 0.85);
-                const contentBgLightness = Math.min(95, l + (100 - l) * 0.75);
-                const textLightness = Math.max(10, l * (l > 65 ? 0.2 : 0.4));
-                const buttonText = (l >= 60 && s > 10) ? '#000000' : '#ffffff';
+                const mainBgLightness = Math.min(97, l + (100 - l) * 0.85); const contentBgLightness = Math.min(95, l + (100 - l) * 0.75);
+                const textLightness = Math.max(10, l * (l > 65 ? 0.2 : 0.4)); const buttonText = (l >= 60 && s > 10) ? '#000000' : '#ffffff';
                 rootStyle.setProperty('--member-accent-color', hexColor);
                 rootStyle.setProperty('--member-main-bg', this.Utils.hslToCssString(h, s * 0.25, mainBgLightness));
                 rootStyle.setProperty('--member-content-bg', this.Utils.hslToCssString(h, s * 0.40, contentBgLightness));
