@@ -1,370 +1,292 @@
 /* ================================================================== */
-/* style.css - ONSP Project (Refactored for 3 Modes - Time Removed) */
+/* style.css - ONSP Project (TikTok UI Base & Fixes)                */
 /* ================================================================== */
 
-/* --- 基本設定・変数 --- */
 :root {
-    --default-accent-color: #6c757d;
-    --default-main-bg: #f0f2f5;
-    --default-content-bg: #ffffff;
-    --default-text-color: #343a40;
-    --default-border-color: #dee2e6;
-
-    --member-accent-color: var(--default-accent-color);
-    --member-main-bg: var(--default-main-bg);
-    --member-content-bg: var(--default-content-bg);
-    --member-text-color: var(--default-text-color);
+    --default-accent-color: #6c757d; --default-main-bg: #f0f2f5; --default-content-bg: #ffffff;
+    --default-text-color: #343a40; --default-border-color: #dee2e6;
+    --member-accent-color: var(--default-accent-color); --member-main-bg: var(--default-main-bg);
+    --member-content-bg: var(--default-content-bg); --member-text-color: var(--default-text-color);
     --member-button-text-color: #ffffff;
-
-    --pulse-duration: 2s;
-    --pulse-brightness-factor: 1.3;
-    --pulse-hue: 0;
-    --pulse-sat: 0%;
-    --pulse-light: 80%;
+    --pulse-duration: 2s; --pulse-brightness-factor: 1.3; --pulse-hue: 0; --pulse-sat: 0%; --pulse-light: 80%;
     --member-accent-color-rgb: 108, 117, 125;
-
     --shiko-animation-duration: 1000ms;
+
+    /* TikTok風UI用 */
+    --tiktok-bg-color: #000; /* TikTokは黒背景が多い */
+    --tiktok-text-color: #fff;
+    --tiktok-icon-size: 30px;
+    --tiktok-bottom-nav-height: 50px; /* 下部タブナビの高さ */
+    --tiktok-footer-controls-height: 70px; /* しこしこモード下部固定ボタンの高さ */
 }
 
-html {
-    height: 100%;
-    box-sizing: border-box;
-}
-
-*, *:before, *:after {
-    box-sizing: inherit;
-}
+html { height: 100%; box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
 
 body {
     font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', Meiryo, sans-serif;
     margin: 0;
-    background-color: var(--default-main-bg);
-    color: var(--default-text-color);
+    background-color: var(--tiktok-bg-color); /* 基本背景をTikTok風に */
+    color: var(--tiktok-text-color); /* 基本文字色 */
     line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    transition: background-color 0.3s ease-in-out;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    display: flex; flex-direction: column;
+    height: 100vh; /* スマホで全画面表示のため */
+    height: 100svh; /* iOS Safariのバーを考慮したviewport height */
+    overflow: hidden; /* スマホでの縦スクロール禁止 */
+    position: relative; /* モーダルなどの基準 */
 }
 
-/* --- スクロールバー --- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f3f5; border-radius: 4px; }
-::-webkit-scrollbar-thumb { background-color: #adb5bd; border-radius: 4px; border: 2px solid #f1f3f5; }
-::-webkit-scrollbar-thumb:hover { background-color: #868e96; }
-body { scrollbar-width: thin; scrollbar-color: #adb5bd #f1f3f5; }
+/* --- スクロールバー (PC用、スマホではほぼ見えない) --- */
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #333; }
+::-webkit-scrollbar-thumb { background-color: #666; border-radius: 3px; }
+body { scrollbar-width: thin; scrollbar-color: #666 #333; }
 
-/* --- タブナビゲーション --- */
-.tab-container {
-    display: flex;
-    justify-content: center;
-    border-bottom: 1px solid var(--default-border-color);
-    background-color: var(--default-content-bg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px; /* メインコンテンツとの間にマージン */
-    position: sticky; /* 上部固定にする場合 */
-    top: 0;
+/* --- タブナビゲーション (下部固定に変更) --- */
+.tab-container-bottom-fixed {
+    display: flex; justify-content: space-around;
+    background-color: rgba(0, 0, 0, 0.85); /* 半透明黒 */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--tiktok-bottom-nav-height);
     z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* iPhoneノッチ対応 */
 }
-
-.tab-button {
-    padding: 12px 18px;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    font-size: 1rem;
-    color: #495057;
-    border-bottom: 3px solid transparent;
-    transition: background-color 0.2s, color 0.2s, border-bottom-color 0.3s ease-out;
-    outline: none;
-    font-weight: 500;
-    text-align: center;
-    position: relative;
-    user-select: none;
-    flex-grow: 1; /* タブボタンが均等に幅を占めるように */
-    max-width: 200px; /* 広がりすぎ防止 */
+.tab-container-bottom-fixed .tab-button {
+    padding: 0; /* 上下paddingは高さで制御 */
+    border: none; background-color: transparent; cursor: pointer;
+    font-size: 0.8rem; color: #aaa; /* やや暗めの文字色 */
+    border-top: 3px solid transparent; /* アクティブインジケータを上に */
+    transition: color 0.2s, border-top-color 0.3s ease-out;
+    font-weight: 500; text-align: center; position: relative; user-select: none;
+    flex-grow: 1; display: flex; align-items: center; justify-content: center;
 }
-
-.tab-button:hover {
-    background-color: #f8f9fa;
-}
-
-.tab-button.active {
-    color: var(--member-accent-color, var(--default-accent-color));
+.tab-container-bottom-fixed .tab-button:hover { color: #fff; }
+.tab-container-bottom-fixed .tab-button.active {
+    color: var(--member-accent-color, #fff); /* アクティブ時はメンバーカラー or 白 */
     font-weight: 700;
 }
-.tab-button.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 15%;
-    right: 15%;
-    height: 3px;
-    background-color: var(--member-accent-color, var(--default-accent-color));
-    border-radius: 2px;
+.tab-container-bottom-fixed .tab-button.active::before { /* インジケータを上に変更 */
+    content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 3px;
+    background-color: var(--member-accent-color, #fff);
+    border-radius: 0 0 2px 2px;
     transition: background-color 0.3s ease-in-out;
 }
+
 
 /* --- メインコンテンツエリア --- */
 .app-main-content {
     flex-grow: 1;
-    padding: 20px;
-    max-width: 700px;
+    /* padding: 0; 全画面表示のためpadding削除 */
     width: 100%;
-    margin: 0 auto;
-    /* margin-top: 60px; タブコンテナがstickyなら必要に応じて調整 */
+    height: calc(100% - var(--tiktok-bottom-nav-height) - env(safe-area-inset-bottom)); /* 下部ナビ分高さを引く */
+    overflow-y: auto; /* モード内容がはみ出る場合はスクロール可能に (基本はさせない) */
+    position: relative; /* 各モードセクションの基準 */
 }
 
 .mode-section {
     display: none;
-    background-color: var(--default-content-bg);
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+    background-color: var(--tiktok-bg-color); /* モード背景もTikTok風に */
+    /* padding: 15px; 全画面なのでpadding調整 */
+    width: 100%;
+    height: 100%; /* 親の高さ一杯に広がる */
+    position: absolute; /* 重ねて表示 */
+    top: 0; left: 0;
+    overflow-y: auto; /* モード内のコンテンツがはみ出る場合のスクロール */
 }
-.mode-section.active {
-    display: block;
-}
-.mode-content-wrapper {
-    /* 必要に応じてスタイル追加 */
-}
-.mode-section h2 {
-    text-align: center;
-    color: var(--member-text-color, var(--default-text-color));
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 1.6rem;
-    font-weight: 600;
+.mode-section.active { display: block; }
+.mode-content-wrapper { height: 100%; display: flex; flex-direction: column; }
+/* モードごとのタイトルはTikTok風UIでは画面上部に固定表示など工夫が必要。今回はシンプルに。*/
+.mode-section > .mode-content-wrapper > h2 {
+    color: var(--tiktok-text-color); text-align: center; font-size: 1.2rem;
+    padding: 10px; background-color: rgba(0,0,0,0.5); margin:0; position: absolute; top:0; left:0; right:0; z-index: 10;
 }
 
-/* --- 共通UIコンポーネント --- */
+/* --- 共通UIコンポーネント (TikTok風に調整) --- */
 .action-button {
-    padding: 10px 20px; font-size: 1em; cursor: pointer;
-    background-color: var(--member-accent-color, var(--default-accent-color));
-    color: var(--member-button-text-color, #fff);
-    border: none; border-radius: 6px;
-    transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
-    margin: 5px; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    user-select: none;
+    padding: 8px 15px; font-size: 0.9em; cursor: pointer;
+    background-color: var(--member-accent-color, #f8f9fa); /* 背景はメンバーカラーか明るめ */
+    color: var(--member-button-text-color, var(--tiktok-bg-color)); /* 文字色は背景に応じて */
+    border: 1px solid rgba(255,255,255,0.2); /* 境界を少し出す */
+    border-radius: 4px; transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
+    margin: 5px; font-weight: bold; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); user-select: none;
 }
-.action-button:disabled {
-    background-color: #ced4da; color: #6c757d; cursor: not-allowed;
-    opacity: 0.7; box-shadow: none;
+/* 他のボタン状態も同様に調整 */
+
+/* --- しこしこモード (TikTok風UI) --- */
+.shikoshiko-tiktok-ui {
+    height: 100%; width: 100%;
+    position: relative; /* 子要素のabsolute配置の基準 */
+    display: flex; /* 基本は使わないが、念のため */
+    overflow: hidden; /* はみ出し防止 */
+    background-color: var(--member-main-bg, var(--tiktok-bg-color)); /* メンバーカラー背景 */
 }
-.action-button:not(:disabled):hover { opacity: 0.88; }
-.action-button:not(:disabled):active { opacity: 0.75; transform: scale(0.98); }
-.action-button.primary {}
-.action-button.secondary { background-color: #6c757d; color: #fff; }
-.action-button.secondary:hover:not(:disabled) { background-color: #5a6268; opacity: 1; }
-.action-button.small { font-size: 0.9rem; padding: 8px 15px; }
-
-.icon-button {
-    background: none; border: none; cursor: pointer; font-size: 1.2em;
-    padding: 5px; line-height: 1; color: #adb5bd;
-    transition: color 0.2s, background-color 0.2s;
-    border-radius: 50%; user-select: none;
+/* 左サイドパネル (プロフィールアイコン、いいね等) */
+.tiktok-left-panel {
+    position: absolute;
+    left: 10px;
+    bottom: calc(var(--tiktok-footer-controls-height) + 20px + env(safe-area-inset-bottom)); /* フッターコントロールの上 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 20;
 }
-.icon-button:hover { background-color: #f0f0f0; }
+.tiktok-profile-icon-container { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.7); }
+.tiktok-profile-icon { width: 100%; height: 100%; object-fit: cover; }
+.tiktok-action-button { background: none; border: none; color: var(--tiktok-text-color); cursor: pointer; text-align: center; }
+.tiktok-action-button .tiktok-icon { font-size: var(--tiktok-icon-size); display: block; }
+.tiktok-action-button .tiktok-count { font-size: 0.7rem; display: block; margin-top: 2px; }
+.tiktok-weak-point-button .tiktok-icon { /* ☆ or ★ */ transition: color 0.2s, transform 0.2s; }
+.tiktok-weak-point-button.is-weak .tiktok-icon { color: #ffeb3b; /* 黄色 */ transform: scale(1.2); }
 
-.loading-message { text-align: center; color: #6c757d; padding: 40px 0; font-style: italic; }
-
-.settings-panel { margin-bottom: 20px; border: 1px solid var(--default-border-color); border-radius: 6px; background-color: var(--default-content-bg); overflow: hidden; }
-.accordion-toggle {
-    display: block; width: 100%; background-color: #f8f9fa; border: none;
-    border-bottom: 1px solid var(--default-border-color); padding: 12px 18px; text-align: left;
-    font-size: 1rem; font-weight: 500; cursor: pointer; position: relative; color: #495057; user-select: none;
+/* メイン画像表示エリア */
+.member-image-container.tiktok-image-main {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; /* ステッカー用 */
+    margin: 0; /* リセット */
 }
-.accordion-toggle:hover { background-color: #f1f3f5; }
-.accordion-toggle.active { border-bottom-color: transparent; }
-.accordion-toggle .toggle-icon {
-    position: absolute; right: 18px; top: 50%; transform: translateY(-50%) rotate(0deg);
-    transition: transform 0.3s ease-in-out; font-size: 1.2em; color: #6c757d;
-}
-.accordion-toggle.active .toggle-icon { transform: translateY(-50%) rotate(180deg); }
-.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; background-color: var(--default-content-bg); padding: 0 18px; }
-.accordion-content.open { max-height: 800px; overflow-y: auto; padding: 18px; border-top: 1px solid var(--default-border-color); }
-
-.setting-group { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px dashed #eee; }
-.setting-group:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-.setting-group h4 { font-size: 1rem; font-weight: 500; margin-top: 0; margin-bottom: 12px; color: #495057; }
-.slider-container.member-sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-.member-slider-item, .effect-slider-item, .bpm-setting { display: flex; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-.member-slider-item label, .effect-slider-item label, .bpm-setting label { min-width: 60px; font-size: 0.9rem; margin-right: 10px; color: #495057; text-align: right; }
-.bpm-setting input[type="number"] { width: 70px; padding: 5px; border: 1px solid var(--default-border-color); border-radius: 4px; }
-input[type=range] { flex-grow: 1; min-width: 120px; cursor: pointer; height: 6px; background: #e9ecef; border-radius: 3px; outline: none; -webkit-appearance: none; appearance: none; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: var(--member-accent-color, var(--default-accent-color)); border-radius: 50%; cursor: pointer; border: none; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease-in-out; }
-input[type=range]::-moz-range-thumb { width: 16px; height: 16px; background: var(--member-accent-color, var(--default-accent-color)); border-radius: 50%; cursor: pointer; border: none; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease-in-out; }
-.slider-value { font-weight: bold; margin-left: 12px; min-width: 20px; text-align: right; color: var(--default-text-color); font-size: 0.9em; background-color: #f1f3f5; padding: 2px 6px; border-radius: 4px; }
-.selection-note { font-size: 0.85rem; color: #6c757d; margin-top: 5px; margin-bottom: 0; }
-
-/* --- しこしこモード特有のスタイル --- */
-#shikoshikoModeSection { background-color: var(--member-main-bg, var(--default-main-bg)); }
-#shikoshikoModeSection h2 { color: var(--default-text-color); }
-.game-display-area { background-color: var(--member-content-bg, var(--default-content-bg)); padding: 20px; border-radius: 8px; border: 1px solid var(--default-border-color); text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; }
-.game-header { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; }
-#shikoshikoMemberName { color: var(--member-text-color, var(--default-text-color)); margin: 0; font-size: 1.8em; font-weight: bold; }
-.weak-point-toggle.is-weak { color: #fcc419; font-weight: bold; }
-.member-image-container { margin-bottom: 10px; position: relative; }
 #shikoshikoMemberImage {
-    display: block; margin: 0 auto; max-width: 90%; height: auto; max-height: 50vh;
-    border-radius: 8px; border: 4px solid var(--member-accent-color, #ddd);
-    object-fit: contain; background-color: #f0f0f0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s ease-in-out;
-}
-#shikoshikoMemberImage.image-error { border-color: red !important; content: url(images/placeholder.png); object-fit: contain; }
-
-.image-tags-container { margin-top: -5px; margin-bottom: 10px; text-align: center; min-height: 1em; }
-.image-tag-item {
-    display: inline-block; background-color: rgba(0, 0, 0, .05); color: var(--member-text-color, var(--default-text-color));
-    padding: 2px 7px; border-radius: 10px; font-size: .7em; margin: 2px 3px; opacity: .7;
-}
-.member-quote {
-    color: var(--member-text-color, var(--default-text-color)); font-style: italic; font-size: 1.1em;
-    margin-bottom: 15px; min-height: 1.2em; text-align: center;
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; /* 画像がコンテナに収まるように */
+    border: none; /* TikTok風では枠線なしが多い */
+    box-shadow: none;
 }
 
-.shiko-animation-container { position: relative; width: 150px; height: 150px; margin: 0 auto; overflow: hidden; }
-.sao-image { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50px; height: auto; z-index: 1; }
-.shikoshiko-image { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: auto; z-index: 2; }
-@keyframes shikoUpDown { 0% { transform: translate(-50%, 0px); } 50% { transform: translate(-50%, -20px); } 100% { transform: translate(-50%, 0px); } }
-.shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
+/* 下部情報エリア (ユーザー名、キャプション、音楽など) */
+.tiktok-bottom-info {
+    position: absolute;
+    bottom: calc(var(--tiktok-footer-controls-height) + 10px + env(safe-area-inset-bottom)); /* フッターコントロールの上 */
+    left: 10px; right: 10px; /* 左右マージン */
+    color: var(--tiktok-text-color);
+    z-index: 20;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 文字の視認性向上 */
+}
+.member-quote.tiktok-quote { font-size: 0.9rem; font-style: normal; margin-bottom: 5px; text-align: left; }
+.image-tags-container { margin-bottom: 5px; text-align: left; }
+.image-tag-item { background-color: rgba(255,255,255,0.15); color: var(--tiktok-text-color); font-size: .65em; padding: 2px 5px; }
 
-.game-controls-area-sticky-footer { text-align: center; margin-top: 20px; padding-bottom: env(safe-area-inset-bottom); }
-.game-controls-area-sticky-footer .action-button.main-action { /* スタートボタンなど中央に配置するボタン */
-    /* 他のボタンと区別する場合のスタイル */
+/* しこしこアニメーション (TikTok風では右下などに小さく表示も) */
+.shiko-animation-container.tiktok-shiko-animation {
+    position: absolute;
+    right: 10px;
+    bottom: calc(var(--tiktok-footer-controls-height) + 20px + env(safe-area-inset-bottom));
+    width: 80px; height: 80px; /* サイズを小さく */
+    z-index: 20;
+    /* background-color: rgba(0,0,0,0.3); border-radius: 50%; */ /* 円形背景など */
+}
+.sao-image, .shikoshiko-image { /* サイズ統一 */
+    width: 100%; height: 100%;
+    object-fit: contain; /* 元画像の比率を保ちつつフィット */
+}
+.shikoshiko-image { bottom: 0; /* 位置調整 */ }
+
+
+/* 設定ボタン */
+.tiktok-settings-button {
+    position: absolute; top: 15px; right: 15px; z-index: 30;
+    background: rgba(0,0,0,0.3); border: none; color: var(--tiktok-text-color);
+    font-size: 1.5rem; padding: 5px 8px; border-radius: 50%; cursor: pointer;
 }
 
-
-/* ステッカー関連 */
-.sticker-choice-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border: 1px solid #eee; max-height: 150px; overflow-y: auto; margin-bottom: 10px; }
-.sticker-choice-button { width: 50px; height: 50px; padding: 5px; border: 1px solid #ced4da; background-color: #fff; border-radius: 4px; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.sticker-choice-button:hover { transform: scale(1.05); }
-.sticker-choice-button.selected { box-shadow: 0 0 0 3px var(--member-accent-color, var(--default-accent-color)); transform: scale(1.05); }
-.sticker-choice-img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
-.pasted-sticker { position: absolute; width: 80px; height: 80px; object-fit: contain; user-select: none; pointer-events: none; z-index: 10; animation: sticker-float 4s ease-in-out infinite alternate; transform-origin: center center; }
-@keyframes sticker-float { 0% { opacity: 0.7; transform: translate(-50%, -50%) translateY(-3px) rotate(-2deg); } 100% { opacity: 1.0; transform: translate(-50%, -50%) translateY(3px) rotate(2deg); } }
-
-/* 背景エフェクト */
-@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.7+1)); } 100% { background-color: var(--member-main-bg); } }
-body.shikoshiko-active:not(.no-pulse) { animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out; }
-body.no-pulse { animation: none !important; }
-
-/* --- カウンターモード特有のスタイル --- */
-.counter-instruction { text-align: center; color: #6c757d; margin-bottom: 20px; }
-.counter-controls { text-align: right; margin-bottom: 18px; }
-.counter-mode-button { padding: 7px 15px; border-radius: 5px; cursor: pointer; border: 1px solid #adb5bd; background-color: #f8f9fa; color: #495057; font-size: 0.9rem; transition: background-color 0.2s, color 0.2s, border-color 0.2s; user-select: none; }
-.counter-mode-button:hover { background-color: #e9ecef; border-color: #6c757d; }
-.counter-mode-button.decrease-mode-active { background-color: #ffdd57; color: #363636; border-color: #ffcc00; font-weight: 600; }
-.counter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px; margin-top: 20px; }
-.counter-item { border: 1px solid var(--default-border-color); border-radius: 8px; padding: 15px 10px; text-align: center; cursor: pointer; transition: transform 0.1s ease-out, background-color 0.2s, box-shadow 0.2s; background-color: var(--default-content-bg); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; outline: none; }
-.counter-item:focus-visible { box-shadow: 0 0 0 2px var(--member-accent-color, var(--default-accent-color)); }
-.counter-item:hover { background-color: #f8f9fa; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.07); transform: translateY(-2px); }
-.counter-item.clicked { transform: scale(0.96); background-color: #e9ecef; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
-.counter-item img { width: 60%; height: auto; max-width: 70px; max-height: 70px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 50%; margin-bottom: 8px; border: 3px solid var(--member-accent-color, #ced4da); transition: border-color 0.3s; pointer-events: none; }
-.counter-item img.image-error { border-color: red !important; content: url(images/placeholder.png); object-fit: cover; }
-.counter-item .counter-member-name { display: block; font-weight: 500; color: var(--member-text-color, var(--default-text-color)); font-size: 0.9rem; line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
-.counter-item .count-number { display: block; font-size: 1.4em; font-weight: bold; color: var(--member-accent-color, var(--default-accent-color)); margin-top: 4px; line-height: 1; transition: color 0.3s ease-in-out; }
-
-/* --- ギャラリーモード特有のスタイル --- */
-.gallery-controls { padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-.gallery-controls label { font-size: 0.9rem; color: #495057; margin-right: 5px; }
-.gallery-controls select, .gallery-controls input[type="checkbox"] { padding: 6px 8px; font-size: 0.9rem; border: 1px solid #ccc; border-radius: 4px; }
-.gallery-toggle-weak { display: flex; align-items: center; }
-.gallery-toggle-weak input[type="checkbox"] { margin-right: 5px; accent-color: var(--member-accent-color, var(--default-accent-color)); }
-#galleryRefreshButton { margin-left: auto; }
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-.gallery-item { border: 1px solid #eee; border-radius: 6px; overflow: hidden; background-color: #f8f9fa; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
-.gallery-thumbnail-link { display: block; }
-.gallery-thumbnail { width: 100%; height: 140px; object-fit: cover; display: block; cursor: pointer; transition: opacity 0.2s; }
-.gallery-thumbnail:hover { opacity: 0.85; }
-.gallery-item-info { padding: 8px; font-size: 0.8rem; text-align: center; color: #495057; border-top: 1px solid #eee; margin-top: auto; }
-.gallery-item-name { font-weight: bold; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gallery-item-path { font-size: 0.7rem; color: #adb5bd; word-break: break-all; }
-.gallery-item .weak-point-toggle { position: absolute; top: 5px; right: 5px; background-color: rgba(255, 255, 255, 0.7); width: 28px; height: 28px; font-size: 1rem; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-.gallery-item .weak-point-toggle.is-weak { color: #ffc107; background-color: rgba(255, 255, 255, 0.8); }
-
-/* 通知バーのスタイル */
-.app-notification {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    padding: 10px 20px; border-radius: 5px; color: #fff; font-size: 0.9em;
-    z-index: 9999; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    opacity: 1; transition: opacity 0.5s ease-out;
+/* しこしこモード下部固定コントロール */
+.game-controls-area-sticky-footer.shikoshiko-footer-controls {
+    position: fixed; bottom: var(--tiktok-bottom-nav-height); /* タブナビの上 */
+    left: 0; right: 0;
+    height: var(--tiktok-footer-controls-height);
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* 重複するが念のため */
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 100;
 }
-.app-notification.notification-success { background-color: #28a745; }
-.app-notification.notification-error { background-color: #dc3545; }
-.app-notification.notification-info { background-color: #17a2b8; }
+.shikoshiko-footer-controls .action-button { margin: 0; font-size: 0.9rem; flex-basis: 30%; text-align: center; }
+.shikoshiko-footer-controls .main-action { flex-basis: 38%; font-size: 1rem; } /* スタート/フィニッシュ */
+
+
+/* --- モーダル --- */
+.modal {
+    display: none; position: fixed; z-index: 2000; left: 0; top: 0;
+    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);
+    animation: modalFadeIn 0.3s ease-out;
+}
+@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-content {
+    background-color: var(--default-content-bg); color: var(--default-text-color); /* 通常の配色に戻す */
+    margin: 10% auto; padding: 20px; border: 1px solid #888;
+    width: 90%; max-width: 500px; border-radius: 8px; position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); animation: modalSlideIn 0.3s ease-out;
+}
+@keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-close-button {
+    color: #aaa; position: absolute; top: 10px; right: 15px;
+    font-size: 28px; font-weight: bold; cursor: pointer;
+}
+.modal-close-button:hover, .modal-close-button:focus { color: black; text-decoration: none; }
+.modal-content h2 { margin-top: 0; color: var(--default-text-color); text-align: center; }
+.modal-body .setting-group { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+.modal-body .setting-group:last-child { border-bottom: none; }
+.modal-footer { text-align: right; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
+.modal-sticker-choices { max-height: 120px; } /* モーダル内のステッカー選択肢の高さ */
+
+/* 背景エフェクト (メンバーカラー時) */
+body.shikoshiko-active:not(.no-pulse) {
+    /* TikTok風UIでは背景画像や動画がメインなので、背景色点滅は控えめにするか、別のエフェクトを検討 */
+    /* 例: animation: pulseBorder var(--pulse-duration, 2s) infinite ease-in-out; */
+}
+/* @keyframes pulseBorder { ... border-color をアニメーション ... } */
+
+/* --- カウンターモード、ギャラリーモード (TikTok風UIを適用するなら大幅な変更が必要) --- */
+/* 今回は既存のスタイルを維持しつつ、背景色と文字色のみ調整 */
+#counterSection .mode-content-wrapper > h2,
+#gallerySection .mode-content-wrapper > h2 {
+    position: static; /* 通常のh2に戻す */
+    background-color: transparent;
+    margin-bottom: 20px;
+}
+#counterSection, #gallerySection {
+    background-color: var(--default-content-bg); /* 通常の背景 */
+    color: var(--default-text-color); /* 通常の文字色 */
+    padding: 20px; /* 通常のpadding */
+}
+/* カウンター、ギャラリー内の各要素の色も必要に応じて調整 */
+.counter-item { background-color: #fff; }
+.gallery-item { background-color: #f8f9fa; }
 
 
 /* --- レスポンシブ対応 --- */
 @media (max-width: 768px) {
-    .tab-button { font-size: 0.9rem; padding: 10px 12px; }
-    .app-main-content { padding: 15px; }
-    .mode-section { padding: 15px; }
-    .mode-section h2 { font-size: 1.4rem; margin-bottom: 20px; }
+    .tab-container-bottom-fixed .tab-button { font-size: 0.7rem; }
+    .app-main-content { height: calc(100% - var(--tiktok-bottom-nav-height) - env(safe-area-inset-bottom)); }
+    .mode-section > .mode-content-wrapper > h2 { font-size: 1rem; padding: 8px; }
 
-    .member-slider-item, .effect-slider-item, .bpm-setting { flex-direction: column; align-items: stretch; }
-    .member-slider-item label, .effect-slider-item label, .bpm-setting label { width: 100%; text-align: left; margin-bottom: 5px; margin-right: 0; }
-    input[type=range] { width: 100%; margin-top: 0; }
-    .slider-value { margin-left: 0; margin-top: 5px; text-align: center; width: auto; align-self: flex-end; }
+    .shikoshiko-tiktok-ui { /* スマホではこれが常に適用される */ }
+    .tiktok-left-panel { left: 5px; bottom: calc(var(--tiktok-footer-controls-height) + 15px + env(safe-area-inset-bottom)); gap: 12px;}
+    .tiktok-profile-icon-container { width: 35px; height: 35px; }
+    .tiktok-action-button .tiktok-icon { font-size: calc(var(--tiktok-icon-size) * 0.8); }
+    .tiktok-action-button .tiktok-count { font-size: 0.6rem; }
+    .tiktok-bottom-info { left: 5px; right: 5px; bottom: calc(var(--tiktok-footer-controls-height) + 5px + env(safe-area-inset-bottom));}
+    .member-quote.tiktok-quote { font-size: 0.8rem; }
+    .image-tag-item { font-size: .6em; }
+    .shiko-animation-container.tiktok-shiko-animation { width: 70px; height: 70px; right: 5px; bottom: calc(var(--tiktok-footer-controls-height) + 15px + env(safe-area-inset-bottom));}
+    .tiktok-settings-button { font-size: 1.3rem; top: 10px; right: 10px; }
 
-    #shikoshikoMemberImage { max-height: 45vh; }
-    .shiko-animation-container { width: 120px; height: 120px; margin-bottom: 70px; /* 固定フッターとのスペース */ }
-    .sao-image { width: 40px; } .shikoshiko-image { width: 80px; }
-
-    .game-controls-area-sticky-footer {
-        position: fixed; bottom: 0; left: 0; right: 0;
-        background-color: rgba(255, 255, 255, 0.97); /* 少し濃く */
-        padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* ノッチ対応 */
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        display: flex; justify-content: space-between; /* 両端に配置 */
-        align-items: center; z-index: 100; margin-top: 0;
-    }
-    .game-controls-area-sticky-footer .action-button {
-        margin: 0;
-        padding: 10px 15px; /* 少し小さく */
-    }
-    .game-controls-area-sticky-footer .fixed-left {
-        /* スキップボタン (左端) */
-        margin-right: auto; /* 右側の要素を押し出す */
-    }
-    .game-controls-area-sticky-footer .main-action {
-        /* スタートボタン (中央) - これは削除 or 非表示制御 */
-        display: none; /* スマホではスキップとフィニッシュのみ */
-    }
-     #shikoshikoStartButton.main-action { /* スタートボタンはゲーム中でなければ表示 */
-        display: inline-block;
-        position: absolute; /* 中央に配置 */
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    #shikoshikoModeSection.game-running #shikoshikoStartButton.main-action {
-        display: none; /* ゲーム中は非表示 */
-    }
-    .game-controls-area-sticky-footer .fixed-right {
-        /* フィニッシュボタン (右端) */
-        margin-left: auto; /* 左側の要素を押し出す */
-    }
+    .game-controls-area-sticky-footer.shikoshiko-footer-controls { height: var(--tiktok-footer-controls-height); }
+    .shikoshiko-footer-controls .action-button { font-size: 0.8rem; padding: 8px 10px; }
+    .shikoshiko-footer-controls .main-action { font-size: 0.9rem; } /* スタート/フィニッシュ */
 
 
-    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; }
-    .counter-item { padding: 10px 5px; }
-    .counter-item img { max-width: 50px; max-height: 50px; }
-    .counter-item .counter-member-name { font-size: 0.8rem; }
-    .counter-item .count-number { font-size: 1.2em; }
+    .modal-content { width: 95%; margin: 5% auto; padding: 15px; }
+    .modal-body .setting-group { margin-bottom: 10px; }
 
-    .gallery-controls { flex-direction: column; align-items: stretch; gap: 10px; }
-    #galleryRefreshButton { margin-left: 0; }
-    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-    .gallery-thumbnail { height: 110px; }
-}
-
-@media (max-width: 480px) {
-    .tab-button { font-size: 0.8rem; padding: 8px 10px; }
-    .action-button { padding: 8px 15px; font-size: 0.9em; }
-    .action-button.small { padding: 6px 10px; font-size: 0.8rem; }
-    .setting-group h4 { font-size: 0.95rem; }
-    #shikoshikoMemberName { font-size: 1.5em; }
-    .member-quote { font-size: 1em; }
+    /* カウンター、ギャラリーのスマホ調整は前回同様 */
+    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
+    .counter-item { padding: 8px 5px; }
+    .counter-item img { max-width: 40px; max-height: 40px; }
+    .counter-item .counter-member-name { font-size: 0.7rem; }
+    .counter-item .count-number { font-size: 1.1em; }
+    .gallery-controls { flex-direction: column; align-items: stretch; gap: 8px; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .gallery-thumbnail { height: 100px; }
 }
