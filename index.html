@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONSP Project</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/placeholder.png"> <!-- 適切なファビコンへのパスを指定してください -->
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>ONSP Project (仮)</h1>
+        <nav id="tabNavigation" class="tab-container">
+            <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
+            <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
+            <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
+        </nav>
+    </header>
+
+    <main id="appContainer" class="app-main-content">
+
+        <!-- しこしこモード セクション -->
+        <section id="shikoshikoModeSection" class="mode-section active">
+            <div class="mode-content-wrapper">
+                <!-- 設定エリア (アコーディオン等で開閉) -->
+                <div class="settings-panel" id="shikoshikoSettingsPanel">
+                    <button class="accordion-toggle" id="shikoshikoSettingsToggle" aria-expanded="false">
+                        設定 <span class="toggle-icon">▼</span>
+                    </button>
+                    <div class="accordion-content" id="shikoshikoSettingsContent">
+                        <div class="setting-group">
+                            <h4>メンバー出現率</h4>
+                            <div class="slider-container member-sliders" id="shikoshikoMemberSliders">
+                                <!-- js/ui/components.js または shikoshiko.js でメンバー毎のスライダーを生成 -->
+                                <p>メンバー読み込み中...</p>
+                            </div>
+                            <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
+                        </div>
+                        <div class="setting-group">
+                            <h4>持続時間</h4>
+                            <div class="duration-settings">
+                                <label for="durationMinutes">分:</label>
+                                <input type="number" id="durationMinutes" min="0" max="59" value="0">
+                                <label for="durationSeconds">秒:</label>
+                                <input type="number" id="durationSeconds" min="0" max="59" value="30">
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h4>背景エフェクト</h4>
+                            <div class="effect-slider-item">
+                                <label for="pulseBrightnessSlider">明るさ:</label>
+                                <input type="range" id="pulseBrightnessSlider" min="0" max="5" step="1" value="3">
+                                <span class="slider-value" id="pulseBrightnessValue">3</span>
+                            </div>
+                        </div>
+                         <!-- ステッカー関連UI (残す場合) -->
+                        <div class="setting-group" id="shikoshikoStickerSettingsGroup" style="display:none;"> <!-- 初期非表示 or 条件で表示 -->
+                            <h4>ステッカー</h4>
+                            <div id="shikoshikoStickerChoiceContainer" class="sticker-choice-container">
+                                <p class="sticker-loading">ステッカー読込中...</p>
+                            </div>
+                            <button id="shikoshikoClearAllStickersButton" class="action-button small secondary">全ステッカー削除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ゲーム表示エリア -->
+                <div class="game-display-area" id="shikoshikoGameArea">
+                    <div class="game-header">
+                        <h2 id="shikoshikoMemberName">メンバー名</h2>
+                        <button class="weak-point-toggle icon-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="" style="display: none;">☆</button>
+                    </div>
+                    <div class="time-info">
+                        <div id="shikoshikoTimerDisplay">00:00</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-outer">
+                                <div class="progress-bar-inner" id="shikoshikoProgressBarInner" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="member-image-container" id="shikoshikoMemberImageContainer">
+                        <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
+                        <!-- 貼り付けられたステッカーはこのエリアに絶対配置される -->
+                    </div>
+                    <div class="shiko-animation-container" id="shikoAnimationContainer">
+                        <img src="images/竿.png" alt="竿" id="saoImage" class="sao-image">
+                        <img src="images/しこしこ.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
+                    </div>
+                </div>
+
+                <!-- 操作ボタンエリア -->
+                <div class="game-controls-area" id="shikoshikoControlsArea">
+                    <button id="shikoshikoStartButton" class="action-button primary">開始</button>
+                    <button id="shikoshikoFinishButton" class="action-button secondary" style="display: none;">フィニッシュ</button>
+                    <button id="shikoshikoSkipButton" class="action-button small" style="display: none;">スキップ (Space/Enter)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- カウンターセクション -->
+        <section id="counterSection" class="mode-section" style="display:none;">
+            <div class="mode-content-wrapper">
+                <h2>回数カウンター</h2>
+                <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
+                <div class="counter-controls">
+                    <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
+                </div>
+                <div class="counter-grid" id="counterGrid">
+                    <!-- js/modes/counter.js でメンバー毎のカウンターアイテムを生成 -->
+                    <p class="loading-message">カウンター読み込み中...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ギャラリーセクション -->
+        <section id="gallerySection" class="mode-section" style="display:none;">
+            <div class="mode-content-wrapper">
+                <h2>ギャラリー</h2>
+                <div class="gallery-controls">
+                    <label for="galleryMemberFilter">メンバー:</label>
+                    <select id="galleryMemberFilter">
+                        <option value="all">全員</option>
+                        <!-- js/modes/gallery.js または ui/components.js でメンバーオプションを生成 -->
+                    </select>
+                    <label for="galleryTypeFilter">タイプ:</label>
+                    <select id="galleryTypeFilter">
+                        <option value="all">すべて</option>
+                        <option value="ero">EROのみ</option>
+                        <option value="hutuu">通常のみ</option>
+                    </select>
+                    <div class="gallery-toggle-weak">
+                        <input type="checkbox" id="galleryWeakPointFilter">
+                        <label for="galleryWeakPointFilter">弱点画像のみ表示</label>
+                    </div>
+                    <button id="galleryRefreshButton" class="action-button small">更新</button>
+                </div>
+                <div id="galleryGrid" class="gallery-grid">
+                    <!-- js/modes/gallery.js で画像アイテムを生成 -->
+                    <p class="loading-message gallery-loading">ギャラリーを読み込み中...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="app-footer">
+        <p>© ONSP Project 2024</p>
+    </footer>
+
+    <!-- JavaScriptファイル読み込み (順番重要) -->
+    <!-- 外部ライブラリ (もしあれば) -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script> -->
+
+    <!-- 設定ファイル -->
+    <script src="config.js"></script>
+    <!-- <script src="config_secret.js"></script> --> <!-- APIキーなど秘密情報はHTML直書きせず、環境変数などで管理推奨 -->
+
+    <!-- ユーティリティ & サービス -->
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/services/storage.js"></script>
+
+    <!-- UI関連 -->
+    <script src="js/ui/dom_utils.js"></script>
+    <script src="js/ui/components.js"></script>
+
+    <!-- 各モードのロジック -->
+    <script src="js/modes/shikoshiko.js"></script>
+    <script src="js/modes/counter.js"></script>
+    <script src="js/modes/gallery.js"></script>
+
+    <!-- アプリケーションメイン -->
+    <script src="js/app.js"></script>
+
+</body>
+</html>
