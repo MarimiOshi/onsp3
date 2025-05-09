@@ -11,7 +11,7 @@ const GalleryMode = {
     },
     state: {
         isActive: false,
-        images: [], // 表示する画像データのキャッシュ {member, type, number, path, relativePath, tags, isWeak}
+        images: [], // 表示する画像データのキャッシュ {member, type, number, path, relativePath, tags, isWeak, color}
         filters: {
             member: 'all',
             type: 'all',
@@ -24,12 +24,14 @@ const GalleryMode = {
         members: [], // app.js から注入
     },
     dependencies: {
+        app: null, // Appインスタンスへの参照
         storage: null,
         utils: null,
         domUtils: null,
     },
 
     init: function(appInstance, initialConfig) {
+        this.dependencies.app = appInstance;
         this.dependencies.storage = StorageService;
         this.dependencies.utils = Utils;
         this.dependencies.domUtils = DOMUtils;
@@ -45,6 +47,8 @@ const GalleryMode = {
 
         if (initialConfig.members) {
             this.config.members = initialConfig.members;
+        } else {
+            console.error("GalleryMode: initialConfig.members is missing!");
         }
 
         this.loadImageDataFromConfig(); // configから画像リストを生成
@@ -59,46 +63,55 @@ const GalleryMode = {
 
     addEventListeners: function() {
         const du = this.dependencies.domUtils;
-        du.on(this.elements.memberFilter, 'change', () => this.handleFilterChange());
-        du.on(this.elements.typeFilter, 'change', () => this.handleFilterChange());
-        du.on(this.elements.weakPointFilter, 'change', () => this.handleFilterChange());
-        du.on(this.elements.refreshButton, 'click', () => this.renderGallery());
-        // グリッド内の弱点ボタンへのイベントリスナーは renderGallery 内で設定
+        if (this.elements.memberFilter) du.on(this.elements.memberFilter, 'change', () => this.handleFilterChange());
+        if (this.elements.typeFilter) du.on(this.elements.typeFilter, 'change', () => this.handleFilterChange());
+        if (this.elements.weakPointFilter) du.on(this.elements.weakPointFilter, 'change', () => this.handleFilterChange());
+        if (this.elements.refreshButton) du.on(this.elements.refreshButton, 'click', () => this.renderGallery());
     },
 
-    /**
-     * config.members から画像情報を抽出し、this.state.images に格納する
-     */
     loadImageDataFromConfig: function() {
         this.state.images = [];
-        if (!this.config.members) return;
+        // console.log("Gallery loadImageDataFromConfig - this.config.members:", JSON.parse(JSON.stringify(this.config.members)));
+        if (!this.config.members || !Array.isArray(this.config.members)) {
+            console.error("Gallery: this.config.members is undefined or not an array!");
+            return;
+        }
 
         this.config.members.forEach(member => {
+            // console.log("Gallery processing member:", member ? member.name : "undefined member");
             if (member && member.name && member.imageFolders) {
                 Object.entries(member.imageFolders).forEach(([type, folderInfo]) => {
+                    // console.log(`Gallery processing type: ${type}, folderInfo:`, JSON.parse(JSON.stringify(folderInfo)));
                     if (folderInfo && folderInfo.path && folderInfo.imageCount > 0) {
                         for (let i = 1; i <= folderInfo.imageCount; i++) {
-                            const fileName = `${i}.jpg`; // TODO: 拡張子を動的にするか、configで指定
+                            const fileName = `${i}.jpg`; // Assumes jpg, make configurable if needed
                             const relativePath = `${member.name}/${type}/${fileName}`;
                             this.state.images.push({
                                 member: member.name,
-                                type: type, // 'hutuu' or 'ero'
+                                type: type,
                                 number: i,
                                 path: `${folderInfo.path}${fileName}`,
                                 relativePath: relativePath,
                                 color: member.color || null // メンバーカラーも保持
                             });
                         }
+                    } else {
+                        // console.warn(`Gallery: Skipping folder for ${member.name}/${type} due to missing path or imageCount <= 0.`);
                     }
                 });
+            } else {
+                // console.warn("Gallery: Skipping member due to missing name or imageFolders.", member);
             }
         });
         console.log(`Gallery: Loaded ${this.state.images.length} image data entries from config.`);
     },
 
     populateMemberFilter: function() {
-        if (!this.elements.memberFilter || !this.config.members) return;
-        this.dependencies.domUtils.empty(this.elements.memberFilter); // 既存のオプションをクリア
+        if (!this.elements.memberFilter || !this.config.members || !Array.isArray(this.config.members)) {
+            console.warn("Cannot populate member filter: element or members data missing.");
+            return;
+        }
+        this.dependencies.domUtils.empty(this.elements.memberFilter);
 
         this.elements.memberFilter.appendChild(
             this.dependencies.domUtils.createElement('option', { value: 'all' }, ['全員'])
@@ -113,22 +126,25 @@ const GalleryMode = {
     },
 
     handleFilterChange: function() {
-        this.state.filters.member = this.elements.memberFilter.value;
-        this.state.filters.type = this.elements.typeFilter.value;
-        this.state.filters.weakOnly = this.elements.weakPointFilter.checked;
+        if (this.elements.memberFilter) this.state.filters.member = this.elements.memberFilter.value;
+        if (this.elements.typeFilter) this.state.filters.type = this.elements.typeFilter.value;
+        if (this.elements.weakPointFilter) this.state.filters.weakOnly = this.elements.weakPointFilter.checked;
         this.renderGallery();
     },
 
     renderGallery: function() {
-        if (!this.elements.galleryGrid) return;
+        if (!this.elements.galleryGrid) {
+            console.error("Gallery grid element not found.");
+            return;
+        }
         this.dependencies.domUtils.empty(this.elements.galleryGrid);
 
         const loadingMsg = this.dependencies.domUtils.createElement('p', { class: 'loading-message gallery-loading' }, ['ギャラリーを読み込み中...']);
         this.elements.galleryGrid.appendChild(loadingMsg);
 
-        // 非同期っぽく見せるため少し遅延 (実際には画像が多いと重くなるので注意)
-        setTimeout(() => {
-            this.dependencies.domUtils.empty(this.elements.galleryGrid); // ローディングメッセージ削除
+        // Render asynchronously to prevent UI freeze for large galleries
+        requestAnimationFrame(() => {
+            this.dependencies.domUtils.empty(this.elements.galleryGrid);
 
             const filteredImages = this.state.images.filter(img => {
                 const memberMatch = this.state.filters.member === 'all' || img.member === this.state.filters.member;
@@ -137,16 +153,14 @@ const GalleryMode = {
                 return memberMatch && typeMatch && weakMatch;
             });
 
-            // ソート: 弱点 -> メンバー名 -> タイプ(ERO優先) -> 番号
             filteredImages.sort((a, b) => {
                 const aIsWeak = this.state.weakPoints.has(a.relativePath);
                 const bIsWeak = this.state.weakPoints.has(b.relativePath);
-                if (aIsWeak !== bIsWeak) return bIsWeak - aIsWeak; // true (1) が先
+                if (aIsWeak !== bIsWeak) return bIsWeak ? 1 : -1; // true (weak) comes first
                 if (a.member !== b.member) return a.member.localeCompare(b.member);
                 if (a.type !== b.type) return a.type === 'ero' ? -1 : (b.type === 'ero' ? 1 : 0);
                 return a.number - b.number;
             });
-
 
             if (filteredImages.length === 0) {
                 this.elements.galleryGrid.appendChild(
@@ -166,13 +180,13 @@ const GalleryMode = {
                 });
                 this.dependencies.domUtils.on(thumb, 'error', e => {
                     e.target.src = 'images/placeholder.png';
-                    // e.target.style.borderColor = 'red'; // エラー表示
+                    this.dependencies.domUtils.addClass(e.target, 'image-error');
                 });
 
                 const link = this.dependencies.domUtils.createElement('a', {
                     class: 'gallery-thumbnail-link',
                     href: imgData.path,
-                    target: '_blank', // 新しいタブで開く
+                    target: '_blank',
                     title: `クリックで拡大: ${imgData.relativePath}`
                 }, [thumb]);
 
@@ -194,7 +208,7 @@ const GalleryMode = {
 
                 this.elements.galleryGrid.appendChild(item);
             });
-        }, 10); // わずかな遅延
+        });
     },
 
     handleWeakPointToggle: function(event) {
@@ -212,30 +226,30 @@ const GalleryMode = {
         }
         this.dependencies.storage.saveWeakPoints(this.state.weakPoints);
 
-        // ボタンの表示更新
         this.dependencies.domUtils.setText(button, isNowWeak ? '★' : '☆');
         this.dependencies.domUtils.toggleClass(button, 'is-weak', isNowWeak);
         button.title = isNowWeak ? '弱点解除' : '弱点登録';
 
-        // フィルターが「弱点のみ」の場合、表示を再描画する必要があるかもしれない
         if (this.state.filters.weakOnly && !isNowWeak) {
             const itemToRemove = this.dependencies.domUtils.qs(`.gallery-item[data-relpath="${CSS.escape(relPath)}"]`, this.elements.galleryGrid);
             if (itemToRemove) itemToRemove.remove();
         }
+        // 他のモードにも通知 (App経由で)
+        if (this.dependencies.app && typeof this.dependencies.app.notifyWeakPointChange === 'function') {
+            this.dependencies.app.notifyWeakPointChange(relPath, isNowWeak);
+        }
     },
 
-    /**
-     * 外部からの弱点変更通知を受け取り、ギャラリー表示を更新する
-     * @param {string} relativePath - 変更された画像の相対パス
-     * @param {boolean} isNowWeak - 変更後の弱点状態
-     */
     notifyWeakPointChanged: function(relativePath, isNowWeak) {
-        if (!this.state.isActive) return; // ギャラリーがアクティブでない場合は何もしない
+        if (!this.state.isActive) return;
 
-        if (isNowWeak) {
+        const currentIsWeak = this.state.weakPoints.has(relativePath);
+        if (isNowWeak && !currentIsWeak) {
             this.state.weakPoints.add(relativePath);
-        } else {
+        } else if (!isNowWeak && currentIsWeak) {
             this.state.weakPoints.delete(relativePath);
+        } else {
+            return; // 状態変わらず
         }
 
         const galleryItem = this.dependencies.domUtils.qs(`.gallery-item[data-relpath="${CSS.escape(relativePath)}"]`, this.elements.galleryGrid);
@@ -246,23 +260,20 @@ const GalleryMode = {
                 this.dependencies.domUtils.toggleClass(button, 'is-weak', isNowWeak);
                 button.title = isNowWeak ? '弱点解除' : '弱点登録';
             }
-            // フィルターが「弱点のみ」で、弱点解除された場合は非表示にする
             if (this.state.filters.weakOnly && !isNowWeak) {
                 galleryItem.remove();
             }
         } else if (this.state.filters.weakOnly && isNowWeak) {
-            // アイテムが存在せず、弱点フィルターONで、今回弱点になった場合 -> 再描画
-            // (または、該当アイテムだけ追加するロジックを組む)
-            this.renderGallery();
+            this.renderGallery(); // アイテムがなくて弱点フィルターONで今回弱点になった場合、再描画
         }
     },
 
-
     activate: function() {
         this.state.isActive = true;
-        this.dependencies.domUtils.addClass(this.elements.section, 'active');
-        this.dependencies.domUtils.toggleDisplay(this.elements.section, true);
-        // アクティブ化時に最新の弱点情報を読み込む
+        if (this.elements.section) {
+            this.dependencies.domUtils.addClass(this.elements.section, 'active');
+            this.dependencies.domUtils.toggleDisplay(this.elements.section, true);
+        }
         this.state.weakPoints = this.dependencies.storage.loadWeakPoints();
         this.state.imageTags = this.dependencies.storage.loadImageTags();
         this.renderGallery();
@@ -271,8 +282,10 @@ const GalleryMode = {
 
     deactivate: function() {
         this.state.isActive = false;
-        this.dependencies.domUtils.removeClass(this.elements.section, 'active');
-        this.dependencies.domUtils.toggleDisplay(this.elements.section, false);
+        if (this.elements.section) {
+            this.dependencies.domUtils.removeClass(this.elements.section, 'active');
+            this.dependencies.domUtils.toggleDisplay(this.elements.section, false);
+        }
         console.log("Gallery Mode Deactivated.");
     }
 };
