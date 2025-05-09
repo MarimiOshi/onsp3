@@ -14,14 +14,10 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
-
-                <!-- BOX1: 上部メインエリア (画像、サイド情報、設定ボタン) -->
                 <div class="shikoshiko-box1">
                     <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                        <!-- 貼り付けられたステッカーはここにJSで追加 -->
                     </div>
-
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
                             <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
@@ -30,16 +26,11 @@
                             <span class="icon-display">☆</span>
                         </button>
                     </div>
-
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
-
-                <!-- セリフとアニメーションのコンテナ -->
                 <div class="serif-animation-container">
                     <div class="serif-area">
-                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;">
-                            <!-- JSで画像タグを生成 -->
-                        </div>
+                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
                         <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
                     </div>
                     <div class="animation-area" id="shikoAnimationContainer">
@@ -47,8 +38,6 @@
                         <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
                     </div>
                 </div>
-
-                <!-- 下部コントロールエリア (ボタンのみ、タブナビはグローバルへ) -->
                 <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
@@ -60,37 +49,33 @@
         </section>
 
         <!-- カウンターセクション -->
-        <section id="counterSection" class="mode-section" style="display:none;">
-            <div class="mode-content-wrapper">
-                <h2>回数カウンター</h2>
-                <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
-                <div class="counter-controls">
-                    <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
-                </div>
-                <div class="counter-grid" id="counterGrid">
-                    <p class="loading-message">カウンター読み込み中...</p>
-                </div>
+        <section id="counterSection" class="mode-section standard-mode-layout" style="display:none;">
+            <h2>回数カウンター</h2>
+            <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
+            <div class="counter-controls">
+                <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
+            </div>
+            <div class="counter-grid" id="counterGrid">
+                <p class="loading-message">カウンター読み込み中...</p>
             </div>
         </section>
 
         <!-- ギャラリーセクション -->
-        <section id="gallerySection" class="mode-section" style="display:none;">
-            <div class="mode-content-wrapper">
-                <h2>ギャラリー</h2>
-                <div class="gallery-controls">
-                    <label for="galleryMemberFilter">メンバー:</label>
-                    <select id="galleryMemberFilter"> <option value="all">全員</option> </select>
-                    <label for="galleryTypeFilter">タイプ:</label>
-                    <select id="galleryTypeFilter"> <option value="all">すべて</option> <option value="ero">EROのみ</option> <option value="hutuu">通常のみ</option> </select>
-                    <div class="gallery-toggle-weak">
-                        <input type="checkbox" id="galleryWeakPointFilter">
-                        <label for="galleryWeakPointFilter">弱点画像のみ表示</label>
-                    </div>
-                    <button id="galleryRefreshButton" class="action-button small">更新</button>
+        <section id="gallerySection" class="mode-section standard-mode-layout" style="display:none;">
+            <h2>ギャラリー</h2>
+            <div class="gallery-controls">
+                <label for="galleryMemberFilter">メンバー:</label>
+                <select id="galleryMemberFilter"> <option value="all">全員</option> </select>
+                <label for="galleryTypeFilter">タイプ:</label>
+                <select id="galleryTypeFilter"> <option value="all">すべて</option> <option value="ero">EROのみ</option> <option value="hutuu">通常のみ</option> </select>
+                <div class="gallery-toggle-weak">
+                    <input type="checkbox" id="galleryWeakPointFilter">
+                    <label for="galleryWeakPointFilter">弱点画像のみ表示</label>
                 </div>
-                <div id="galleryGrid" class="gallery-grid">
-                    <p class="loading-message gallery-loading">ギャラリーを読み込み中...</p>
-                </div>
+                <button id="galleryRefreshButton" class="action-button small">更新</button>
+            </div>
+            <div id="galleryGrid" class="gallery-grid">
+                <p class="loading-message gallery-loading">ギャラリーを読み込み中...</p>
             </div>
         </section>
 
@@ -124,7 +109,7 @@
                 </div>
                 <div class="setting-group" id="modalStickerSettingsGroup" style="display:none;">
                     <h4>ステッカー</h4>
-                    <div id="modalStickerChoiceContainer" class="sticker-choice-container modal-sticker-choices"><p>読み込み中...</p></div>
+                    <div id="modalStickerChoiceContainer" class.sticker-choice-container modal-sticker-choices"><p>読み込み中...</p></div>
                     <button id="modalClearAllStickersButton" class="action-button small secondary">現在の画像の全ステッカー削除</button>
                 </div>
             </div>
