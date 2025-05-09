@@ -1,1 +1,172 @@
+/* ================================================================== */
+/* shikoshiko-mode.css - しこしこモード専用スタイル                 */
+/* ================================================================== */
 
+.shikoshiko-layout-container {
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    color: var(--global-text-on-light-bg); /* BOX1が黒なので、文字は明るく */
+}
+
+/* BOX1: 上部メインエリア (画像表示) */
+.shikoshiko-box1 {
+    flex-grow: 1; /* 利用可能な垂直スペースを最大限使用 */
+    position: relative; /* 子要素のabsolute配置の基準 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #000000; /* 画像の余白・背景は黒固定 */
+    color: var(--global-text-on-dark-bg); /* このエリア内のデフォルト文字色 */
+}
+.member-image-container.main-image-area {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; /* ステッカーのため */
+}
+#shikoshikoMemberImage {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; /* アスペクト比を保ってフィット */
+    border: none; /* 枠線なし */
+    box-shadow: none; /* 影なし */
+}
+#shikoshikoMemberImage.image-error {
+    content: url(../images/placeholder.png); /* CSSのcontentはimgでは効かないのでJS側で */
+    border: 2px dashed #555; /* エラー時枠線 */
+}
+
+/* 左サイド情報パネル */
+.side-info-panel.left-panel {
+    position: absolute;
+    left: 10px;
+    bottom: 10px; /* 下部コントロールエリアとの兼ね合いで調整 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* アイコン間のスペース */
+    z-index: 20;
+    color: var(--global-text-on-dark-bg); /* BOX1背景が黒なので白文字 */
+}
+.profile-icon-wrapper {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.5); /* アイコン枠 */
+    background-color: rgba(255,255,255,0.1); /* アイコン読み込み中背景 */
+}
+.profile-icon { width: 100%; height: 100%; object-fit: cover; }
+.action-icon-button { /* 弱点ボタンなど */
+    background: none; border: none;
+    color: var(--global-text-on-dark-bg);
+    cursor: pointer; text-align: center; padding: 0;
+    font-size: 26px; /* アイコンサイズ */
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.action-icon-button:hover { opacity: 1; transform: scale(1.1); }
+.action-icon-button.weak-point-button .icon-display { color: rgba(255,255,255,0.7); }
+.action-icon-button.weak-point-button.is-weak .icon-display { color: #ffd700; /* 金色 */ }
+
+/* 右上設定ボタン */
+.settings-button-右上 {
+    position: absolute; top: 10px; right: 10px; z-index: 30;
+    background: rgba(30,30,30,0.6); /* 少し濃い半透明背景 */
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--global-text-on-dark-bg);
+    font-size: 1.4rem; padding: 7px 10px; /* 少し大きめ */
+    border-radius: 50%; cursor: pointer;
+    transition: background-color 0.2s;
+}
+.settings-button-右上:hover { background: rgba(50,50,50,0.8); }
+
+/* セリフとアニメーションのコンテナ */
+.serif-animation-container {
+    flex-shrink: 0; display: flex; height: var(--serif-anime-container-height);
+    background-color: var(--member-content-bg, #1e1e1e); /* メンバーテーマ or ダークグレー */
+    border-top: 1px solid var(--member-accent-color, #333);
+    /* border-bottom: 1px solid var(--member-accent-color, #333); 下はコントロールエリアとの境界 */
+    color: var(--member-text-color, var(--global-text-on-dark-bg));
+}
+.serif-area {
+    flex-grow: 1; padding: 8px 12px;
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden; /* セリフがはみ出ないように */
+}
+.image-tags-container {
+    text-align: left; font-size: 0.6em; opacity: 0.6; margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: inherit; /* 親の文字色を継承 */
+}
+.image-tag-item {
+    background-color: rgba(255,255,255,0.1); /* 背景が暗いので明るめのタグ背景 */
+    color: inherit;
+    padding: 1px 5px; margin-right: 4px; border-radius: 3px;
+}
+.member-quote {
+    font-size: 0.9em; font-weight: 500; margin: 0; text-align: left;
+    max-height: 3em; /* 約2行分 */ overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.5; color: inherit;
+}
+.animation-area {
+    flex-shrink: 0; width: var(--serif-anime-container-height); height: 100%;
+    position: relative; display: flex; justify-content: center; align-items: center;
+    border-left: 1px solid var(--member-accent-color, #333);
+}
+.sao-image, .shikoshiko-image { /* サイズ統一 */
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 90%; height: 90%; object-fit: contain;
+}
+.shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
+@keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
+.shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
+
+/* 下部コントロールエリア (ボタンのみ) */
+.shikoshiko-box2-controls-only {
+    flex-shrink: 0;
+    background-color: var(--member-content-bg, #161618); /* メンバーテーマ or タブナビと同系色 */
+    color: var(--member-text-color, var(--global-text-on-dark-bg));
+    border-top: 1px solid var(--member-accent-color, #333);
+}
+.main-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    height: var(--shiko-controls-height); padding: 0 10px;
+}
+.control-button { /* 共通ボタンスタイルを継承しつつ調整 */
+    padding: 9px 14px; font-size: 0.85em; cursor: pointer;
+    background-color: var(--member-accent-color, #4a4a4e);
+    color: var(--member-button-text-color, var(--global-text-on-dark-bg));
+    border: none; border-radius: 5px; font-weight: 500; text-align: center;
+    flex-basis: 31%; margin: 0 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0.9;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+.control-button:hover:not(:disabled) { opacity: 1; filter: brightness(110%); }
+.control-button.skip-button { background-color: #555c66; order: 1; }
+.control-button.start-finish-button { /* 一時停止/再開ボタン */
+    background-color: var(--member-accent-color, #2b6cb0); /* メンバーカラーか青系 */
+    order: 2;
+}
+#shikoshikoFinishButton { background-color: #c53030; order: 3; } /* フィニッシュは赤系 */
+.control-button:disabled { background-color: #3a3a3e !important; color: #777 !important; opacity: 0.6;}
+
+
+/* 背景パルスは廃止 */
+
+/* --- レスポンシブ対応 (しこしこモード) --- */
+@media (max-width: 768px) {
+    .side-info-panel.left-panel { left: 5px; bottom: 5px; gap: 8px; }
+    .profile-icon-wrapper { width: 32px; height: 32px; }
+    .action-icon-button { font-size: 18px; }
+    .settings-button-右上 { font-size: 1.2rem; top: 8px; right: 8px; padding: 5px 7px; }
+
+    .serif-animation-container { height: 70px; }
+    .serif-area { padding: 5px 8px; }
+    .member-quote { font-size: 0.8em; max-height: 2.6em; line-height: 1.3; }
+    .image-tags-container { font-size: 0.5em; }
+    .animation-area { width: 70px; }
+
+    .main-controls { height: calc(var(--shiko-controls-height) - 10px); padding: 0 5px;}
+    .control-button { font-size: 0.75em; padding: 6px 8px; }
+}
