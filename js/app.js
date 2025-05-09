@@ -2,7 +2,10 @@
 
 const App = {
     elements: {
-        tabNavigation: null, tabButtons: [], modeSections: [], appContainer: null,
+        tabNavigation: null, // このセレクタはHTMLのIDと一致させる
+        tabButtons: [],
+        modeSections: [],
+        appContainer: null,
     },
     state: { activeTab: '#shikoshikoModeSection', currentThemeColor: null, config: {}, },
     modules: { shikoshiko: null, counter: null, gallery: null, },
@@ -13,10 +16,9 @@ const App = {
             alert("CRITICAL ERROR: config.js is not loaded. App cannot start.");
             this.state.config = { members: [] };
         } else {
-            // console.log("SUCCESS: 'config' object IS defined globally. Content:", JSON.parse(JSON.stringify(config))); // 開発時のみ有効化
             this.state.config = config;
         }
-        console.log("ONSP App Initializing (vTikTok UI Base)...");
+        console.log("ONSP App Initializing (2-Box Layout)...");
 
         this.Utils = typeof Utils !== 'undefined' ? Utils : this.logDependencyError("Utils");
         this.StorageService = typeof StorageService !== 'undefined' ? StorageService : this.logDependencyError("StorageService");
@@ -26,11 +28,12 @@ const App = {
         this.CounterMode = typeof CounterMode !== 'undefined' ? CounterMode : this.logDependencyError("CounterMode");
         this.GalleryMode = typeof GalleryMode !== 'undefined' ? GalleryMode : this.logDependencyError("GalleryMode");
 
-        this.elements.tabNavigation = this.DOMUtils.qs('.tab-container-bottom-fixed');
+        // ★★★ HTMLのタブナビゲーションのIDに合わせて修正 ★★★
+        this.elements.tabNavigation = this.DOMUtils.qs('#tabNavigation'); // HTMLの <nav id="tabNavigation" class="tab-container-bottom-fixed"> を参照
         if (this.elements.tabNavigation) {
             this.elements.tabButtons = this.DOMUtils.qsa('.tab-button', this.elements.tabNavigation);
         } else {
-            console.error("Bottom tab navigation ('.tab-container-bottom-fixed') not found.");
+            console.error("Tab navigation ('#tabNavigation') not found. Ensure it has this ID.");
             this.elements.tabButtons = [];
         }
         this.elements.modeSections = this.DOMUtils.qsa('.mode-section');
@@ -40,6 +43,7 @@ const App = {
             this.modules.shikoshiko = Object.create(this.ShikoshikoMode);
             this.modules.shikoshiko.init(this, this.state.config);
         }
+        // ... (カウンター、ギャラリーモードのinitは変更なし)
         if (this.CounterMode && typeof this.CounterMode.init === 'function') {
             this.modules.counter = Object.create(this.CounterMode);
             this.modules.counter.init(this, this.state.config);
@@ -48,36 +52,34 @@ const App = {
             this.modules.gallery = Object.create(this.GalleryMode);
             this.modules.gallery.init(this, this.state.config);
         }
+
         if (this.modules.shikoshiko && this.modules.counter && typeof this.modules.shikoshiko.setCounterModeDependency === 'function') {
             this.modules.shikoshiko.setCounterModeDependency(this.modules.counter);
         }
 
         if (this.UIComponents && this.modules.shikoshiko) {
-            console.log("Setting up shikoshiko settings modal..."); // ★ デバッグログ
             this.UIComponents.setupModal(
                 '#shikoshikoSettingsModal',
                 '#openShikoshikoSettingsModal',
-                '#closeShikoshikoSettingsModal', // ★ モーダル内部の閉じるボタンID
+                '#closeShikoshikoSettingsModal',
                 () => {
                     if (this.modules.shikoshiko && typeof this.modules.shikoshiko.saveModalSettings === 'function') {
                         this.modules.shikoshiko.saveModalSettings();
                     }
                 }
             );
-        } else {
-            console.error("UIComponents or ShikoshikoModule not available for modal setup.");
         }
 
         this.addEventListeners();
         this.switchToTab(this.state.activeTab);
-        console.log("ONSP App Initialized Successfully (vTikTok UI Base).");
+        console.log("ONSP App Initialized Successfully (2-Box Layout).");
     },
 
-    logDependencyError: function(dependencyName) {
+    logDependencyError: function(dependencyName) { /* 前回と同様 */
         console.error(`${dependencyName} not loaded or defined! Application might not work correctly.`); return null;
     },
 
-    addEventListeners: function() {
+    addEventListeners: function() { /* 前回と同様 */
         if (this.elements.tabButtons.length === 0) { console.warn("No tab buttons found to attach listeners."); return; }
         this.elements.tabButtons.forEach(button => {
             this.DOMUtils.on(button, 'click', (event) => {
@@ -89,22 +91,21 @@ const App = {
         this.DOMUtils.on(document, 'keydown', (event) => {
             const activeModuleName = this.getModuleNameFromId(this.state.activeTab);
             if (activeModuleName && this.modules[activeModuleName] && typeof this.modules[activeModuleName].handleGlobalKeydown === 'function') {
-                // モーダル表示中はグローバルキーダウンを無効化 (ESCはモーダル側で処理)
                 let modalVisible = false;
-                if (this.modules.shikoshiko && this.modules.shikoshiko.elements.settingsModal) { // モーダル要素の存在確認
+                if (this.modules.shikoshiko && this.modules.shikoshiko.elements.settingsModal) {
                     modalVisible = this.modules.shikoshiko.elements.settingsModal.style.display !== 'none';
                 }
-                if (!modalVisible) {
+                if (!modalVisible || event.key === 'Escape') { // ESCはモーダル側でも処理されるが、念のため
                     this.modules[activeModuleName].handleGlobalKeydown(event);
                 }
             }
         });
     },
 
-    switchToTab: function(targetId) {
+    switchToTab: function(targetId) { /* 前回と同様 */
         if (!targetId || typeof targetId !== 'string' || !targetId.startsWith('#')) { console.warn("Invalid targetId for switchToTab:", targetId); return; }
         const prevModuleName = this.getModuleNameFromId(this.state.activeTab);
-        if (this.state.activeTab !== targetId) { // タブが実際に変更される場合のみ実行
+        if (this.state.activeTab !== targetId) {
             if (prevModuleName && this.modules[prevModuleName] && typeof this.modules[prevModuleName].deactivate === 'function') {
                 this.modules[prevModuleName].deactivate();
             }
