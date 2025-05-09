@@ -14,36 +14,24 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
-
-                <!-- BOX1: 上部メインエリア (画像、サイド情報、設定ボタン) -->
                 <div class="shikoshiko-box1">
                     <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                        <!-- 貼り付けられたステッカーはここにJSで追加 -->
                     </div>
-
-                    <!-- 左サイド情報パネル (TikTok風アイコンなど) -->
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
                             <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
                         </div>
                         <button class="action-icon-button weak-point-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="">
-                            <span class="icon-display">☆</span> <!-- ☆ or ★ -->
-                            <!-- <span class="count-display" id="shikoshikoWeakPointCount"></span> -->
+                            <span class="icon-display">☆</span>
                         </button>
-                        <!-- 他のアイコンボタンが必要ならここに追加 -->
                     </div>
-
-                    <!-- 右上設定ボタン -->
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
 
-                <!-- セリフとアニメーションのコンテナ -->
                 <div class="serif-animation-container">
                     <div class="serif-area">
-                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;">
-                            <!-- JSで画像タグを生成 -->
-                        </div>
+                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
                         <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
                     </div>
                     <div class="animation-area" id="shikoAnimationContainer">
@@ -52,24 +40,17 @@
                     </div>
                 </div>
 
-                <!-- BOX2: 下部コントロールエリア (ボタン、タブナビ) -->
-                <div class="shikoshiko-box2">
+                <div class="shikoshiko-box2-controls-only"> <!-- 下部コントロールエリア (ボタンのみ) -->
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button" style="display: none;">スキップ</button>
                         <button id="shikoshikoStartButton" class="control-button start-finish-button">開始</button>
                         <button id="shikoshikoFinishButton" class="control-button start-finish-button" style="display: none;">フィニッシュ</button>
                     </div>
-                    <nav id="tabNavigation" class="tab-navigation-area">
-                        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
-                        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-                        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
-                    </nav>
                 </div>
-
             </div>
         </section>
 
-        <!-- カウンターセクション (変更なし) -->
+        <!-- カウンターセクション -->
         <section id="counterSection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>回数カウンター</h2>
@@ -83,7 +64,7 @@
             </div>
         </section>
 
-        <!-- ギャラリーセクション (変更なし) -->
+        <!-- ギャラリーセクション -->
         <section id="gallerySection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>ギャラリー</h2>
@@ -114,9 +95,7 @@
             <div class="modal-body">
                 <div class="setting-group">
                     <h4>メンバー出現率</h4>
-                    <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders">
-                        <p>メンバー読み込み中...</p>
-                    </div>
+                    <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders"><p>読み込み中...</p></div>
                     <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
                 </div>
                 <div class="setting-group">
@@ -136,9 +115,7 @@
                 </div>
                 <div class="setting-group" id="modalStickerSettingsGroup" style="display:none;">
                     <h4>ステッカー</h4>
-                    <div id="modalStickerChoiceContainer" class="sticker-choice-container modal-sticker-choices">
-                        <p class="sticker-loading">ステッカー読込中...</p>
-                    </div>
+                    <div id="modalStickerChoiceContainer" class="sticker-choice-container modal-sticker-choices"><p>読み込み中...</p></div>
                     <button id="modalClearAllStickersButton" class="action-button small secondary">現在の画像の全ステッカー削除</button>
                 </div>
             </div>
@@ -148,7 +125,13 @@
         </div>
     </div>
 
-    <!-- JavaScriptファイル読み込み -->
+    <!-- グローバルな下部タブナビゲーション -->
+    <nav id="tabNavigation" class="tab-navigation-global-footer">
+        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
+        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
+        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
+    </nav>
+
     <script src="config.js"></script>
     <script src="js/utils/helpers.js"></script>
     <script src="js/services/storage.js"></script>
