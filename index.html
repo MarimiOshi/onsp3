@@ -2,90 +2,61 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> <!-- user-scalable=no を追加 -->
     <title>ONSP Project</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/placeholder.png">
 </head>
 <body>
 
-    <nav id="tabNavigation" class="tab-container">
-        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
-        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
-    </nav>
-
     <main id="appContainer" class="app-main-content">
 
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
-            <div class="mode-content-wrapper">
-                <div class="settings-panel" id="shikoshikoSettingsPanel">
-                    <button class="accordion-toggle" id="shikoshikoSettingsToggle" aria-expanded="false">
-                        設定 <span class="toggle-icon">▼</span>
+            <div class="mode-content-wrapper shikoshiko-tiktok-ui">
+                <!-- 左サイドのTikTok風情報エリア -->
+                <div class="tiktok-left-panel">
+                    <div class="tiktok-profile-icon-container">
+                        <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="tiktok-profile-icon">
+                    </div>
+                    <button class="tiktok-action-button tiktok-weak-point-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="">
+                        <span class="tiktok-icon">☆</span> <!-- ☆ or ★ -->
+                        <span class="tiktok-count" id="shikoshikoWeakPointCount"></span> <!-- 将来的に弱点登録数など？ -->
                     </button>
-                    <div class="accordion-content" id="shikoshikoSettingsContent">
-                        <div class="setting-group">
-                            <h4>メンバー出現率</h4>
-                            <div class="slider-container member-sliders" id="shikoshikoMemberSliders">
-                                <p>メンバー読み込み中...</p>
-                            </div>
-                            <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
-                        </div>
-                        <div class="setting-group">
-                            <h4>背景エフェクト</h4>
-                            <div class="effect-slider-item">
-                                <label for="pulseBrightnessSlider">明るさ:</label>
-                                <input type="range" id="pulseBrightnessSlider" min="0" max="5" step="1" value="3">
-                                <span class="slider-value" id="pulseBrightnessValue">3</span>
-                            </div>
-                        </div>
-                        <div class="setting-group">
-                            <h4>BPM設定 (固定)</h4>
-                            <div class="bpm-setting">
-                                <label for="fixedBpmInput">BPM:</label>
-                                <input type="number" id="fixedBpmInput" min="30" max="300" value="120">
-                            </div>
-                        </div>
-                        <div class="setting-group" id="shikoshikoStickerSettingsGroup" style="display:none;">
-                            <h4>ステッカー</h4>
-                            <div id="shikoshikoStickerChoiceContainer" class="sticker-choice-container">
-                                <p class="sticker-loading">ステッカー読込中...</p>
-                            </div>
-                            <button id="shikoshikoClearAllStickersButton" class="action-button small secondary">全ステッカー削除</button>
-                        </div>
-                    </div>
+                    <!-- 他のTikTok風アクションボタン（コメント、シェアなど）は今回は省略 -->
                 </div>
 
-                <div class="game-display-area" id="shikoshikoGameArea">
-                    <div class="game-header">
-                        <h2 id="shikoshikoMemberName">メンバー名</h2>
-                        <button class="weak-point-toggle icon-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="" style="display: none;">☆</button>
-                    </div>
-                    <div class="member-image-container" id="shikoshikoMemberImageContainer">
-                        <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
-                    </div>
-                    <!-- セリフと画像タグ表示エリア -->
-                    <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;">
-                        <!-- JSで画像タグを生成 -->
-                    </div>
-                    <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
-                    <!-- ここまで -->
-                    <div class="shiko-animation-container" id="shikoAnimationContainer">
-                        <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
-                        <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
-                    </div>
+                <!-- メイン画像表示エリア (スワイプ可能にする) -->
+                <div class="member-image-container tiktok-image-main" id="shikoshikoMemberImageContainer">
+                    <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
+                    <!-- 貼り付けられたステッカー -->
                 </div>
 
-                <!-- 操作ボタンエリア (スマホでは下部固定) -->
-                <div class="game-controls-area-sticky-footer" id="shikoshikoControlsArea">
-                    <button id="shikoshikoSkipButton" class="action-button secondary fixed-left" style="display: none;">スキップ</button>
-                    <button id="shikoshikoStartButton" class="action-button primary main-action">開始</button>
-                    <button id="shikoshikoFinishButton" class="action-button primary fixed-right" style="display: none;">フィニッシュ</button>
+                <!-- 下部の情報とアニメーションエリア -->
+                <div class="tiktok-bottom-info">
+                    <!-- メンバー名は削除 -->
+                    <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
+                    <p id="shikoshikoMemberQuote" class="member-quote tiktok-quote">ここにセリフが表示されます</p>
                 </div>
+
+                <div class="shiko-animation-container tiktok-shiko-animation" id="shikoAnimationContainer">
+                    <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
+                    <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
+                </div>
+
+                <!-- 設定ボタン (モーダルを開く) -->
+                <button class="tiktok-settings-button" id="openShikoshikoSettingsModal">⚙️</button>
+
+            </div>
+            <!-- 操作ボタンエリア (スマホでは下部固定) -->
+            <div class="game-controls-area-sticky-footer shikoshiko-footer-controls" id="shikoshikoControlsArea">
+                <button id="shikoshikoSkipButton" class="action-button secondary fixed-left" style="display: none;">スキップ</button>
+                <button id="shikoshikoStartButton" class="action-button primary main-action">開始</button>
+                <button id="shikoshikoFinishButton" class="action-button primary fixed-right" style="display: none;">フィニッシュ</button>
             </div>
         </section>
 
+        <!-- カウンターセクション -->
         <section id="counterSection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>回数カウンター</h2>
@@ -99,20 +70,15 @@
             </div>
         </section>
 
+        <!-- ギャラリーセクション -->
         <section id="gallerySection" class="mode-section" style="display:none;">
             <div class="mode-content-wrapper">
                 <h2>ギャラリー</h2>
                 <div class="gallery-controls">
                     <label for="galleryMemberFilter">メンバー:</label>
-                    <select id="galleryMemberFilter">
-                        <option value="all">全員</option>
-                    </select>
+                    <select id="galleryMemberFilter"> <option value="all">全員</option> </select>
                     <label for="galleryTypeFilter">タイプ:</label>
-                    <select id="galleryTypeFilter">
-                        <option value="all">すべて</option>
-                        <option value="ero">EROのみ</option>
-                        <option value="hutuu">通常のみ</option>
-                    </select>
+                    <select id="galleryTypeFilter"> <option value="all">すべて</option> <option value="ero">EROのみ</option> <option value="hutuu">通常のみ</option> </select>
                     <div class="gallery-toggle-weak">
                         <input type="checkbox" id="galleryWeakPointFilter">
                         <label for="galleryWeakPointFilter">弱点画像のみ表示</label>
@@ -124,7 +90,58 @@
                 </div>
             </div>
         </section>
+
     </main>
+
+    <!-- しこしこモード設定モーダル -->
+    <div id="shikoshikoSettingsModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close-button" id="closeShikoshikoSettingsModal">×</span>
+            <h2>しこしこ設定</h2>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <h4>メンバー出現率</h4>
+                    <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders">
+                        <p>メンバー読み込み中...</p>
+                    </div>
+                    <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
+                </div>
+                <div class="setting-group">
+                    <h4>背景エフェクト</h4>
+                    <div class="effect-slider-item">
+                        <label for="modalPulseBrightnessSlider">明るさ:</label>
+                        <input type="range" id="modalPulseBrightnessSlider" min="0" max="5" step="1" value="3">
+                        <span class="slider-value" id="modalPulseBrightnessValue">3</span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h4>BPM設定</h4>
+                    <div class="bpm-setting">
+                        <label for="modalFixedBpmInput">BPM:</label>
+                        <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
+                    </div>
+                </div>
+                <div class="setting-group" id="modalStickerSettingsGroup" style="display:none;">
+                    <h4>ステッカー</h4>
+                    <div id="modalStickerChoiceContainer" class="sticker-choice-container modal-sticker-choices">
+                        <p class="sticker-loading">ステッカー読込中...</p>
+                    </div>
+                    <button id="modalClearAllStickersButton" class="action-button small secondary">現在の画像の全ステッカー削除</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveShikoshikoSettingsButton" class="action-button primary">保存して閉じる</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- タブナビゲーション (画面下部に固定) -->
+    <nav id="tabNavigation" class="tab-container-bottom-fixed">
+        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
+        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
+        <button class="tab-button" data-tab-target="#gallerySection">ギャラリー</button>
+    </nav>
 
     <script src="config.js"></script>
     <script src="js/utils/helpers.js"></script>
