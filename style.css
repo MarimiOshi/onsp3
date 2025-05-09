@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* style.css - ONSP Project (New Layout & Fixes)                    */
+/* style.css - ONSP Project (New Layout Specified & Fixes)          */
 /* ================================================================== */
 
 :root {
@@ -12,13 +12,18 @@
     --member-accent-color-rgb: 108, 117, 125;
     --shiko-animation-duration: 1000ms;
 
-    /* New Layout Colors from image */
-    --box1-bg: #4CAF50; /* 緑 */
-    --serif-bg: #E53935; /* 赤 */
-    --anime-bg: #E53935; /* 赤 */
-    --box2-bg: #1E88E5; /* 青 */
-    --text-on-dark-bg: #ffffff;
-    --text-on-light-bg: #000000;
+    /* Layout Colors from image */
+    --box1-bg-color: #4CAF50;  /* 緑 (しこしこモードのメイン背景) */
+    --serif-bg-color: #E53935; /* 赤 */
+    --anime-bg-color: #E53935; /* 赤 */
+    --box2-bg-color: #1E88E5;  /* 青 (しこしこモードのフッター背景) */
+
+    --global-bg-color: #000000; /* アプリ全体の背景 */
+    --global-text-color: #ffffff;
+    --global-text-on-light-bg: #000000; /* 明るい背景の上の文字 */
+
+    --bottom-nav-height: 50px; /* 下部タブナビの高さ */
+    --shiko-controls-height: 55px; /* しこしこ操作ボタンエリアの高さ */
 }
 
 html { height: 100%; box-sizing: border-box; }
@@ -26,8 +31,7 @@ html { height: 100%; box-sizing: border-box; }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    margin: 0; background-color: #333; /* 全体の背景を暗めに */
-    color: var(--text-on-dark-bg);
+    margin: 0; background-color: var(--global-bg-color); color: var(--global-text-color);
     line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     display: flex; flex-direction: column;
     height: 100vh; height: 100svh; overflow: hidden; position: relative;
@@ -43,32 +47,29 @@ body { scrollbar-width: thin; scrollbar-color: #555 #222; }
 
 .mode-section {
     display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;
-    overflow: hidden; /* 基本はスクロールさせない */
+    overflow: hidden;
 }
-.mode-section.active { display: flex; /* しこしこモードのルートもflexに */ flex-direction: column; }
+.mode-section.active { display: flex; flex-direction: column; }
+
 
 /* --- しこしこモード 新レイアウト --- */
 .shikoshiko-layout-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--box1-bg); /* BOX1の背景 */
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    color: var(--global-text-on-light-bg); /* BOX1, セリフ、アニメ背景が明るいため */
 }
 
-.shikoshiko-box1 { /* 上部メインエリア */
-    flex-grow: 1; /* 利用可能なスペースを最大限使用 */
-    position: relative; /* 子要素のabsolute配置の基準 */
-    display: flex; /* 中央寄せのため */
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; /* 画像がはみ出ないように */
-    background-color: var(--member-main-bg, var(--box1-bg)); /* メンバーカラー背景 */
+/* BOX1: 上部メインエリア */
+.shikoshiko-box1 {
+    flex-grow: 1; /* 利用可能な垂直スペースを最大限使用 */
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    background-color: var(--member-main-bg, var(--box1-bg-color)); /* メンバーカラーまたはデフォルト緑 */
 }
 .member-image-container.main-image-area {
-    width: 100%; height: 100%; /* 親要素いっぱいに広がる */
+    width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
-    position: relative; /* ステッカーのため */
+    position: relative;
 }
 #shikoshikoMemberImage { max-width: 100%; max-height: 100%; object-fit: contain; }
 #shikoshikoMemberImage.image-error { content: url(images/placeholder.png); }
@@ -76,96 +77,83 @@ body { scrollbar-width: thin; scrollbar-color: #555 #222; }
 .side-info-panel.left-panel {
     position: absolute; left: 10px; bottom: 10px;
     display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 20;
+    color: var(--global-text-color); /* 暗い背景に白文字 */
 }
 .profile-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.6); }
 .profile-icon { width: 100%; height: 100%; object-fit: cover; }
-.action-icon-button { background: none; border: none; color: var(--text-on-dark-bg); cursor: pointer; text-align: center; padding: 0; font-size: 24px; }
-.action-icon-button.weak-point-button.is-weak .icon-display { color: #ffd700; }
+.action-icon-button { background: none; border: none; color: var(--global-text-color); cursor: pointer; text-align: center; padding: 0; font-size: 24px; }
+.action-icon-button.weak-point-button .icon-display { color: rgba(255,255,255,0.8); } /* 通常は白っぽく */
+.action-icon-button.weak-point-button.is-weak .icon-display { color: #ffd700; } /* 弱点時は黄色 */
 
 .settings-button-右上 {
     position: absolute; top: 10px; right: 10px; z-index: 30;
-    background: rgba(0,0,0,0.3); border: none; color: var(--text-on-dark-bg);
+    background: rgba(0,0,0,0.3); border: none; color: var(--global-text-color);
     font-size: 1.5rem; padding: 5px 8px; border-radius: 50%; cursor: pointer;
 }
 
+/* セリフとアニメーションのコンテナ */
 .serif-animation-container {
-    flex-shrink: 0; /* 高さが固定されるように */
-    display: flex;
-    height: 100px; /* セリフとアニメーションエリアの高さ */
-    background-color: transparent; /* 背景はBOX1, BOX2に依存 */
+    flex-shrink: 0; display: flex; height: 90px; /* 高さを少し調整 */
 }
 .serif-area {
-    flex-grow: 1; /* 利用可能な幅を占める */
-    background-color: var(--serif-bg);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* 内容を中央揃え（垂直）*/
-    overflow: hidden;
-    color: var(--text-on-light-bg); /* 赤背景なので明るい文字色 */
+    flex-grow: 1; background-color: var(--serif-bg-color); padding: 8px 12px; /* padding調整 */
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden; color: var(--global-text-on-dark-bg); /* 赤背景なので白文字 */
 }
-.image-tags-container { text-align: left; font-size: 0.7em; opacity: 0.8; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.image-tag-item { background-color: rgba(0,0,0,0.1); color: inherit; padding: 1px 4px; margin-right: 3px; border-radius: 3px;}
+.image-tags-container { text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.image-tag-item { background-color: rgba(0,0,0,0.15); color: inherit; padding: 1px 4px; margin-right: 3px; border-radius: 3px;}
 .member-quote {
-    font-size: 1.1em; font-weight: bold; margin: 0; text-align: left;
-    max-height: 2.8em; /* 約2行分 */ overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    font-size: 1em; /* 少し小さく */ font-weight: 500; margin: 0; text-align: left;
+    max-height: 2.8em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     line-height: 1.4;
 }
-
 .animation-area {
-    flex-shrink: 0;
-    width: 100px; /* アニメーションエリアの幅 */
-    height: 100%; /* 親の高さに合わせる */
-    background-color: var(--anime-bg);
-    position: relative;
+    flex-shrink: 0; width: 90px; height: 100%;
+    background-color: var(--anime-bg-color); position: relative;
     display: flex; justify-content: center; align-items: center;
 }
-.sao-image, .shikoshiko-image {
+.sao-image, .shikoshiko-image { /* サイズ統一 */
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    width: 80%; height: 80%; /* 親要素に対する相対サイズ */
-    object-fit: contain;
+    width: 100%; height: 100%; object-fit: contain; /* 親要素に合わせてリサイズ */
 }
 .shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
 @keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
 .shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
 
 
-.shikoshiko-box2 { /* 下部コントロールエリア */
-    flex-shrink: 0;
-    background-color: var(--box2-bg);
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
+/* BOX2: 下部コントロールエリア */
+.shikoshiko-box2 {
+    flex-shrink: 0; background-color: var(--box2-bg-color); padding: 5px;
+    display: flex; flex-direction: column;
     padding-bottom: env(safe-area-inset-bottom);
-    color: var(--text-on-light-bg); /* 青背景なので明るい文字色 */
+    color: var(--global-text-on-dark-bg); /* 青背景なので白文字 */
 }
 .main-controls {
-    display: flex;
-    justify-content: space-around; /* ボタンを均等配置 */
-    align-items: center;
-    padding: 5px 0;
+    display: flex; justify-content: space-around; align-items: center;
+    height: var(--shiko-controls-height); /* 固定高さ */
+    padding: 0 5px; /* 左右少しパディング */
 }
 .control-button {
-    padding: 8px 15px; font-size: 0.9em; cursor: pointer;
-    background-color: rgba(255,255,255,0.2); color: inherit;
-    border: 1px solid rgba(255,255,255,0.3); border-radius: 4px;
-    font-weight: bold; min-width: 80px; text-align: center;
+    padding: 8px 12px; /* 少し小さく */ font-size: 0.85em; cursor: pointer;
+    background-color: rgba(255,255,255,0.15); color: inherit;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 4px;
+    font-weight: bold; text-align: center; flex-grow: 1; margin: 0 3px;
+    max-width: 30%; /* 3ボタン均等に */
 }
-.control-button:disabled { background-color: rgba(120,120,120,0.3); color: #aaa; cursor: not-allowed; }
+.control-button:disabled { background-color: rgba(120,120,120,0.2); color: #888; cursor: not-allowed; }
 .control-button.skip-button {}
 .control-button.start-finish-button {}
 
-.tab-navigation-area { /* BOX2内のタブナビ */
-    display: flex; justify-content: space-around;
-    background-color: transparent; /* BOX2の背景を利用 */
-    height: 45px; /* 高さを少し調整 */
-    border-top: 1px solid rgba(255,255,255,0.2); /* 上に境界線 */
-    margin-top: 5px;
+
+/* 下部タブナビゲーション (BOX2内) */
+.tab-navigation-area {
+    display: flex; justify-content: space-around; background-color: transparent;
+    height: var(--bottom-nav-height); border-top: 1px solid rgba(255,255,255,0.15);
+    margin-top: 5px; /* コントロールとの間隔 */
 }
 .tab-navigation-area .tab-button {
     padding: 0; border: none; background-color: transparent; cursor: pointer;
-    font-size: 0.8rem; color: rgba(255,255,255,0.7);
-    border-top: 3px solid transparent;
+    font-size: 0.75rem; color: rgba(255,255,255,0.6); border-top: 3px solid transparent;
     transition: color 0.2s, border-top-color 0.3s ease-out;
     font-weight: 500; text-align: center; position: relative; user-select: none;
     flex-grow: 1; display: flex; align-items: center; justify-content: center;
@@ -177,133 +165,79 @@ body { scrollbar-width: thin; scrollbar-color: #555 #222; }
     background-color: var(--member-accent-color, #fff); border-radius: 0 0 1px 1px;
 }
 
-/* ステッカー、背景エフェクト、モーダル、カウンター、ギャラリーのスタイルは前回とほぼ同様 */
-/* ただし、カウンターとギャラリーモードの h2 は通常表示に戻す */
-.mode-section:not(#shikoshikoModeSection) {
-    background-color: var(--default-content-bg);
-    color: var(--default-text-color);
-    padding: 15px; /* 通常のpadding */
-    overflow-y: auto; /* 必要ならスクロール */
-     /* 下部タブナビの高さを考慮 */
-    padding-bottom: calc(var(--tiktok-bottom-nav-height) + env(safe-area-inset-bottom) + 15px);
+
+/* ステッカー、背景エフェクト、モーダルは前回とほぼ同様 */
+/* ただし、モーダル内のテキスト色などは調整が必要な場合がある */
+.sticker-choice-container { /* ... */ } .sticker-choice-button { /* ... */ } .sticker-choice-img { /* ... */ } .pasted-sticker { /* ... */ } @keyframes sticker-float { /* ... */ }
+body.shikoshiko-active:not(.no-pulse) { animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out; }
+@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.5+1)); } 100% { background-color: var(--member-main-bg); } }
+body.no-pulse { animation: none !important; }
+.modal { /* ... */ } .modal-content { /* ... */ background-color: #1c1c1e; /* さらに少し濃いダークグレー */ color: var(--global-text-color); border-color: #38383a;}
+.modal-close-button { /* ... */ } .modal-content h2 { /* ... */ }
+.modal-body .setting-group { border-bottom-color: #38383a; }
+.modal-body .setting-group h4 { color: #eee; } .modal-body label { color: #ddd; }
+.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #2a2a2e; color: #fff; border-color: #4a4a4f; }
+.modal-body .slider-value { background-color: #3a3a3e; color: #fff; }
+.modal-footer { border-top-color: #38383a; }
+.modal-footer .action-button {} .modal-sticker-choices { /* ... */ }
+
+
+/* --- カウンターモード、ギャラリーモード --- */
+.mode-section:not(#shikoshikoModeSection) { /* しこしこ以外は通常スタイル */
+    background-color: var(--default-content-bg); color: var(--default-text-color);
+    padding: 15px; overflow-y: auto;
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 15px); /* 下部タブがしこしこ専用になったので、このpaddingは不要になるかも */
 }
 .mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 {
     position: static; background-color: transparent; margin-bottom: 20px;
     border-bottom: 1px solid var(--default-border-color); padding-bottom:10px;
-    color: var(--default-text-color); /* 通常の文字色 */
+    color: var(--default-text-color);
 }
-/* 以下、前回のモーダル、カウンター、ギャラリーなどのスタイルを流用・調整 */
-.modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); animation: modalFadeIn 0.2s ease-out; }
-@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-content { background-color: #2d2d2d; /* 少し明るめのダークグレー */ color: var(--text-on-dark-bg); margin: 10vh auto; padding: 20px; border: 1px solid #444; width: 90%; max-width: 450px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: modalSlideIn 0.3s ease-out; }
-@keyframes modalSlideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-close-button { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
-.modal-close-button:hover, .modal-close-button:focus { color: #fff; }
-.modal-content h2 { margin-top: 0; color: var(--text-on-dark-bg); text-align: center; font-size: 1.3rem; margin-bottom: 20px; }
-.modal-body .setting-group { margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px solid #444; }
-.modal-body .setting-group:last-child { border-bottom: none; }
-.modal-body .setting-group h4 { color: #ddd; font-size: 1rem; margin-bottom: 10px;}
-.modal-body label { color: #ccc; }
-.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #3f3f3f; color: #fff; border: 1px solid #555; padding: 6px 8px; border-radius: 4px;}
-.modal-body .slider-container.member-sliders { /* モーダル内のスライダーコンテナ */ grid-template-columns: 1fr; gap: 10px; } /* 1列にする */
-.modal-body .member-slider-item { flex-direction: row; align-items: center; } /* 通常のレイアウトに戻す */
-.modal-body .member-slider-item label { min-width: 80px; text-align: left; }
-.modal-body .slider-value { background-color: #555; color: #fff; }
-.modal-footer { text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #444; }
-.modal-footer .action-button { width: auto; padding: 10px 25px; }
-.modal-sticker-choices { max-height: 120px; }
+/* カウンター、ギャラリー内の各要素の色も通常に戻す (前回と同様) */
+.counter-item { background-color: #fff; border-color: var(--default-border-color); }
+.counter-item .counter-member-name { color: var(--default-text-color); }
+.counter-item .count-number { color: var(--member-accent-color, var(--default-accent-color)); }
+.gallery-item { background-color: #f8f9fa; border-color: #eee; }
+.gallery-item-info { color: #495057; border-top-color: #eee; }
+.gallery-controls label, .gallery-controls select, .gallery-controls input { color: var(--default-text-color); background-color: #fff; border-color: #ccc; }
 
-.sticker-choice-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 8px; background-color: rgba(255,255,255,0.05); border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 130px; overflow-y: auto; margin-bottom: 8px; }
-.sticker-choice-button { width: 45px; height: 45px; padding: 4px; border: 1px solid rgba(255,255,255,0.2); background-color: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.sticker-choice-button:hover { transform: scale(1.05); background-color: rgba(255,255,255,0.15); }
-.sticker-choice-button.selected { box-shadow: 0 0 0 2px var(--member-accent-color, #fff); transform: scale(1.05); background-color: rgba(255,255,255,0.2); }
-.sticker-choice-img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
-.pasted-sticker { position: absolute; width: 80px; height: 80px; object-fit: contain; user-select: none; pointer-events: none; z-index: 10; animation: sticker-float 4s ease-in-out infinite alternate; transform-origin: center center; }
-@keyframes sticker-float { 0% { opacity: 0.7; transform: translate(-50%, -50%) translateY(-3px) rotate(-2deg); } 100% { opacity: 1.0; transform: translate(-50%, -50%) translateY(3px) rotate(2deg); } }
-body.shikoshiko-active:not(.no-pulse) { animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out; }
-@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.5+1)); } 100% { background-color: var(--member-main-bg); } }
-body.no-pulse { animation: none !important; }
-
-.counter-instruction { text-align: center; color: #6c757d; margin-bottom: 20px; }
-.counter-controls { text-align: right; margin-bottom: 18px; }
-.counter-mode-button { padding: 7px 15px; border-radius: 5px; cursor: pointer; border: 1px solid #adb5bd; background-color: #f8f9fa; color: #495057; font-size: 0.9rem; transition: background-color 0.2s, color 0.2s, border-color 0.2s; user-select: none; }
-.counter-mode-button:hover { background-color: #e9ecef; border-color: #6c757d; }
-.counter-mode-button.decrease-mode-active { background-color: #ffdd57; color: #363636; border-color: #ffcc00; font-weight: 600; }
-.counter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin-top: 20px; }
-.counter-item { border: 1px solid var(--default-border-color); border-radius: 8px; padding: 15px 10px; text-align: center; cursor: pointer; transition: transform 0.1s ease-out, background-color 0.2s, box-shadow 0.2s; background-color: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; outline: none; }
-.counter-item:focus-visible { box-shadow: 0 0 0 2px var(--member-accent-color, var(--default-accent-color)); }
-.counter-item:hover { background-color: #f8f9fa; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.07); transform: translateY(-2px); }
-.counter-item.clicked { transform: scale(0.96); background-color: #e9ecef; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
-.counter-item img { width: 60%; height: auto; max-width: 60px; max-height: 60px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 50%; margin-bottom: 8px; border: 3px solid var(--member-accent-color, #ced4da); transition: border-color 0.3s; pointer-events: none; }
-.counter-item img.image-error { border-color: red !important; content: url(images/placeholder.png); object-fit: cover; }
-.counter-item .counter-member-name { display: block; font-weight: 500; color: var(--default-text-color); font-size: 0.85rem; line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
-.counter-item .count-number { display: block; font-size: 1.3em; font-weight: bold; color: var(--member-accent-color, var(--default-accent-color)); margin-top: 4px; line-height: 1; transition: color 0.3s ease-in-out; }
-
-.gallery-controls { padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-.gallery-controls label { font-size: 0.9rem; color: var(--default-text-color); margin-right: 5px; }
-.gallery-controls select, .gallery-controls input[type="checkbox"] { padding: 6px 8px; font-size: 0.9rem; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; color: var(--default-text-color);}
-.gallery-toggle-weak { display: flex; align-items: center; }
-.gallery-toggle-weak input[type="checkbox"] { margin-right: 5px; accent-color: var(--member-accent-color, var(--default-accent-color)); }
-#galleryRefreshButton { margin-left: auto; }
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
-.gallery-item { border: 1px solid #eee; border-radius: 6px; overflow: hidden; background-color: #f8f9fa; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
-.gallery-thumbnail-link { display: block; }
-.gallery-thumbnail { width: 100%; height: 120px; object-fit: cover; display: block; cursor: pointer; transition: opacity 0.2s; }
-.gallery-thumbnail:hover { opacity: 0.85; }
-.gallery-item-info { padding: 8px; font-size: 0.75rem; text-align: center; color: #495057; border-top: 1px solid #eee; margin-top: auto; }
-.gallery-item-name { font-weight: bold; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gallery-item-path { font-size: 0.65rem; color: #adb5bd; word-break: break-all; }
-.gallery-item .weak-point-toggle { position: absolute; top: 5px; right: 5px; background-color: rgba(0,0,0,0.3); color: #fff; width: 28px; height: 28px; font-size: 1rem; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);}
-.gallery-item .weak-point-toggle.is-weak { color: #ffd700; background-color: rgba(0,0,0,0.5); }
-
-.app-notification { /* 変更なし */ }
-.app-notification.notification-success { /* 変更なし */ }
-.app-notification.notification-error { /* 変更なし */ }
-.app-notification.notification-info { /* 変更なし */ }
+.app-notification { /* 変更なし */ } .app-notification.notification-success { /* ... */ } .app-notification.notification-error { /* ... */ } .app-notification.notification-info { /* ... */ }
 
 
 /* --- レスポンシブ対応 --- */
-@media (max-width: 768px) { /* スマホ共通 */
-    .tab-navigation-area .tab-button { font-size: 0.7rem; } /* 下部タブナビのフォント調整 */
+@media (max-width: 768px) {
+    /* .tab-navigation-area .tab-button { font-size: 0.7rem; } */ /* 全体で調整 */
     .mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 { font-size: 1.1rem; padding: 10px 8px; }
-    #counterSection .mode-content-wrapper,
-    #gallerySection .mode-content-wrapper { padding-top: 45px; }
+    #counterSection .mode-content-wrapper, #gallerySection .mode-content-wrapper { padding-top: 45px; }
 
     /* しこしこモード スマホ調整 */
-    .shikoshiko-box1 { /* 上部メインエリア */
-        /* スマホではサイドパネルを少し小さく、またはオーバーレイ気味に */
-    }
-    .side-info-panel.left-panel { left: 5px; bottom: 5px; gap: 8px; }
+    .side-info-panel.left-panel { left: 5px; bottom: 5px; gap: 10px; }
     .profile-icon-wrapper { width: 35px; height: 35px; }
     .action-icon-button { font-size: 20px; }
-
-    .animation-area { width: 80px; /* 少し小さく */ }
-    .sao-image, .shikoshiko-image { width: 90%; height: 90%; } /* 親に対して少し小さく */
-
-    .serif-animation-container { height: 90px; } /* 少し低く */
-    .serif-area { padding: 8px; }
-    .member-quote { font-size: 1em; max-height: 2.8em; line-height: 1.4; }
-    .image-tags-container { font-size: 0.65em; }
-
     .settings-button-右上 { font-size: 1.3rem; top: 8px; right: 8px; padding: 5px 8px; }
 
-    .shikoshiko-box2 { padding: 3px; }
-    .main-controls { padding: 3px 0; }
-    .control-button { font-size: 0.85em; padding: 7px 12px; min-width: 70px; }
-    .tab-navigation-area { height: 40px; }
-    .tab-navigation-area .tab-button { font-size: 0.75rem; }
+    .serif-animation-container { height: 80px; } /* スマホでは少し低く */
+    .serif-area { padding: 6px 10px; }
+    .member-quote { font-size: 0.9em; max-height: 2.6em; line-height: 1.3; }
+    .image-tags-container { font-size: 0.6em; }
+    .animation-area { width: 80px; }
 
+    .shikoshiko-box2 { padding: 3px; }
+    .main-controls { height: calc(var(--shiko-controls-height) - 5px); padding: 0 3px;}
+    .control-button { font-size: 0.8em; padding: 6px 10px; min-width: 60px; }
+    .tab-navigation-area { height: calc(var(--bottom-nav-height) - 5px); }
+    .tab-navigation-area .tab-button { font-size: 0.7rem; }
 
     .modal-content { width: 95%; margin: 5vh auto; padding: 15px; max-height: 85vh; overflow-y: auto;}
     .modal-body .setting-group { margin-bottom: 10px; }
-    .modal-body .member-slider-item label { min-width: 70px; }
+    .modal-body .member-slider-item label { min-width: 60px; }
 
-    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; }
-    .counter-item { padding: 6px 4px; }
-    .counter-item img { max-width: 30px; max-height: 30px; }
-    .counter-item .counter-member-name { font-size: 0.6rem; }
-    .counter-item .count-number { font-size: 0.9em; }
-    .gallery-controls { gap: 8px; }
-    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
-    .gallery-thumbnail { height: 80px; }
+    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: 5px; }
+    .counter-item { padding: 5px 3px; }
+    .counter-item img { max-width: 28px; max-height: 28px; }
+    .counter-item .counter-member-name { font-size: 0.55rem; }
+    .counter-item .count-number { font-size: 0.8em; }
+    .gallery-controls { gap: 6px; }
+    .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; }
+    .gallery-thumbnail { height: 70px; }
 }
