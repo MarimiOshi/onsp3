@@ -74,65 +74,40 @@ const config = {
             },
             color: '#005BAC'
         }
-        // ★★★ 必要に応じて他のメンバーを追加 ★★★
-        // ★★★ 各メンバーの imageFolders.ero.imageCount が必ず 1 以上であることを確認 ★★★
-        // ★★★ 画像パスが正しいことを確認 ★★★
+        // ★★★ 上記はサンプルです。実際のメンバー構成、画像数、パスに合わせてください ★★★
+        // ★★★ 全メンバーの imageFolders.ero.imageCount が必ず 1 以上であることを確認してください ★★★
     ],
 
-    // しこしこモード設定
     shikoshikoDefaultSettings: {
-        imageSlideInterval: 5000, // ms
-        bpmLevels: [ // 残り時間割合が threshold "以上" の場合に適用されるBPM
-            { threshold: 0.8, bpm: 80 },
-            { threshold: 0.6, bpm: 100 },
-            { threshold: 0.4, bpm: 120 },
-            { threshold: 0.2, bpm: 150 },
-            { threshold: 0.0, bpm: 180 } // 最後のレベル (残り0%以上、つまり常にこれが最低保証BPM)
-        ],
-        soundFilePaths: [ // ★★★ soundsフォルダ内の実際のファイル名に合わせてください ★★★
+        imageSlideInterval: 5000, // 画像切り替え間隔 (ミリ秒)
+        fixedBpm: 120,            // ★★★ 固定BPM ★★★
+        soundFilePaths: [         // ★★★ soundsフォルダ内の実際のファイル名に合わせてください ★★★
             'sounds/1.wav', 'sounds/2.wav', 'sounds/3.wav', 'sounds/4.wav',
             'sounds/5.wav', 'sounds/6.wav', 'sounds/7.wav', 'sounds/8.wav'
-            // 'sounds/click1.wav', 'sounds/click2.wav', ... など
         ]
     },
 
-    // ステッカー設定 (もしステッカー機能を利用する場合)
-    stickerImagePaths: [
-        'images/stickers/1.png',
-        'images/stickers/2.png',
-        'images/stickers/3.png',
-        'images/stickers/4.png',
-        'images/stickers/5.png',
-        'images/stickers/6.png',
-        'images/stickers/7.png',
-        'images/stickers/8.png',
-        'images/stickers/9.png',
-        'images/stickers/10.png',
-        'images/stickers/11.png',
-        'images/stickers/12.png',
-        'images/stickers/13.png',
-        'images/stickers/14.png',
-        'images/stickers/15.png',
-        'images/stickers/16.png',
-        'images/stickers/17.png',
-        'images/stickers/18.png',
-        'images/stickers/19.png',
-        'images/stickers/20.png',
-        'images/stickers/21.png'
-        // ★★★ images/stickers/ フォルダ内の実際のファイル名に合わせてください ★★★
+    stickerImagePaths: [ // ★★★ images/stickers/ フォルダ内の実際のファイル名に合わせてください ★★★
+        'images/stickers/1.png', 'images/stickers/2.png', 'images/stickers/3.png',
+        'images/stickers/4.png', 'images/stickers/5.png', 'images/stickers/6.png',
+        'images/stickers/7.png', 'images/stickers/8.png', 'images/stickers/9.png',
+        'images/stickers/10.png', 'images/stickers/11.png', 'images/stickers/12.png',
+        'images/stickers/13.png', 'images/stickers/14.png', 'images/stickers/15.png',
+        'images/stickers/16.png', 'images/stickers/17.png', 'images/stickers/18.png',
+        'images/stickers/19.png', 'images/stickers/20.png', 'images/stickers/21.png'
     ],
-    STICKER_BASE_COLOR_HEX: '#ff0000', // ステッカーの色相回転の基準色 (赤)
+    STICKER_BASE_COLOR_HEX: '#ff0000',
 
-    // localStorageのキー名定義 (StorageServiceで使われる)
-    LS_COUNTER_KEY: 'onspNeoCounterData_v2',        // バージョンアップ
-    LS_WEAK_POINTS_KEY: 'onspNeoWeakPoints_v2',     // バージョンアップ
-    LS_SHIKOSHIKO_SETTINGS_KEY: 'onspNeoShikoshikoSettings_v2', // バージョンアップ
-    TAG_STORAGE_KEY: 'onspNeoImageTags_v2',      // バージョンアップ (ギャラリーでタグ使うなら)
-    LS_STICKER_DATA_KEY: 'onspNeoStickerData_v2',   // バージョンアップ
+    // localStorageのキー名定義
+    LS_COUNTER_KEY: 'onspNeoCounterData_v3',
+    LS_WEAK_POINTS_KEY: 'onspNeoWeakPoints_v3',
+    LS_SHIKOSHIKO_SETTINGS_KEY: 'onspNeoShikoshikoSettings_v3',
+    TAG_STORAGE_KEY: 'onspNeoImageTags_v3',
+    LS_STICKER_DATA_KEY: 'onspNeoStickerData_v3',
 
-    // ONSP_セリフ.csv のパス (もし利用する場合)
-    SERIF_CSV_PATH: 'data/ONSP_セリフ.csv'
+    // セリフ関連
+    SERIF_CSV_PATH: 'data/ONSP_セリフ.csv', // ★★★ CSVファイルのパス ★★★
+    QUOTE_TAG_DELIMITER: '|',               // ★★★ CSV内のタグ区切り文字 ★★★
 };
 
-// デバッグ用: config.js が読み込まれたことをコンソールに出力
-// console.log("config.js loaded and parsed successfully. Config object:", JSON.parse(JSON.stringify(config)));
+// console.log("config.js loaded and parsed. Config object:", JSON.parse(JSON.stringify(config)));
