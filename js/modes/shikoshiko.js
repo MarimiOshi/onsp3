@@ -15,22 +15,40 @@ const ShikoshikoMode = {
         settingsModal: null, closeModalButton: null, saveSettingsButton: null,
         modalMemberSlidersContainer: null, modalPulseBrightnessSlider: null,
         modalPulseBrightnessValue: null, modalFixedBpmInput: null,
-        modalStickerSettingsGroup: null, modalStickerChoiceContainer: null, modalClearAllStickersButton: null,
+        // modalStickerSettingsGroup: null, modalStickerChoiceContainer: null, modalClearAllStickersButton: null, // ステッカー廃止
     },
     state: {
-        isActive: false, gameRunning: true, isPaused: false,
-        settings: { memberWeights: {}, pulseBrightness: 3, fixedBpm: 120 },
+        isActive: false,
+        gameRunning: true,
+        isPaused: false,
+        settings: {
+            memberWeights: {},
+            // pulseBrightness: 3, // 背景パルス廃止
+            fixedBpm: 120
+        },
         currentBPM: 120,
-        imageIntervalId: null, currentMember: null, currentEROImages: [], currentEROImageIndex: 0,
-        metronomeAudioContext: null, metronomeSoundBuffers: [], loadedSoundCount: 0, metronomeTimeoutId: null,
-        selectedStickerPath: null, pastedStickers: {},
-        memberQuotes: {}, imageTags: {},
+        imageIntervalId: null,
+        currentMember: null,
+        currentEROImages: [],
+        currentEROImageIndex: 0,
+        metronomeAudioContext: null,
+        metronomeSoundBuffers: [],
+        loadedSoundCount: 0,
+        metronomeTimeoutId: null,
+        // selectedStickerPath: null, // ステッカー廃止
+        // pastedStickers: {},      // ステッカー廃止
+        memberQuotes: {},
+        imageTags: {},
         touchStartX: 0, touchEndX: 0, swipeThreshold: 50,
     },
     config: {
-        members: [], imageSlideInterval: 5000, soundFilePaths: [],
-        stickerImagePaths: [], stickerBaseHue: 0,
-        serifCsvPath: 'data/ONSP_セリフ.csv', quoteTagDelimiter: '|',
+        members: [],
+        imageSlideInterval: 5000,
+        soundFilePaths: [],
+        // stickerImagePaths: [], // ステッカー廃止
+        // stickerBaseHue: 0,     // ステッカー廃止
+        serifCsvPath: 'data/ONSP_セリフ.csv',
+        quoteTagDelimiter: '|',
     },
     dependencies: {
         app: null, storage: null, utils: null, domUtils: null, uiComponents: null, counterMode: null,
@@ -42,7 +60,7 @@ const ShikoshikoMode = {
         this.dependencies.utils = Utils;
         this.dependencies.domUtils = DOMUtils;
         this.dependencies.uiComponents = UIComponents;
-        console.log("Initializing Shikoshiko Mode (Fully Restored, No Start/End)...");
+        console.log("Initializing Shikoshiko Mode (Fully Restored, No Start/End, Features Removed)...");
 
         this.elements.section = this.dependencies.domUtils.qs('#shikoshikoModeSection');
         this.elements.openSettingsModalButton = this.dependencies.domUtils.qs('#openShikoshikoSettingsModal');
@@ -50,12 +68,9 @@ const ShikoshikoMode = {
         this.elements.closeModalButton = this.dependencies.domUtils.qs('#closeShikoshikoSettingsModal');
         this.elements.saveSettingsButton = this.dependencies.domUtils.qs('#saveShikoshikoSettingsButton');
         this.elements.modalMemberSlidersContainer = this.dependencies.domUtils.qs('#modalShikoshikoMemberSliders');
-        this.elements.modalPulseBrightnessSlider = this.dependencies.domUtils.qs('#modalPulseBrightnessSlider');
-        this.elements.modalPulseBrightnessValue = this.dependencies.domUtils.qs('#modalPulseBrightnessValue');
+        // 背景パルス関連の要素取得は削除
         this.elements.modalFixedBpmInput = this.dependencies.domUtils.qs('#modalFixedBpmInput');
-        this.elements.modalStickerSettingsGroup = this.dependencies.domUtils.qs('#modalStickerSettingsGroup');
-        this.elements.modalStickerChoiceContainer = this.dependencies.domUtils.qs('#modalStickerChoiceContainer');
-        this.elements.modalClearAllStickersButton = this.dependencies.domUtils.qs('#modalClearAllStickersButton');
+        // ステッカー関連のモーダル内要素参照は削除
 
         this.elements.gameArea = this.dependencies.domUtils.qs('.shikoshiko-box1');
         this.elements.memberProfileIcon = this.dependencies.domUtils.qs('#shikoshikoMemberProfileIcon');
@@ -78,16 +93,12 @@ const ShikoshikoMode = {
             if (sds.imageSlideInterval !== undefined) this.config.imageSlideInterval = sds.imageSlideInterval;
             if (sds.soundFilePaths) this.config.soundFilePaths = sds.soundFilePaths;
         }
-        if (initialConfig.stickerImagePaths) this.config.stickerImagePaths = initialConfig.stickerImagePaths;
-        if (initialConfig.STICKER_BASE_COLOR_HEX) {
-            const hsl = this.dependencies.utils.hexToHsl(initialConfig.STICKER_BASE_COLOR_HEX);
-            if (hsl) this.config.stickerBaseHue = hsl[0];
-        }
+        // ステッカー関連のconfig読み込み削除
         if (initialConfig.SERIF_CSV_PATH) this.config.serifCsvPath = initialConfig.SERIF_CSV_PATH;
         if (initialConfig.QUOTE_TAG_DELIMITER) this.config.quoteTagDelimiter = initialConfig.QUOTE_TAG_DELIMITER;
 
         this.loadSettings();
-        this.loadPastedStickers();
+        // this.loadPastedStickers(); // ステッカー廃止
         this.loadImageTags();
         this.loadMemberQuotes();
 
@@ -99,7 +110,7 @@ const ShikoshikoMode = {
         this.state.gameRunning = true;
         this.state.isPaused = false;
         this.applyFixedBpm();
-        console.log("Shikoshiko Mode Initialized (Fully Restored, Auto-Start).");
+        console.log("Shikoshiko Mode Initialized (Fully Restored, Auto-Start, Features Removed).");
     },
 
     initModalUI: function() {
@@ -111,23 +122,8 @@ const ShikoshikoMode = {
         } else {
             if(this.elements.modalMemberSlidersContainer) this.elements.modalMemberSlidersContainer.innerHTML = "<p>メンバーデータがありません。</p>";
         }
-        if (this.elements.modalPulseBrightnessSlider && this.elements.modalPulseBrightnessValue) {
-            this.dependencies.uiComponents.initGenericSlider(
-                '#modalPulseBrightnessSlider', '#modalPulseBrightnessValue', this.state.settings.pulseBrightness, () => {}
-            );
-        }
-        if (this.config.stickerImagePaths && this.config.stickerImagePaths.length > 0 && this.elements.modalStickerSettingsGroup) {
-            if (this.elements.modalStickerSettingsGroup) this.dependencies.domUtils.toggleDisplay(this.elements.modalStickerSettingsGroup, true);
-            this.dependencies.uiComponents.createStickerChoices(
-                '#modalStickerChoiceContainer', this.config.stickerImagePaths,
-                (selectedPath) => {
-                    if (this.state.gameRunning && !this.state.isPaused) { this.deselectSticker(); return; }
-                    if (selectedPath === this.state.selectedStickerPath) this.deselectSticker();
-                    else this.state.selectedStickerPath = selectedPath;
-                    this.updateStickerCursor();
-                }
-            );
-        }
+        // 背景パルススライダーの初期化削除
+        // ステッカーUIの初期化削除
     },
 
     addEventListeners: function() {
@@ -137,7 +133,7 @@ const ShikoshikoMode = {
         if (this.elements.skipButton) du.on(this.elements.skipButton, 'click', () => this.skipCurrentImage());
         if (this.elements.weakPointButton) du.on(this.elements.weakPointButton, 'click', () => this.toggleWeakPoint());
         if (this.elements.memberImageContainer) {
-            du.on(this.elements.memberImageContainer, 'click', (event) => this.handleImageContainerClick(event));
+            // du.on(this.elements.memberImageContainer, 'click', (event) => this.handleImageContainerClick(event)); // ステッカー機能廃止のためコメントアウト
             du.on(this.elements.memberImageContainer, 'touchstart', (event) => this.handleTouchStart(event), { passive: true });
             du.on(this.elements.memberImageContainer, 'touchmove', (event) => this.handleTouchMove(event), { passive: false });
             du.on(this.elements.memberImageContainer, 'touchend', (event) => this.handleTouchEnd(event));
@@ -145,7 +141,7 @@ const ShikoshikoMode = {
         if (this.elements.openSettingsModalButton) du.on(this.elements.openSettingsModalButton, 'click', () => this.openSettingsModal());
         if (this.elements.closeModalButton) du.on(this.elements.closeModalButton, 'click', () => this.closeSettingsModal());
         if (this.elements.saveSettingsButton) du.on(this.elements.saveSettingsButton, 'click', () => this.saveModalSettings());
-        if (this.elements.modalClearAllStickersButton) du.on(this.elements.modalClearAllStickersButton, 'click', () => this.clearAllPastedStickersForCurrentImage());
+        // if (this.elements.modalClearAllStickersButton) du.on(this.elements.modalClearAllStickersButton, 'click', () => this.clearAllPastedStickersForCurrentImage()); // ステッカー廃止
     },
 
     openSettingsModal: function() {
@@ -155,15 +151,14 @@ const ShikoshikoMode = {
                 '#modalShikoshikoMemberSliders', this.config.members, this.state.settings.memberWeights,() => {}
             );
         }
-        if (this.elements.modalPulseBrightnessSlider) this.elements.modalPulseBrightnessSlider.value = this.state.settings.pulseBrightness;
-        if (this.elements.modalPulseBrightnessValue) this.dependencies.domUtils.setText(this.elements.modalPulseBrightnessValue, String(this.state.settings.pulseBrightness));
+        // 背景パルススライダーの値反映削除
         if (this.elements.modalFixedBpmInput) this.elements.modalFixedBpmInput.value = this.state.settings.fixedBpm;
         this.dependencies.uiComponents.openModal('#shikoshikoSettingsModal');
     },
     closeSettingsModal: function() {
         if (!this.elements.settingsModal || !this.dependencies.uiComponents) return;
         this.dependencies.uiComponents.closeModal('#shikoshikoSettingsModal');
-        this.deselectSticker();
+        // this.deselectSticker(); // ステッカー廃止
     },
     saveModalSettings: function() {
         if (this.elements.modalMemberSlidersContainer) {
@@ -171,13 +166,16 @@ const ShikoshikoMode = {
                 if (slider.dataset.memberName) this.state.settings.memberWeights[slider.dataset.memberName] = Number(slider.value);
             });
         }
-        if (this.elements.modalPulseBrightnessSlider) this.state.settings.pulseBrightness = Number(this.elements.modalPulseBrightnessSlider.value);
+        // 背景パルス設定の読み取り削除
         if (this.elements.modalFixedBpmInput) {
             const newBpm = parseInt(this.elements.modalFixedBpmInput.value, 10);
             if (!isNaN(newBpm) && newBpm >= 30 && newBpm <= 300) this.state.settings.fixedBpm = newBpm;
             else if (this.elements.modalFixedBpmInput) this.elements.modalFixedBpmInput.value = this.state.settings.fixedBpm;
         }
-        this.applyPulseBrightness(); this.applyFixedBpm(); this.saveSettings(); this.closeSettingsModal();
+        // this.applyPulseBrightness(); // 廃止
+        this.applyFixedBpm();
+        this.saveSettings();
+        this.closeSettingsModal();
         if (this.state.gameRunning && !this.state.isPaused) { this.updateShikoAnimationSpeed(); this.scheduleMetronomeSound(); }
     },
 
@@ -189,25 +187,26 @@ const ShikoshikoMode = {
         }
         const configDefaultBpm = (this.config.shikoshikoDefaultSettings && this.config.shikoshikoDefaultSettings.fixedBpm !== undefined)
             ? this.config.shikoshikoDefaultSettings.fixedBpm : 120;
-        const defaultBaseSettings = { memberWeights: defaultMemberWeights, pulseBrightness: 3, fixedBpm: configDefaultBpm, };
+        const defaultBaseSettings = {
+            memberWeights: defaultMemberWeights,
+            // pulseBrightness: 3, // 廃止
+            fixedBpm: configDefaultBpm,
+        };
         this.state.settings = { ...defaultBaseSettings, ...loadedSettings };
         if (loadedSettings && loadedSettings.memberWeights) this.state.settings.memberWeights = { ...defaultMemberWeights, ...loadedSettings.memberWeights };
         else this.state.settings.memberWeights = defaultMemberWeights;
         this.state.settings.fixedBpm = loadedSettings.fixedBpm !== undefined ? loadedSettings.fixedBpm : configDefaultBpm;
+        // pulseBrightnessの読み込み削除
         this.state.currentBPM = this.state.settings.fixedBpm;
-        this.applyPulseBrightness();
+        // this.applyPulseBrightness(); // 廃止
     },
     saveSettings: function() {
-        const settingsToSave = { ...this.state.settings };
-        this.dependencies.storage.saveShikoshikoSettings(settingsToSave);
+        // pulseBrightness を保存対象から削除
+        const { pulseBrightness, ...settingsToSaveWithoutPulse } = this.state.settings;
+        this.dependencies.storage.saveShikoshikoSettings(settingsToSaveWithoutPulse);
     },
-    applyPulseBrightness: function() {
-        if(!this.elements.modalPulseBrightnessValue && !document.documentElement) return; // 要素かルートがなければ何もしない
-        const brightness = this.state.settings.pulseBrightness;
-        const factor = 1.0 + (brightness * 0.06);
-        document.documentElement.style.setProperty('--pulse-brightness-factor', factor.toFixed(2));
-        if(this.elements.modalPulseBrightnessValue) this.dependencies.domUtils.setText(this.elements.modalPulseBrightnessValue, String(brightness));
-    },
+    // applyPulseBrightness メソッド自体を削除
+
     applyFixedBpm: function() {
         this.state.currentBPM = this.state.settings.fixedBpm;
         this.updateShikoAnimationSpeed();
@@ -259,7 +258,7 @@ const ShikoshikoMode = {
         const currentImageRelPath = this.elements.weakPointButton.dataset.relpath;
         const tagsForCurrentImage = currentImageRelPath ? (this.state.imageTags[currentImageRelPath] || []) : [];
         if (tagsForCurrentImage.length > 0) {
-            tagsForCurrentImage.forEach(tagText => {
+            tagsForCurrentImage.sort().forEach(tagText => { // タグをソート
                 const tagElement = this.dependencies.domUtils.createElement('span', { class: 'image-tag-item' }, [tagText]);
                 this.elements.imageTagsContainer.appendChild(tagElement);
             });
@@ -315,7 +314,7 @@ const ShikoshikoMode = {
     nextEROImage: function() {
         if (!this.state.gameRunning || this.state.isPaused) return;
         const newMember = this.selectRandomMember();
-        if (!newMember) { this.clearMemberDisplayAndUpdate(); this.dependencies.app.applyTheme(null); this.dependencies.uiComponents.showNotification("表示できるメンバーがいません。", "error"); this.togglePauseGame(); /* エラーなので一時停止 */ return; }
+        if (!newMember) { this.clearMemberDisplayAndUpdate(); this.dependencies.app.applyTheme(null); this.dependencies.uiComponents.showNotification("表示できるメンバーがいません。", "error"); this.togglePauseGame(); return; }
         this.state.currentMember = newMember;
         this.dependencies.app.applyTheme(this.state.currentMember.color);
         this.state.currentEROImages = []; const eroFolder = this.state.currentMember.imageFolders.ero;
@@ -332,7 +331,7 @@ const ShikoshikoMode = {
         }
         memberImageElement.src = imagePath;
         memberImageElement.onerror = () => { memberImageElement.src = 'images/placeholder.png'; this.dependencies.domUtils.addClass(memberImageElement, 'image-error'); this.displayQuoteAndTags(); };
-        memberImageElement.onload = () => { this.dependencies.domUtils.removeClass(memberImageElement, 'image-error'); this.updateWeakPointButtonState(); this.renderPastedStickers(); this.displayQuoteAndTags(); };
+        memberImageElement.onload = () => { this.dependencies.domUtils.removeClass(memberImageElement, 'image-error'); this.updateWeakPointButtonState(); /*this.renderPastedStickers();*/ this.displayQuoteAndTags(); }; // ステッカー廃止
         this.updateUI();
     },
     skipCurrentImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.nextEROImage(); },
@@ -409,17 +408,32 @@ const ShikoshikoMode = {
                 const response = await fetch(path);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status} for ${path}`);
                 const arrayBuffer = await response.arrayBuffer();
-                const audioBuffer = await this.state.metronomeAudioContext.decodeAudioData(arrayBuffer);
-                this.state.metronomeSoundBuffers.push(audioBuffer); this.state.loadedSoundCount++;
+                // AudioContextがユーザーインタラクション前にsuspendedになることがあるため、デコード前に再開試行
+                if (this.state.metronomeAudioContext.state === 'suspended') {
+                    await this.state.metronomeAudioContext.resume().catch(e => console.warn("Could not resume audio context for decoding", e));
+                }
+                if (this.state.metronomeAudioContext.state === 'running') {
+                    const audioBuffer = await this.state.metronomeAudioContext.decodeAudioData(arrayBuffer);
+                    this.state.metronomeSoundBuffers.push(audioBuffer); this.state.loadedSoundCount++;
+                } else {
+                    console.warn(`AudioContext not running, cannot decode ${path}`);
+                }
             } catch (error) { console.error(`Failed to load or decode sound: ${path}`, error); }
         }
         if (this.state.loadedSoundCount > 0) console.log(`${this.state.loadedSoundCount} metronome sounds loaded.`);
-        else console.warn("No metronome sounds could be loaded. Check paths and file integrity.");
+        else console.warn("No metronome sounds could be loaded. Check paths, file integrity, and user interaction for AudioContext.");
     },
     playMetronomeSound: function() {
-        if (!this.state.metronomeAudioContext || this.state.metronomeSoundBuffers.length === 0 || !this.state.gameRunning || this.state.isPaused) return; // isPaused追加
-        if (this.state.metronomeAudioContext.state === 'suspended') { this.state.metronomeAudioContext.resume().catch(e => console.error("Error resuming AudioContext:", e)); }
-        if (this.state.metronomeAudioContext.state !== 'running') return;
+        if (!this.state.metronomeAudioContext || this.state.metronomeSoundBuffers.length === 0 || !this.state.gameRunning || this.state.isPaused) return;
+        if (this.state.metronomeAudioContext.state === 'suspended') {
+            this.state.metronomeAudioContext.resume().then(() => {
+                if (this.state.metronomeAudioContext.state === 'running') this._actualPlaySound();
+            }).catch(e => console.error("Error resuming AudioContext on play:", e));
+        } else if (this.state.metronomeAudioContext.state === 'running') {
+            this._actualPlaySound();
+        }
+    },
+    _actualPlaySound: function() { // playMetronomeSoundから呼び出される内部関数
         const randomBuffer = this.dependencies.utils.getRandomElement(this.state.metronomeSoundBuffers);
         if (randomBuffer) {
             try {
@@ -430,7 +444,7 @@ const ShikoshikoMode = {
     },
     scheduleMetronomeSound: function() {
         if (this.state.metronomeTimeoutId) clearTimeout(this.state.metronomeTimeoutId);
-        if (!this.state.gameRunning || this.state.isPaused || this.state.currentBPM <= 0 || this.state.metronomeSoundBuffers.length === 0) return; // isPaused追加
+        if (!this.state.gameRunning || this.state.isPaused || this.state.currentBPM <= 0 || this.state.metronomeSoundBuffers.length === 0) return;
         this.playMetronomeSound();
         const intervalMs = (60 / this.state.currentBPM) * 1000;
         this.state.metronomeTimeoutId = setTimeout(() => { this.scheduleMetronomeSound(); }, intervalMs);
@@ -447,9 +461,7 @@ const ShikoshikoMode = {
     },
     updateWeakPointButtonState: function() {
         if (!this.elements.weakPointButton) return; const relPath = this.elements.weakPointButton.dataset.relpath;
-        if (!relPath || !this.state.currentMember) { // currentMemberの存在も確認
-            this.dependencies.domUtils.toggleDisplay(this.elements.weakPointButton, false); return;
-        }
+        if (!relPath || !this.state.currentMember) { this.dependencies.domUtils.toggleDisplay(this.elements.weakPointButton, false); return; }
         this.dependencies.domUtils.toggleDisplay(this.elements.weakPointButton, true);
         const weakPoints = this.dependencies.storage.loadWeakPoints(); const isWeak = weakPoints.has(relPath);
         if(this.elements.weakPointButton.firstElementChild) this.dependencies.domUtils.setText(this.elements.weakPointButton.firstElementChild, isWeak ? '★' : '☆');
@@ -457,84 +469,30 @@ const ShikoshikoMode = {
         this.elements.weakPointButton.title = isWeak ? '弱点解除' : '弱点登録';
     },
 
-    loadPastedStickers: function() { this.state.pastedStickers = this.dependencies.storage.loadStickerData() || {}; },
-    savePastedStickers: function() { this.dependencies.storage.saveStickerData(this.state.pastedStickers); },
-    renderPastedStickers: function() {
-        if (!this.elements.memberImageContainer) return;
-        this.dependencies.domUtils.qsa('.pasted-sticker', this.elements.memberImageContainer).forEach(el => el.remove());
-        if (!this.state.currentMember || !this.elements.memberImage || !this.elements.memberImage.src || this.elements.memberImage.src.endsWith('placeholder.png')) return;
-        const currentImageRelPath = this.elements.weakPointButton.dataset.relpath; if (!currentImageRelPath) return;
-        const stickersForCurrentImage = this.state.pastedStickers[currentImageRelPath] || [];
-        stickersForCurrentImage.forEach(stickerData => {
-            const stickerElement = this.dependencies.domUtils.createElement('img', { class: 'pasted-sticker', src: stickerData.stickerSrc, alt: 'ステッカー', style: `left: ${stickerData.x}%; top: ${stickerData.y}%; transform: translate(-50%, -50%) rotate(${stickerData.rotation || 0}deg) scale(${stickerData.scale || 1}); filter: ${stickerData.filter || 'none'};` });
-            this.elements.memberImageContainer.appendChild(stickerElement);
-        });
-    },
-    handleImageContainerClick: function(event) {
-        if (!this.state.selectedStickerPath || !this.elements.memberImageContainer) return;
-        if (this.state.gameRunning && !this.state.isPaused) { console.log("Cannot paste stickers during active game play."); return; } // アクティブなプレイ中は貼れない
-        if (!this.state.currentMember || !this.elements.memberImage.src || this.elements.memberImage.src.endsWith('placeholder.png')) { console.log("Cannot paste sticker: No member image displayed."); return; }
-        const rect = this.elements.memberImageContainer.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100; const y = ((event.clientY - rect.top) / rect.height) * 100;
-        const currentImageRelPath = this.elements.weakPointButton.dataset.relpath; if (!currentImageRelPath) { console.warn("Cannot paste sticker: currentImageRelPath is not set."); return; }
-        if (!this.state.pastedStickers[currentImageRelPath]) this.state.pastedStickers[currentImageRelPath] = [];
-        let hueRotationFilter = 'none'; const memberColor = this.state.currentMember?.color;
-        if (memberColor && this.config.stickerBaseHue !== undefined) {
-            const targetHsl = this.dependencies.utils.hexToHsl(memberColor);
-            if (targetHsl) { let diff = targetHsl[0] - this.config.stickerBaseHue; while (diff <= -180) diff += 360; while (diff > 180) diff -= 360; hueRotationFilter = `hue-rotate(${Math.round(diff)}deg)`; }
-        }
-        const newStickerData = { stickerSrc: this.state.selectedStickerPath, x: x, y: y, rotation: this.dependencies.utils.getRandomInt(-15, 15), scale: this.dependencies.utils.getRandomInt(80, 120) / 100, filter: hueRotationFilter };
-        this.state.pastedStickers[currentImageRelPath].push(newStickerData);
-        this.savePastedStickers(); this.renderPastedStickers(); this.deselectSticker();
-    },
-    clearAllPastedStickersForCurrentImage: function() {
-        if (!this.state.currentMember) return; const currentImageRelPath = this.elements.weakPointButton.dataset.relpath; if (!currentImageRelPath) return;
-        if (this.state.pastedStickers[currentImageRelPath]) { delete this.state.pastedStickers[currentImageRelPath]; this.savePastedStickers(); this.renderPastedStickers(); console.log(`Cleared all stickers for ${currentImageRelPath}`); }
-    },
-    updateStickerCursor: function() { /* CSSでカーソルプレビュー要素を制御するため、JSでの直接的なcursor変更は不要 */ },
-    deselectSticker: function() {
-        this.state.selectedStickerPath = null;
-        // モーダル内のステッカー選択も解除
-        const modalStickerContainer = this.elements.modalStickerChoiceContainer;
-        if (modalStickerContainer) {
-            this.dependencies.domUtils.qsa('.sticker-choice-button.selected', modalStickerContainer)
-                .forEach(btn => this.dependencies.domUtils.removeClass(btn, 'selected'));
-        }
-        this.updateStickerCursor();
-    },
+    // ステッカー関連メソッドは全て削除済み
 
     activate: function() {
         this.state.isActive = true;
         if (this.elements.section) { this.dependencies.domUtils.addClass(this.elements.section, 'active'); this.dependencies.domUtils.toggleDisplay(this.elements.section, true); }
-        this.loadSettings(); this.applyFixedBpm(); this.loadPastedStickers(); this.loadImageTags();
+        this.loadSettings(); this.applyFixedBpm();
+        // this.loadPastedStickers(); // ステッカー廃止
+        this.loadImageTags();
         this.loadMemberQuotes().then(() => {
-            if (this.state.gameRunning && this.state.isPaused) { // 一時停止からの復帰
-                this.state.isPaused = false; // isPausedをここでfalseに設定
-                this.resumeGame(); // resumeGame内でUI更新やアニメーション再開
-            } else if (this.state.gameRunning && !this.state.isPaused) { // 初回起動 or 実行中のタブに戻った
+            if (this.state.gameRunning && this.state.isPaused) {
+                this.resumeGame();
+            } else if (this.state.gameRunning && !this.state.isPaused) {
                 if (!this.state.currentMember) this.nextEROImage();
-                else { // 既にメンバーと画像が表示されている場合
-                    this.dependencies.app.applyTheme(this.state.currentMember.color);
-                    this.displayQuoteAndTags();
-                    this.renderPastedStickers();
-                }
+                else this.displayQuoteAndTags();
                 this.resumeShikoAnimationAndSound();
                 if(this.state.imageIntervalId) clearInterval(this.state.imageIntervalId);
                 this.state.imageIntervalId = setInterval(() => { if (!this.state.isPaused) this.nextEROImage(); }, this.config.imageSlideInterval);
             }
-            this.updateUI(); // 常にUIを最新状態に
+            this.updateUI();
         });
         if (!this.state.currentMember) this.dependencies.app.applyTheme(null);
-        this.dependencies.domUtils.addClass(document.body, 'shikoshiko-active');
-        if (this.state.settings.pulseBrightness > 0 && this.elements.gameArea) {
-            this.dependencies.domUtils.addClass(this.elements.gameArea, 'pulsing'); // gameAreaにパルス適用
-            this.dependencies.domUtils.removeClass(document.body, 'no-pulse'); // body全体のno-pulseは不要かも
-        } else {
-            if(this.elements.gameArea) this.dependencies.domUtils.removeClass(this.elements.gameArea, 'pulsing');
-            this.dependencies.domUtils.addClass(document.body, 'no-pulse');
-        }
-        this.deselectSticker();
-        console.log("Shikoshiko Mode Activated.");
+        // 背景パルス関連のクラス操作は削除
+        // this.deselectSticker(); // ステッカー廃止
+        console.log("Shikoshiko Mode Activated (Features Removed).");
     },
     deactivate: function() {
         this.state.isActive = false;
@@ -543,8 +501,7 @@ const ShikoshikoMode = {
             if(this.state.imageIntervalId) clearInterval(this.state.imageIntervalId); this.state.imageIntervalId = null;
             this.updateUI(); console.log("Shikoshiko Mode Paused due to tab change.");
         }
-        this.deselectSticker();
-        if(this.elements.gameArea) this.dependencies.domUtils.removeClass(this.elements.gameArea, 'pulsing'); // 非アクティブ化時にパルス解除
+        // this.deselectSticker(); // ステッカー廃止
         console.log("Shikoshiko Mode Deactivated (or Paused).");
     },
     clearMemberDisplayAndUpdate: function() { this.clearMemberDisplay(); this.updateUI(); },
@@ -554,7 +511,8 @@ const ShikoshikoMode = {
         if(this.elements.memberQuoteDisplay) this.dependencies.domUtils.setText(this.elements.memberQuoteDisplay, "ここにセリフが表示されます");
         if(this.elements.imageTagsContainer) this.dependencies.domUtils.toggleDisplay(this.elements.imageTagsContainer, false);
         if(this.elements.weakPointButton) this.elements.weakPointButton.dataset.relpath = "";
-        this.updateWeakPointButtonState(); this.renderPastedStickers(); // 画像がないのでステッカーも表示されない
+        this.updateWeakPointButtonState();
+        // this.renderPastedStickers(); // ステッカー廃止
     },
     setCounterModeDependency: function(counterModeInstance) { this.dependencies.counterMode = counterModeInstance; },
     handleTouchStart: function(event) {
@@ -569,13 +527,12 @@ const ShikoshikoMode = {
     handleTouchEnd: function(event) {
         if (!this.state.gameRunning || this.state.isPaused) return;
         const touchDiff = this.state.touchStartX - this.state.touchEndX;
-        if (Math.abs(touchDiff) > this.state.swipeThreshold) {
-            console.log("Swipe detected - Skip Next"); this.skipCurrentImage();
-        }
+        if (Math.abs(touchDiff) > this.state.swipeThreshold) { console.log("Swipe detected - Skip Next"); this.skipCurrentImage(); }
         this.state.touchStartX = 0; this.state.touchEndX = 0;
     },
     handleGlobalKeydown: function(event) {
-        if (!this.state.isActive) return; if (this.state.selectedStickerPath) return;
+        if (!this.state.isActive) return;
+        // if (this.state.selectedStickerPath) return; // ステッカー廃止
         if (this.state.gameRunning && !this.state.isPaused) {
             if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); this.skipCurrentImage(); }
         }
