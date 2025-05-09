@@ -6,6 +6,7 @@ const App = {
         tabButtons: [],
         modeSections: [],
         appContainer: null, // body またはメインのラッパー要素
+        headerTitle: null,  // ヘッダーのタイトル要素
     },
     state: {
         activeTab: '#shikoshikoModeSection', // 初期表示タブ
@@ -19,45 +20,60 @@ const App = {
     },
 
     init: function() {
+        // ★★★ config変数の読み込み確認ログ ★★★
+        if (typeof config === 'undefined') {
+            console.error("CRITICAL: 'config' object is NOT defined in the global scope. Check config.js loading and definition.");
+            alert("CRITICAL ERROR: config.js is not loaded or defined correctly. Application cannot start.");
+            // 開発中はここで処理を止めない方がデバッグしやすい場合もあるが、本番ではreturn推奨
+            // return;
+            this.state.config = { members: [] }; // フォールバックとして空のconfigを設定
+        } else {
+            console.log("SUCCESS: 'config' object IS defined globally. Content:", JSON.parse(JSON.stringify(config)));
+            this.state.config = config; // グローバルなconfigオブジェクトをAppのstateにコピー
+        }
+        // ★★★ ここまで ★★★
+
         console.log("ONSP App Initializing...");
 
-        // config.js のグローバル変数を取得
-        this.state.config = typeof config !== 'undefined' ? config : {};
-        // config_secret.js のキーもここでチェック・保持できるが、フロントでの直接利用は非推奨
-
         // 依存関係の解決 (グローバルに公開されたオブジェクトを直接参照)
-        // 本来は import/export を使うか、依存性注入の仕組みを整えるのが望ましい
-        this.Utils = typeof Utils !== 'undefined' ? Utils : console.error("Utils not loaded!");
-        this.StorageService = typeof StorageService !== 'undefined' ? StorageService : console.error("StorageService not loaded!");
-        this.DOMUtils = typeof DOMUtils !== 'undefined' ? DOMUtils : console.error("DOMUtils not loaded!");
-        this.UIComponents = typeof UIComponents !== 'undefined' ? UIComponents : console.error("UIComponents not loaded!");
+        this.Utils = typeof Utils !== 'undefined' ? Utils : this.logDependencyError("Utils");
+        this.StorageService = typeof StorageService !== 'undefined' ? StorageService : this.logDependencyError("StorageService");
+        this.DOMUtils = typeof DOMUtils !== 'undefined' ? DOMUtils : this.logDependencyError("DOMUtils");
+        this.UIComponents = typeof UIComponents !== 'undefined' ? UIComponents : this.logDependencyError("UIComponents");
 
-        this.ShikoshikoMode = typeof ShikoshikoMode !== 'undefined' ? ShikoshikoMode : console.error("ShikoshikoMode not loaded!");
-        this.CounterMode = typeof CounterMode !== 'undefined' ? CounterMode : console.error("CounterMode not loaded!");
-        this.GalleryMode = typeof GalleryMode !== 'undefined' ? GalleryMode : console.error("GalleryMode not loaded!");
+        this.ShikoshikoMode = typeof ShikoshikoMode !== 'undefined' ? ShikoshikoMode : this.logDependencyError("ShikoshikoMode");
+        this.CounterMode = typeof CounterMode !== 'undefined' ? CounterMode : this.logDependencyError("CounterMode");
+        this.GalleryMode = typeof GalleryMode !== 'undefined' ? GalleryMode : this.logDependencyError("GalleryMode");
 
-
+        // DOM要素取得
         this.elements.tabNavigation = this.DOMUtils.qs('#tabNavigation');
-        this.elements.tabButtons = this.DOMUtils.qsa('.tab-button', this.elements.tabNavigation);
-        this.elements.modeSections = this.DOMUtils.qsa('.mode-section'); // HTMLの各モードのコンテナセクション
+        if (this.elements.tabNavigation) {
+            this.elements.tabButtons = this.DOMUtils.qsa('.tab-button', this.elements.tabNavigation);
+        } else {
+            console.error("Tab navigation element ('#tabNavigation') not found.");
+            this.elements.tabButtons = [];
+        }
+        this.elements.modeSections = this.DOMUtils.qsa('.mode-section');
         this.elements.appContainer = this.DOMUtils.qs('body'); // テーマ適用対象
+        this.elements.headerTitle = this.DOMUtils.qs('.app-header h1');
+
 
         // モジュールの初期化
-        if (this.ShikoshikoMode) {
+        if (this.ShikoshikoMode && typeof this.ShikoshikoMode.init === 'function') {
             this.modules.shikoshiko = Object.create(this.ShikoshikoMode);
             this.modules.shikoshiko.init(this, this.state.config);
         }
-        if (this.CounterMode) {
+        if (this.CounterMode && typeof this.CounterMode.init === 'function') {
             this.modules.counter = Object.create(this.CounterMode);
             this.modules.counter.init(this, this.state.config);
         }
-        if (this.GalleryMode) {
+        if (this.GalleryMode && typeof this.GalleryMode.init === 'function') {
             this.modules.gallery = Object.create(this.GalleryMode);
             this.modules.gallery.init(this, this.state.config);
         }
 
-        // しこしこモードがカウンターモードに依存する場合の設定
-        if (this.modules.shikoshiko && this.modules.counter) {
+        // モジュール間の依存関係設定
+        if (this.modules.shikoshiko && this.modules.counter && typeof this.modules.shikoshiko.setCounterModeDependency === 'function') {
             this.modules.shikoshiko.setCounterModeDependency(this.modules.counter);
         }
 
@@ -68,29 +84,47 @@ const App = {
         console.log("ONSP App Initialized Successfully.");
     },
 
+    logDependencyError: function(dependencyName) {
+        console.error(`${dependencyName} not loaded or defined! Application might not work correctly.`);
+        return null; // エラー時はnullを返して、以降の処理でエラーチェックできるようにする
+    },
+
     addEventListeners: function() {
+        if (this.elements.tabButtons.length === 0) {
+            console.warn("No tab buttons found to attach listeners.");
+            return;
+        }
         this.elements.tabButtons.forEach(button => {
             this.DOMUtils.on(button, 'click', (event) => {
                 const targetId = event.currentTarget.dataset.tabTarget;
-                this.switchToTab(targetId);
+                if (targetId) {
+                    this.switchToTab(targetId);
+                } else {
+                    console.warn("Clicked tab button has no 'data-tab-target' attribute.", event.currentTarget);
+                }
             });
         });
 
-        // グローバルキーダウンイベントの処理 (特定のモードにディスパッチ)
+        // グローバルキーダウンイベントの処理
         this.DOMUtils.on(document, 'keydown', (event) => {
-            if (this.state.activeTab === '#shikoshikoModeSection' && this.modules.shikoshiko) {
-                this.modules.shikoshiko.handleGlobalKeydown(event);
+            // アクティブなモードのキーハンドラを呼び出す
+            const activeModuleName = this.getModuleNameFromId(this.state.activeTab);
+            if (activeModuleName && this.modules[activeModuleName] && typeof this.modules[activeModuleName].handleGlobalKeydown === 'function') {
+                this.modules[activeModuleName].handleGlobalKeydown(event);
             }
-            // 他のモードでグローバルキーイベントが必要ならここに追加
         });
     },
 
     switchToTab: function(targetId) {
-        if (!targetId) return;
+        if (!targetId || typeof targetId !== 'string' || !targetId.startsWith('#')) {
+            console.warn("Invalid targetId for switchToTab:", targetId);
+            return;
+        }
 
         // 前のアクティブタブのモジュールを非アクティブ化
-        if (this.state.activeTab && this.modules[this.getModuleNameFromId(this.state.activeTab)]) {
-            this.modules[this.getModuleNameFromId(this.state.activeTab)].deactivate();
+        const prevModuleName = this.getModuleNameFromId(this.state.activeTab);
+        if (prevModuleName && this.modules[prevModuleName] && typeof this.modules[prevModuleName].deactivate === 'function') {
+            this.modules[prevModuleName].deactivate();
         }
 
         this.state.activeTab = targetId;
@@ -100,36 +134,42 @@ const App = {
         });
 
         this.elements.modeSections.forEach(section => {
-            this.DOMUtils.toggleDisplay(section, section.id === targetId.substring(1)); // #を除いたIDと比較
+            // section.id が targetId の '#' を除いたものと一致するかどうかで表示を切り替え
+            this.DOMUtils.toggleDisplay(section, section.id === targetId.substring(1));
         });
 
         // 新しいアクティブタブのモジュールをアクティブ化
-        if (this.modules[this.getModuleNameFromId(targetId)]) {
-            this.modules[this.getModuleNameFromId(targetId)].activate();
+        const currentModuleName = this.getModuleNameFromId(targetId);
+        if (currentModuleName && this.modules[currentModuleName] && typeof this.modules[currentModuleName].activate === 'function') {
+            this.modules[currentModuleName].activate();
         } else {
-            // モジュールが存在しない場合 (HTML構造とJSモジュール名が一致しないなど)
+            console.warn(`Module for tab ${targetId} (module name: ${currentModuleName}) not found or activate function missing.`);
             this.applyTheme(null); // デフォルトテーマに戻す
-            this.DOMUtils.removeClass(this.elements.appContainer, 'shikoshiko-active');
-            this.DOMUtils.addClass(this.elements.appContainer, 'no-pulse');
+            if (this.elements.appContainer) {
+                this.DOMUtils.removeClass(this.elements.appContainer, 'shikoshiko-active');
+                this.DOMUtils.addClass(this.elements.appContainer, 'no-pulse');
+            }
         }
     },
 
-    /**
-     * タブIDから対応するモジュール名を取得するヘルパー
-     * (例: '#shikoshikoModeSection' -> 'shikoshiko')
-     */
     getModuleNameFromId: function(tabId) {
-        if (!tabId || !tabId.startsWith('#') || !tabId.endsWith('Section')) return null;
-        const baseName = tabId.substring(1, tabId.length - 'Section'.length);
-        // キャメルケースに変換 (shikoshikoMode -> shikoshiko)
-        return baseName.charAt(0).toLowerCase() + baseName.slice(1).replace('Mode', '');
+        if (!tabId || typeof tabId !== 'string' || !tabId.startsWith('#')) return null;
+        // IDの末尾の "Section" を除去し、最初の文字を小文字にする
+        // 例: #shikoshikoModeSection -> shikoshikoMode -> shikoshiko
+        // 例: #counterSection -> counter
+        // 例: #gallerySection -> gallery
+        const baseName = tabId.substring(1).replace(/Section$/, '');
+        if (baseName.endsWith('Mode')) {
+             return baseName.charAt(0).toLowerCase() + baseName.slice(1, -4); // "Mode" を削除
+        }
+        return baseName.charAt(0).toLowerCase() + baseName.slice(1);
     },
 
-    /**
-     * アプリケーション全体のテーマカラーを適用する
-     * @param {string|null} hexColor - 適用するHEXカラーコード、またはnullでデフォルトに戻す
-     */
     applyTheme: function(hexColor) {
+        if (!this.Utils || !this.DOMUtils || !this.elements.appContainer) {
+            console.warn("Cannot apply theme: Missing dependencies or appContainer element.");
+            return;
+        }
         const rootStyle = document.documentElement.style;
         this.state.currentThemeColor = hexColor;
 
@@ -139,12 +179,10 @@ const App = {
                 const [h, s, l] = hsl;
                 const rgb = this.Utils.hslToRgb(h,s,l);
 
-                // メイン背景、コンテンツ背景、テキスト色などをメンバーカラーに基づいて調整
-                // しこしこモードの背景は pulse アニメーションでも使われる
                 const mainBgLightness = Math.min(97, l + (100 - l) * 0.85);
                 const contentBgLightness = Math.min(95, l + (100 - l) * 0.75);
-                const textLightness = Math.max(10, l * (l > 65 ? 0.2 : 0.4)); // 明るい色なら濃い文字、暗い色なら薄い文字
-                const buttonText = (l >= 60 && s > 10) ? '#000000' : '#ffffff'; // 背景色に応じてボタン文字色変更
+                const textLightness = Math.max(10, l * (l > 65 ? 0.2 : 0.4));
+                const buttonText = (l >= 60 && s > 10) ? '#000000' : '#ffffff';
 
                 rootStyle.setProperty('--member-accent-color', hexColor);
                 rootStyle.setProperty('--member-main-bg', this.Utils.hslToCssString(h, s * 0.25, mainBgLightness));
@@ -152,14 +190,17 @@ const App = {
                 rootStyle.setProperty('--member-text-color', this.Utils.hslToCssString(h, s * 1.1, textLightness));
                 rootStyle.setProperty('--member-button-text-color', buttonText);
 
-                // パルスアニメーション用
                 rootStyle.setProperty('--pulse-hue', h.toFixed(0));
                 rootStyle.setProperty('--pulse-sat', s.toFixed(0) + '%');
                 rootStyle.setProperty('--pulse-light', Math.min(90, l + 15).toFixed(0) + '%');
                 rootStyle.setProperty('--member-accent-color-rgb', rgb.join(', '));
 
+            } else {
+                console.warn(`Invalid hexColor for theme: ${hexColor}`);
+                this.applyTheme(null); // 無効な場合はデフォルトに戻す
+                return;
             }
-        } else { // デフォルトテーマに戻す
+        } else {
             rootStyle.removeProperty('--member-accent-color');
             rootStyle.removeProperty('--member-main-bg');
             rootStyle.removeProperty('--member-content-bg');
@@ -170,15 +211,12 @@ const App = {
             rootStyle.removeProperty('--pulse-light');
             rootStyle.removeProperty('--member-accent-color-rgb');
         }
-        // ヘッダーのタイトル色も更新
-        const headerTitle = this.DOMUtils.qs('.app-header h1');
-        if(headerTitle) headerTitle.style.color = hexColor || 'var(--default-accent-color)';
+
+        if (this.elements.headerTitle) {
+            this.elements.headerTitle.style.color = hexColor ? 'var(--member-accent-color)' : 'var(--default-accent-color)';
+        }
     },
 
-    /**
-     * 弱点情報の変更をギャラリーモードに通知する
-     * (しこしこモードから呼び出される)
-     */
     notifyWeakPointChange: function(relativePath, isNowWeak) {
         if (this.modules.gallery && typeof this.modules.gallery.notifyWeakPointChanged === 'function') {
             this.modules.gallery.notifyWeakPointChanged(relativePath, isNowWeak);
