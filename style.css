@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* style.css - ONSP Project (TikTok UI Grid & Fixes)                */
+/* style.css - ONSP Project (2-Box Layout & Fixes)                  */
 /* ================================================================== */
 
 :root {
@@ -12,30 +12,23 @@
     --member-accent-color-rgb: 108, 117, 125;
     --shiko-animation-duration: 1000ms;
 
-    /* TikTok風UI用 */
-    --tiktok-bg-color: #000000;
-    --tiktok-text-color: #ffffff;
-    --tiktok-icon-size: 28px; /* 少し小さく */
+    --tiktok-bg-color: #000000; --tiktok-text-color: #ffffff;
+    --tiktok-icon-size: 28px;
     --tiktok-bottom-nav-height: 50px;
-    --tiktok-footer-controls-height: 65px; /* しこしこモード下部固定ボタンの高さ */
-    --tiktok-side-panel-width: 60px; /* 左/右パネルの幅 */
-    --tiktok-bottom-info-height: 120px; /* 下部情報エリアの高さ目安 */
+    --tiktok-footer-controls-height: 65px;
+    --tiktok-side-panel-width: 50px; /* 少し狭く */
+    --tiktok-bottom-info-padding: 10px; /* 下部情報エリアのパディング */
 }
 
 html { height: 100%; box-sizing: border-box; }
 *, *:before, *:after { box-sizing: inherit; }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* モダンなフォントスタック */
-    margin: 0;
-    background-color: var(--tiktok-bg-color);
-    color: var(--tiktok-text-color);
-    line-height: 1.5; /* 少し詰める */
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0; background-color: var(--tiktok-bg-color); color: var(--tiktok-text-color);
+    line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     display: flex; flex-direction: column;
-    height: 100vh; height: 100svh;
-    overflow: hidden;
-    position: relative;
+    height: 100vh; height: 100svh; overflow: hidden; position: relative;
 }
 
 /* スクロールバー */
@@ -43,226 +36,159 @@ body {
 ::-webkit-scrollbar-thumb { background-color: #555; border-radius: 2px; }
 body { scrollbar-width: thin; scrollbar-color: #555 #222; }
 
-/* 下部固定タブナビゲーション */
-.tab-container-bottom-fixed {
-    display: flex; justify-content: space-around;
-    background-color: rgba(10, 10, 10, 0.9); /* 少し明るくして境界を */
-    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.3);
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: var(--tiktok-bottom-nav-height);
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
-}
-.tab-container-bottom-fixed .tab-button {
-    padding: 0; border: none; background-color: transparent; cursor: pointer;
-    font-size: 0.75rem; /* 少し調整 */ color: #999;
-    border-top: 3px solid transparent;
-    transition: color 0.2s, border-top-color 0.3s ease-out;
-    font-weight: 600; /* 少し太く */ text-align: center; position: relative; user-select: none;
-    flex-grow: 1; display: flex; align-items: center; justify-content: center;
-    text-transform: uppercase; /* 大文字化 */
-}
-.tab-container-bottom-fixed .tab-button:hover { color: #fff; }
-.tab-container-bottom-fixed .tab-button.active {
-    color: var(--member-accent-color, #fff); font-weight: 700;
-}
-.tab-container-bottom-fixed .tab-button.active::before {
-    content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 3px;
-    background-color: var(--member-accent-color, #fff); border-radius: 0 0 1px 1px;
-    transition: background-color 0.3s ease-in-out;
-}
 
-/* メインコンテンツエリア */
+/* --- メインコンテンツエリア --- */
 .app-main-content {
-    flex-grow: 1; width: 100%;
-    /* 下部ナビゲーション分の高さを確保 */
-    height: calc(100% - var(--tiktok-bottom-nav-height) - env(safe-area-inset-bottom));
-    overflow: hidden; /* 各モードセクションがはみ出ないように */
-    position: relative;
+    flex-grow: 1; width: 100%; height: 100%; /* body直下なので高さいっぱい */
+    overflow: hidden; position: relative;
 }
 
 .mode-section {
     display: none; background-color: var(--tiktok-bg-color);
-    width: 100%; height: 100%;
-    position: absolute; top: 0; left: 0;
-    overflow: hidden; /* 各モード内のスクロールはモード側で制御 */
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    overflow: hidden;
 }
-.mode-section.active { display: block; }
-.mode-content-wrapper { height: 100%; display: flex; flex-direction: column; position: relative;}
-.mode-section > .mode-content-wrapper > h2 { /* カウンター・ギャラリー用タイトル */
-    color: var(--tiktok-text-color); text-align: center; font-size: 1.1rem;
-    padding: 12px; background-color: rgba(0,0,0,0.7); margin:0;
-    position: absolute; top:0; left:0; right:0; z-index: 10;
-    font-weight: 600;
+.mode-section.active { display: flex; flex-direction: column; /* しこしこモードでflex使うため */ }
+
+/* カウンター・ギャラリーモード用タイトル (しこしこモードでは使わない) */
+.mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 {
+    color: var(--default-text-color); /* 通常モードの文字色 */
+    text-align: center; font-size: 1.2rem;
+    padding: 12px; background-color: var(--default-content-bg); /* 通常モードの背景 */
+    margin:0; font-weight: 600; border-bottom: 1px solid var(--default-border-color);
+}
+/* カウンター・ギャラリーモードの .mode-content-wrapper */
+.mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper {
+    height: 100%; display: flex; flex-direction: column;
+    padding-bottom: calc(var(--tiktok-bottom-nav-height) + env(safe-area-inset-bottom)); /* 下部ナビ分避ける */
+    overflow-y: auto;
 }
 
-/* 共通UIコンポーネント */
-.action-button {
-    padding: 9px 18px; font-size: 0.95em; cursor: pointer;
-    background-color: var(--member-accent-color, rgba(255,255,255,0.15));
-    color: var(--member-button-text-color, var(--tiktok-text-color));
-    border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
-    transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
-    margin: 5px; font-weight: bold; user-select: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3); /* 影を少し強く */
-}
-.action-button:disabled { background-color: rgba(120,120,120,0.5); color: #888; cursor: not-allowed; opacity: 0.7; box-shadow: none; }
-.action-button:not(:disabled):hover { background-color: var(--member-accent-color, rgba(255,255,255,0.25)); opacity: 0.9; }
-.action-button:not(:disabled):active { opacity: 0.8; transform: scale(0.97); }
-.action-button.primary {}
-.action-button.secondary { background-color: rgba(108,117,125,0.7); color: #fff; }
-.action-button.secondary:hover:not(:disabled) { background-color: rgba(90,98,104,0.9); }
-.action-button.small { font-size: 0.8rem; padding: 7px 12px; }
 
-.icon-button { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 5px; line-height: 1; color: rgba(255,255,255,0.7); transition: color 0.2s, transform 0.2s; border-radius: 50%; user-select: none; }
-.icon-button:hover { color: #fff; transform: scale(1.1); }
-
-.loading-message { text-align: center; color: #aaa; padding: 40px 0; font-style: italic; }
-
-/* --- しこしこモード (TikTok風UI Grid) --- */
+/* --- しこしこモード (2ボックスレイアウト) --- */
 .shikoshiko-tiktok-ui {
     height: 100%; width: 100%;
-    display: grid;
-    /* グリッド定義: 左パネル | メイン | 右パネル(アニメーション用) */
-    grid-template-columns: var(--tiktok-side-panel-width) 1fr var(--tiktok-side-panel-width);
-    /* グリッド定義: ヘッダー(設定ボタン) | メイン | 下部情報 */
-    grid-template-rows: auto 1fr var(--tiktok-bottom-info-height); /* autoは設定ボタンの高さ分 */
-    /* 下部固定コントロールは grid 外の fixed 要素なのでここでは考慮しない */
-    overflow: hidden;
+    display: flex;
+    flex-direction: column; /* 上下2分割 */
     background-color: var(--member-main-bg, var(--tiktok-bg-color));
     color: var(--tiktok-text-color);
+    position: relative; /* 子のabsoluteの基準 */
 }
 
-/* メイン画像表示エリア (Gridの中央) */
+.tiktok-upper-content {
+    flex-grow: 1; /* 上部が利用可能な残りのスペースをすべて取る */
+    position: relative; /* サイドパネルや設定ボタンの基準 */
+    display: flex; /* 中央の画像エリアをflex-growさせるため */
+    overflow: hidden; /* はみ出し防止 */
+}
+
 .member-image-container.tiktok-image-main {
-    grid-column: 1 / -1; /* 全幅取るように変更。左右パネルは上に重なる */
-    grid-row: 1 / -1; /* 全高取るように変更。下部情報も上に重なる */
+    flex-grow: 1; /* 中央の画像表示エリアが幅を取る */
     display: flex; align-items: center; justify-content: center;
     overflow: hidden; position: relative; /* ステッカーのため */
+    height: 100%; /* 親の高さに合わせる */
 }
 #shikoshikoMemberImage { max-width: 100%; max-height: 100%; object-fit: contain; border: none; box-shadow: none; }
 #shikoshikoMemberImage.image-error { border-color: red !important; content: url(images/placeholder.png); object-fit: contain; }
 
-
-/* 左サイドパネル */
 .tiktok-left-panel {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3; /* メイン画像の行に配置 */
-    align-self: end; /* パネル自体を下揃え */
-    display: flex; flex-direction: column; align-items: center; gap: 18px;
-    z-index: 20; padding: 10px; padding-bottom: 15px; /* 下部のコントロールと被らないように調整 */
+    position: absolute; left: 10px; bottom: 10px; /* 画像エリアの左下に配置 */
+    display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 20;
 }
-.tiktok-profile-icon-container { width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.6); margin-bottom: 5px; }
+.tiktok-profile-icon-container { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.7); margin-bottom: 5px; }
 .tiktok-profile-icon { width: 100%; height: 100%; object-fit: cover; }
-.tiktok-action-button { background: none; border: none; color: var(--tiktok-text-color); cursor: pointer; text-align: center; padding: 0; }
+.tiktok-action-button { background: none; border: none; color: var(--tiktok-text-color); cursor: pointer; text-align: center; padding:0; }
 .tiktok-action-button .tiktok-icon { font-size: var(--tiktok-icon-size); display: block; }
-.tiktok-action-button .tiktok-count { font-size: 0.75rem; display: block; margin-top: 3px; opacity: 0.9; }
-.tiktok-weak-point-button .tiktok-icon { transition: color 0.2s, transform 0.2s; }
-.tiktok-weak-point-button.is-weak .tiktok-icon { color: #ffd700; transform: scale(1.2); }
+.tiktok-action-button .tiktok-count { font-size: 0.7rem; display: block; margin-top: 2px; }
+.tiktok-weak-point-button.is-weak .tiktok-icon { color: #ffeb3b; transform: scale(1.2); }
 
-
-/* 右サイドのアニメーションエリア */
 .shiko-animation-container.tiktok-shiko-animation {
-    grid-column: 3 / 4; /* 右端 */
-    grid-row: 2 / 3;    /* メイン画像の行 */
-    align-self: end;    /* 下揃え */
-    display: flex; justify-content: center; align-items: center; /* 中央配置 */
-    width: 70px; height: 70px; /* サイズ調整 */
-    z-index: 20;
-    margin-bottom: 15px; /* 下部のコントロールと被らないように */
-    margin-right: 5px; /* 少し内側に */
-    position: relative; /* saoとshikoshikoの基準 */
+    position: absolute; right: 10px; bottom: 10px; /* 画像エリアの右下に配置 */
+    width: 70px; height: 70px; z-index: 20;
+    display: flex; justify-content: center; align-items: center;
 }
-.sao-image, .shikoshiko-image { /* サイズ統一と中央配置 */
-    position: absolute;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%); /* 親要素の中央に */
-    width: 100%; height: 100%;
-    object-fit: contain;
-}
-.shikoshiko-image { z-index: 2; /* 手前に */ }
-.sao-image { z-index: 1; }
-@keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } } /* Y軸の移動量を調整 */
+.sao-image, .shikoshiko-image { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; object-fit: contain; }
+.shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
+@keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
 .shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
 
-
-/* 下部情報エリア */
-.tiktok-bottom-info {
-    grid-column: 1 / -1; /* 全幅 */
-    grid-row: 3 / 4;     /* グリッドの下段 */
-    color: var(--tiktok-text-color); z-index: 20;
-    padding: 10px var(--tiktok-side-panel-width) 10px 15px; /* 左は少し多め、右はアニメーション避ける */
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-    display: flex; flex-direction: column; justify-content: flex-end; /* 内容を下揃え */
-    overflow: hidden; /* はみ出し防止 */
-    max-height: var(--tiktok-bottom-info-height); /* 最大高さを設定 */
-}
-.member-quote.tiktok-quote {
-    font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; text-align: left;
-    max-height: 3.2em; /* 約2行分 */ overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    line-height: 1.6;
-}
-.image-tags-container { margin-bottom: 5px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.image-tag-item { background-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: .6rem; padding: 1px 4px; margin-right: 3px; border-radius: 3px;}
-
-
-/* 設定ボタン */
 .tiktok-settings-button {
-    position: absolute; top: 15px; right: 15px; z-index: 30;
+    position: absolute; top: 10px; right: 10px; z-index: 30;
     background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: var(--tiktok-text-color);
     font-size: 1.3rem; padding: 6px 9px; border-radius: 50%; cursor: pointer;
 }
 
-/* しこしこモード下部固定コントロール */
+.tiktok-lower-content {
+    flex-shrink: 0; /* 高さが固定されるように */
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* 下部エリアの背景 */
+    display: flex;
+    flex-direction: column;
+    /* padding-bottom: env(safe-area-inset-bottom); タブナビ側で対応 */
+    position: relative; /* z-indexが効くように */
+    z-index: 10; /* 他のモードのh2よりは手前に */
+}
+
+.tiktok-bottom-info {
+    padding: var(--tiktok-bottom-info-padding);
+    padding-bottom: 5px; /* コントロールとの間隔 */
+    color: var(--tiktok-text-color);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    /* max-height: calc(var(--tiktok-bottom-info-height) - var(--tiktok-footer-controls-height)); */
+    overflow: hidden;
+}
+.member-quote.tiktok-quote {
+    font-size: 0.9rem; font-weight: 500; margin-bottom: 5px; text-align: left;
+    max-height: 3em; /* 約2行分 */ overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.5;
+}
+.image-tags-container { margin-bottom: 5px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.image-tag-item { background-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: .6rem; padding: 1px 4px; margin-right: 3px; border-radius: 3px;}
+
 .game-controls-area-sticky-footer.shikoshiko-footer-controls {
-    position: fixed; bottom: var(--tiktok-bottom-nav-height);
-    left: 0; right: 0; height: var(--tiktok-footer-controls-height);
-    background-color: rgba(10, 10, 10, 0.9);
-    padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    box-shadow: 0 -1px 3px rgba(0,0,0,0.3);
-    display: flex; justify-content: space-between; align-items: center; z-index: 500;
+    /* position: static;  tiktok-lower-content 内なので fixed は不要 */
+    width: 100%;
+    height: var(--tiktok-footer-controls-height);
+    background-color: transparent; /* tiktok-lower-content の背景を利用 */
+    padding: 5px 10px 10px 10px; /* 上パディング少し減らす */
+    box-shadow: none; /* tiktok-lower-content のシャドウに任せる */
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 500; /* 他の要素より手前に */
 }
-.shikoshiko-footer-controls .action-button { margin: 0 5px; font-size: 0.9rem; flex-grow: 1; max-width: 180px; }
-.shikoshiko-footer-controls .main-action { /* スタート/フィニッシュボタン用、中央寄せ */
-    position: absolute; left: 50%; transform: translateX(-50%);
-    flex-grow: 0; /* 他のボタンに影響されないように */
-    width: auto; min-width: 120px; /* ある程度の幅を確保 */
+/* ボタンのスタイルは共通の .action-button を流用 */
+.shikoshiko-footer-controls .action-button { margin: 0 5px; font-size: 0.9rem; flex-grow: 0; flex-basis: auto; padding: 10px 18px;}
+.shikoshiko-footer-controls .main-action { /* スタートボタン */
+    /* 中央配置はflexのjustify-content: space-betweenで実現 */
+    order: 1; /* 中央に */
 }
-/* スタートボタンはゲーム中でなければ表示、ゲーム中は非表示 (JSで制御) */
-/* スキップとフィニッシュはJSで表示制御 */
-.shikoshiko-footer-controls .fixed-left { margin-right: auto; } /* スキップを左に */
-.shikoshiko-footer-controls .fixed-right { margin-left: auto; } /* フィニッシュを右に */
+.shikoshiko-footer-controls .fixed-left { order: 0; /* スキップを左に */ }
+.shikoshiko-footer-controls .fixed-right { order: 2; /* フィニッシュを右に */ }
 
 
-/* ステッカー関連 (モーダル内でも使えるように調整) */
+/* 下部固定タブナビゲーション (tiktok-lower-content 内に移動) */
+.tiktok-lower-content .tab-container-bottom-fixed {
+    position: static; /* fixed解除 */
+    height: var(--tiktok-bottom-nav-height);
+    border-top: 1px solid rgba(255,255,255,0.1); /* 上に境界線 */
+    box-shadow: none;
+    margin-bottom: env(safe-area-inset-bottom); /* iPhoneノッチ対応 */
+}
+
+
+/* ステッカー関連、背景エフェクト、モーダルは前回とほぼ同様 */
 .sticker-choice-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 8px; background-color: rgba(255,255,255,0.05); border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 130px; overflow-y: auto; margin-bottom: 8px; }
 .sticker-choice-button { width: 45px; height: 45px; padding: 4px; border: 1px solid rgba(255,255,255,0.2); background-color: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .sticker-choice-button:hover { transform: scale(1.05); background-color: rgba(255,255,255,0.15); }
 .sticker-choice-button.selected { box-shadow: 0 0 0 2px var(--member-accent-color, #fff); transform: scale(1.05); background-color: rgba(255,255,255,0.2); }
 .sticker-choice-img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
-.pasted-sticker { /* 変更なし */ }
-@keyframes sticker-float { /* 変更なし */ }
-
-/* 背景エフェクト */
-body.shikoshiko-active:not(.no-pulse) { /* TikTok UIでは背景点滅はあまり使わないが、メンバーカラー表現として残す */
-    animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out;
-}
-@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.5+1)); /* 明るさの変化を少し抑える */ } 100% { background-color: var(--member-main-bg); } }
+.pasted-sticker { position: absolute; width: 80px; height: 80px; object-fit: contain; user-select: none; pointer-events: none; z-index: 10; animation: sticker-float 4s ease-in-out infinite alternate; transform-origin: center center; }
+@keyframes sticker-float { 0% { opacity: 0.7; transform: translate(-50%, -50%) translateY(-3px) rotate(-2deg); } 100% { opacity: 1.0; transform: translate(-50%, -50%) translateY(3px) rotate(2deg); } }
+body.shikoshiko-active:not(.no-pulse) { animation: pulseBackground var(--pulse-duration, 2s) infinite ease-in-out; }
+@keyframes pulseBackground { 0% { background-color: var(--member-main-bg); } 50% { background-color: hsla(var(--pulse-hue,0), var(--pulse-sat,0%), var(--pulse-light,80%), calc((var(--pulse-brightness-factor,1.3)-1)*.5+1)); } 100% { background-color: var(--member-main-bg); } }
 body.no-pulse { animation: none !important; }
-
-
-/* --- モーダル --- */
 .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); animation: modalFadeIn 0.2s ease-out; }
 @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-content {
-    background-color: #222; /* TikTok風の暗いモーダル */
-    color: var(--tiktok-text-color);
-    margin: 10vh auto; /* 上下マージン調整 */
-    padding: 20px; border: 1px solid #444;
-    width: 90%; max-width: 450px; /* 少し小さく */
-    border-radius: 10px; position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: modalSlideIn 0.3s ease-out;
-}
+.modal-content { background-color: #1e1e1e; /* 少し明るい黒 */ color: var(--tiktok-text-color); margin: 10vh auto; padding: 20px; border: 1px solid #333; width: 90%; max-width: 450px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: modalSlideIn 0.3s ease-out; }
 @keyframes modalSlideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .modal-close-button { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
 .modal-close-button:hover, .modal-close-button:focus { color: #fff; }
@@ -271,78 +197,80 @@ body.no-pulse { animation: none !important; }
 .modal-body .setting-group:last-child { border-bottom: none; }
 .modal-body .setting-group h4 { color: #ddd; font-size: 1rem; margin-bottom: 10px;}
 .modal-body label { color: #ccc; }
-.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #333; color: #fff; border: 1px solid #555; }
+.modal-body input[type="number"], .modal-body input[type="range"] { background-color: #333; color: #fff; border: 1px solid #555; padding: 6px 8px; border-radius: 4px;}
 .modal-body .slider-value { background-color: #444; color: #fff; }
 .modal-footer { text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #444; }
-.modal-footer .action-button { width: calc(50% - 10px); } /* ボタンを2つ並べる場合など */
+.modal-footer .action-button { width: calc(50% - 10px); }
+.modal-sticker-choices { max-height: 120px; }
 
 
 /* --- カウンターモード、ギャラリーモード --- */
-#counterSection .mode-content-wrapper > h2,
-#gallerySection .mode-content-wrapper > h2 {
-    padding-top: 20px; /* タイトルがコンテンツに被らないように */
-}
-#counterSection, #gallerySection {
-    padding-top: 50px; /* モードタイトル分のスペース */
-    overflow-y: scroll; /* 各モード内でスクロール可能に */
-    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+#counterSection .mode-content-wrapper,
+#gallerySection .mode-content-wrapper {
+    padding-top: 50px; /* タイトル分のスペース */
     background-color: var(--default-content-bg); /* 通常のモードは明るい背景 */
     color: var(--default-text-color);
+    /* padding-bottom は不要 (タブナビがしこしこモード内に移動したため) */
+    overflow-y: auto;
+     height: calc(100% - var(--tiktok-bottom-nav-height) - env(safe-area-inset-bottom)); /* タブの高さを引く */
 }
 /* カウンター、ギャラリー内の各要素の色も通常に戻す */
 .counter-item { background-color: #fff; border-color: var(--default-border-color); }
 .counter-item .counter-member-name { color: var(--default-text-color); }
-.counter-item .count-number { color: var(--member-accent-color, var(--default-accent-color)); } /* メンバーカラーは維持 */
+.counter-item .count-number { color: var(--member-accent-color, var(--default-accent-color)); }
 .gallery-item { background-color: #f8f9fa; border-color: #eee; }
 .gallery-item-info { color: #495057; border-top-color: #eee; }
 .gallery-controls label, .gallery-controls select, .gallery-controls input { color: var(--default-text-color); background-color: #fff; border-color: #ccc; }
 
-
 /* --- レスポンシブ対応 --- */
-@media (max-width: 768px) { /* スマホ共通 */
-    .tab-container-bottom-fixed .tab-button { font-size: 0.65rem; font-weight: 500;}
-    .mode-section > .mode-content-wrapper > h2 { font-size: 1rem; padding: 10px 8px; }
-    #counterSection, #gallerySection { padding-top: 40px; }
+@media (max-width: 768px) {
+    .tab-container-bottom-fixed .tab-button { font-size: 0.7rem; }
+    .mode-section:not(#shikoshikoModeSection) > .mode-content-wrapper > h2 { font-size: 1rem; padding: 10px 8px; }
+    #counterSection .mode-content-wrapper,
+    #gallerySection .mode-content-wrapper { padding-top: 40px; }
 
-
-    /* しこしこモード スマホ調整 */
     .shikoshiko-tiktok-ui {
-        grid-template-columns: calc(var(--tiktok-side-panel-width) - 10px) 1fr calc(var(--tiktok-side-panel-width) - 10px); /* サイドパネル少し細く */
-        grid-template-rows: 40px 1fr calc(var(--tiktok-bottom-info-height) - 20px); /* 下部情報エリア少し狭く */
+        /* スマホではグリッドよりFlexboxの方が制御しやすい場合もあるので、必要ならここで上書き */
+        /* grid-template-columns: calc(var(--tiktok-side-panel-width) - 15px) 1fr calc(var(--tiktok-side-panel-width) - 15px); */
+        /* grid-template-rows: 35px 1fr calc(var(--tiktok-bottom-info-height) - 30px); */
     }
-    .tiktok-left-panel { left: 5px; bottom: calc(var(--tiktok-footer-controls-height) + 10px + env(safe-area-inset-bottom)); gap: 10px;}
-    .tiktok-profile-icon-container { width: 38px; height: 38px; }
-    .tiktok-action-button .tiktok-icon { font-size: calc(var(--tiktok-icon-size) * 0.75); }
-    .tiktok-action-button .tiktok-count { font-size: 0.6rem; }
+    .tiktok-left-panel { left: 5px; bottom: 5px; gap: 10px; } /* tiktok-lower-content内のフッターの上に来るように調整 */
+    .tiktok-profile-icon-container { width: 35px; height: 35px; }
+    .tiktok-action-button .tiktok-icon { font-size: calc(var(--tiktok-icon-size) * 0.7); }
+    .tiktok-action-button .tiktok-count { font-size: 0.55rem; }
 
+    .tiktok-lower-content { /* このエリアの高さが重要 */
+        /* padding-bottomはタブナビの高さ分を考慮 */
+        /* padding-bottom: calc(var(--tiktok-bottom-nav-height) + env(safe-area-inset-bottom)); */
+    }
     .tiktok-bottom-info {
-        bottom: calc(var(--tiktok-footer-controls-height) + 5px + env(safe-area-inset-bottom));
-        padding: 8px calc(var(--tiktok-side-panel-width) - 15px) 8px 10px;
-        max-height: calc(var(--tiktok-bottom-info-height) - 20px);
+        /* bottom: calc(var(--tiktok-footer-controls-height) + var(--tiktok-bottom-nav-height) + 5px + env(safe-area-inset-bottom)); */
+        padding: 5px 10px;
+        max-height: calc(var(--tiktok-bottom-info-height) - var(--tiktok-footer-controls-height) - var(--tiktok-bottom-nav-height) - 10px); /* 利用可能な高さを計算 */
     }
     .member-quote.tiktok-quote { font-size: 0.8rem; max-height: 2.8em; line-height: 1.4; }
     .image-tag-item { font-size: .55em; }
 
     .shiko-animation-container.tiktok-shiko-animation {
-        width: 60px; height: 60px; right: 5px;
-        bottom: calc(var(--tiktok-footer-controls-height) + 10px + env(safe-area-inset-bottom));
+        width: 60px; height: 60px; right: 5px; bottom: 5px; /* tiktok-lower-content内のフッターの上 */
     }
     .tiktok-settings-button { font-size: 1.2rem; top: 10px; right: 10px; padding: 5px 8px; }
 
-    .game-controls-area-sticky-footer.shikoshiko-footer-controls { height: calc(var(--tiktok-footer-controls-height) - 5px); }
-    .shikoshiko-footer-controls .action-button { font-size: 0.85rem; padding: 7px 12px; }
-    .shikoshiko-footer-controls .main-action { min-width: 100px; }
+    .game-controls-area-sticky-footer.shikoshiko-footer-controls {
+        height: calc(var(--tiktok-footer-controls-height) - 10px); /* 少し低く */
+        /* position: static; tiktok-lower-content の一部なので fixed 不要 */
+    }
+    .shikoshiko-footer-controls .action-button { font-size: 0.8rem; padding: 7px 10px; }
 
-    .modal-content { width: 95%; margin: 5vh auto; padding: 15px; max-height: 90vh; overflow-y: auto;}
-    .modal-body .setting-group { margin-bottom: 12px; }
+    .modal-content { width: 95%; margin: 5vh auto; padding: 15px; max-height: 85vh; overflow-y: auto;}
+    .modal-body .setting-group { margin-bottom: 10px; }
 
-    /* カウンター、ギャラリーのスマホ調整は前回から流用 */
-    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(75px, 1fr)); gap: 6px; }
-    .counter-item { padding: 6px 4px; }
-    .counter-item img { max-width: 35px; max-height: 35px; }
-    .counter-item .counter-member-name { font-size: 0.65rem; }
-    .counter-item .count-number { font-size: 1em; }
-    .gallery-controls { gap: 8px; }
-    .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; }
-    .gallery-thumbnail { height: 90px; }
+    .counter-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 5px; }
+    .counter-item { padding: 5px 3px; }
+    .counter-item img { max-width: 30px; max-height: 30px; }
+    .counter-item .counter-member-name { font-size: 0.6rem; }
+    .counter-item .count-number { font-size: 0.9em; }
+    .gallery-controls { gap: 6px; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; }
+    .gallery-thumbnail { height: 80px; }
 }
