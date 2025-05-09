@@ -14,10 +14,14 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
+
+                <!-- BOX1: 上部メインエリア (画像、サイド情報、設定ボタン) -->
                 <div class="shikoshiko-box1">
                     <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
+                        <!-- 貼り付けられたステッカーはここにJSで追加 -->
                     </div>
+
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
                             <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
@@ -26,12 +30,16 @@
                             <span class="icon-display">☆</span>
                         </button>
                     </div>
+
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
 
+                <!-- セリフとアニメーションのコンテナ -->
                 <div class="serif-animation-container">
                     <div class="serif-area">
-                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
+                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;">
+                            <!-- JSで画像タグを生成 -->
+                        </div>
                         <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
                     </div>
                     <div class="animation-area" id="shikoAnimationContainer">
@@ -40,10 +48,11 @@
                     </div>
                 </div>
 
+                <!-- 下部コントロールエリア (ボタンのみ、タブナビはグローバルへ) -->
                 <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
-                        <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button> <!-- 初期テキスト変更 -->
+                        <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
                         <button id="shikoshikoFinishButton" class="control-button start-finish-button">フィニッシュ</button>
                     </div>
                 </div>
@@ -120,7 +129,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button> <!-- テキスト変更 -->
+                <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
             </div>
         </div>
     </div>
