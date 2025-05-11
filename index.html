@@ -10,13 +10,23 @@
 <body>
 
     <main id="appContainer" class="app-main-content">
-        <!-- しこしこモード セクション (変更なし) -->
+
+        <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
                 <div class="shikoshiko-box1">
-                    <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
-                        <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
+                    <!-- ★★★ カルーセルコンテナに変更 ★★★ -->
+                    <div class="carousel-viewport" id="shikoshikoCarouselViewport">
+                        <div class="carousel-track" id="shikoshikoCarouselTrack">
+                            <!-- JSでカルーセルアイテム (画像コンテナ) を5つ生成 -->
+                            <!-- 例:
+                            <div class="carousel-item">
+                                <img src="images/placeholder.png" alt="メンバー画像">
+                            </div>
+                            -->
+                        </div>
                     </div>
+                    <!-- ★★★ ここまで ★★★ -->
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
                             <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
@@ -27,6 +37,7 @@
                     </div>
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
+
                 <div class="serif-animation-container">
                     <div class="serif-area">
                         <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
@@ -37,9 +48,10 @@
                         <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
                     </div>
                 </div>
+
                 <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
-                        <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
+                        <button id="shikoshikoSkipButton" class="control-button skip-button">次へ</button> <!-- テキスト変更 -->
                         <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
                         <button id="shikoshikoFinishButton" class="control-button start-finish-button">フィニッシュ</button>
                     </div>
@@ -60,7 +72,7 @@
         </section>
     </main>
 
-    <!-- しこしこモード設定モーダル (UI追加) -->
+    <!-- しこしこモード設定モーダル (変更なし) -->
     <div id="shikoshikoSettingsModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="modal-close-button" id="closeShikoshikoSettingsModal">×</span>
@@ -78,11 +90,10 @@
                         <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
                     </div>
                 </div>
-                <!-- ★★★ 新しい設定UIを追加 ★★★ -->
                 <div class="setting-group">
                     <h4>再生オプション</h4>
                     <div class="toggle-setting-item">
-                        <input type="checkbox" id="modalAutoSkipToggle" checked> <!-- 初期はON -->
+                        <input type="checkbox" id="modalAutoSkipToggle" checked>
                         <label for="modalAutoSkipToggle">画像の自動スキップ</label>
                     </div>
                     <div class="toggle-setting-item">
@@ -90,7 +101,6 @@
                         <label for="modalWeakPointOnlyToggle">弱点画像のみ表示</label>
                     </div>
                 </div>
-                <!-- ★★★ ここまで ★★★ -->
             </div>
             <div class="modal-footer">
                 <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
