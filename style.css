@@ -1,31 +1,37 @@
 /* ================================================================== */
-/* style.css - ONSP Project (Serif Visibility Fix & Full Restore)   */
+/* style.css - ONSP Project (Fully Restored, New Options)           */
 /* ================================================================== */
 
 :root {
     /* 明るいテーマのデフォルト色 (カウンター用) */
-    --default-accent-color: #4a5568; --default-main-bg: #f7fafc;
-    --default-content-bg: #ffffff; --default-text-color: #2d3748;
+    --default-accent-color: #4a5568;
+    --default-main-bg: #f7fafc;
+    --default-content-bg: #ffffff;
+    --default-text-color: #2d3748;
     --default-border-color: #e2e8f0;
 
     /* メンバーカラー関連 */
     --member-accent-color: var(--default-accent-color);
-    --member-main-bg: var(--default-main-bg); /* しこしこBOX1背景は黒固定 */
-    --member-content-bg: var(--default-content-bg); /* セリフ・アニメ・コントロールのベース背景 */
-    --member-text-color: var(--default-text-color); /* セリフ等のベース文字色 */
-    --member-button-text-color: #ffffff;
+    /* --member-main-bg はしこしこモードのBOX1背景で直接指定するため、ここでは影響させない */
+    --member-content-bg: var(--default-content-bg); /* セリフエリア等の背景 */
+    --member-text-color: var(--default-text-color); /* セリフエリア等の文字色 */
+    --member-button-text-color: #ffffff;            /* メンバーアクセントカラー上のボタン文字色 */
 
     /* しこしこアニメーション用 */
     --shiko-animation-duration: 1000ms;
 
     /* グローバル */
-    --global-bg-color: #000000; --global-text-color: #E2E8F0;
-    --global-text-on-dark-bg: #E2E8F0; --global-text-on-light-bg: #1A202C;
+    --global-bg-color: #000000;
+    --global-text-color: #E2E8F0;
+    --global-text-on-dark-bg: #E2E8F0;
+    --global-text-on-light-bg: #1A202C;
 
     /* レイアウト寸法 */
-    --bottom-nav-height: 50px; --shiko-controls-height: 55px;
-    --serif-anime-container-height: 85px; --side-panel-width: 50px;
-    --standard-mode-max-width: 700px;
+    --bottom-nav-height: 50px;
+    --shiko-controls-height: 55px;
+    --serif-anime-container-height: 85px;
+    --side-panel-width: 50px;
+    --standard-mode-max-width: 700px; /* カウンターモードなどの最大幅 */
 }
 
 html { height: 100%; box-sizing: border-box; }
@@ -34,32 +40,41 @@ html { height: 100%; box-sizing: border-box; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0; background-color: var(--global-bg-color); color: var(--global-text-color);
-    line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     display: flex; flex-direction: column;
-    height: 100vh; height: 100svh; overflow: hidden; position: relative;
+    height: 100vh; height: 100svh;
+    overflow: hidden; position: relative;
 }
 
 /* スクロールバー */
-::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
 ::-webkit-scrollbar-thumb { background-color: #4a4a4a; border-radius: 2px; }
 body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 
 /* グローバルな下部タブナビゲーション */
 .tab-navigation-global-footer {
-    display: flex; justify-content: space-around; background-color: #161618;
-    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.5); position: fixed;
-    bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height);
-    z-index: 1000; padding-bottom: env(safe-area-inset-bottom);
+    display: flex; justify-content: space-around;
+    background-color: #161618;
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.5);
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--bottom-nav-height);
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 .tab-navigation-global-footer .tab-button {
     padding: 0; border: none; background-color: transparent; cursor: pointer;
-    font-size: 0.78rem; color: #a0a0a0; border-top: 3px solid transparent;
+    font-size: 0.78rem; color: #a0a0a0;
+    border-top: 3px solid transparent;
     transition: color 0.2s, border-top-color 0.3s ease-out;
     font-weight: 500; text-align: center; position: relative; user-select: none;
     flex-grow: 1; display: flex; align-items: center; justify-content: center;
 }
 .tab-navigation-global-footer .tab-button:hover { color: #ffffff; }
-.tab-navigation-global-footer .tab-button.active { color: var(--member-accent-color, #ffffff); font-weight: 600; }
+.tab-navigation-global-footer .tab-button.active {
+    color: var(--member-accent-color, #ffffff); font-weight: 600;
+}
 .tab-navigation-global-footer .tab-button.active::before {
     content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 3px;
     background-color: var(--member-accent-color, #ffffff); border-radius: 0 0 2px 2px;
@@ -81,12 +96,12 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 /* --- しこしこモード 新レイアウト --- */
 .shikoshiko-layout-container {
     width: 100%; height: 100%; display: flex; flex-direction: column;
-    /* 文字色は各BOX内で指定 */
+    color: var(--global-text-on-light-bg);
 }
-.shikoshiko-box1 { /* 上部メインエリア: 画像表示 */
+.shikoshiko-box1 {
     flex-grow: 1; position: relative; display: flex;
     align-items: center; justify-content: center; overflow: hidden;
-    background-color: #000000; /* 画像の余白は黒固定 */
+    background-color: #000000;
     color: var(--global-text-on-dark-bg);
 }
 .member-image-container.main-image-area { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -103,40 +118,16 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 
 .serif-animation-container {
     flex-shrink: 0; display: flex; height: var(--serif-anime-container-height);
-    /* background-color は削除 -> 各子要素で設定 */
+    background-color: var(--member-content-bg, #222222);
     border-top: 1px solid var(--member-accent-color, #444444);
     border-bottom: 1px solid var(--member-accent-color, #444444);
+    color: var(--member-text-color, var(--global-text-on-dark-bg));
 }
-.serif-area {
-    flex-grow: 1; padding: 8px 12px;
-    display: flex; flex-direction: column; justify-content: center;
-    overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.65); /* 半透明の黒背景 */
-    color: #f0f0f0; /* 明るいオフホワイト */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* テキストシャドウ */
-}
-.image-tags-container {
-    text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    color: inherit; /* 親の文字色を継承 */
-}
-.image-tag-item {
-    background-color: rgba(255,255,255,0.15); /* 明るめのタグ背景 */
-    color: inherit;
-    padding: 1px 5px; margin-right: 4px; border-radius: 3px;
-}
-.member-quote {
-    font-size: 0.95em; font-weight: 500; margin: 0; text-align: left;
-    max-height: 3em; overflow: hidden; text-overflow: ellipsis;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    line-height: 1.5; color: inherit;
-}
-.animation-area {
-    flex-shrink: 0; width: var(--serif-anime-container-height); height: 100%;
-    position: relative; display: flex; justify-content: center; align-items: center;
-    background-color: var(--member-content-bg, #222222); /* メンバーテーマかダークグレー */
-    border-left: 1px solid var(--member-accent-color, #444444);
-}
+.serif-area { flex-grow: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.image-tags-container { text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: inherit; }
+.image-tag-item { background-color: rgba(255,255,255,0.15); color: inherit; padding: 1px 5px; margin-right: 4px; border-radius: 3px;}
+.member-quote { font-size: 0.95em; font-weight: 500; margin: 0; text-align: left; max-height: 3em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.5; color: inherit;}
+.animation-area { flex-shrink: 0; width: var(--serif-anime-container-height); height: 100%; position: relative; display: flex; justify-content: center; align-items: center; border-left: 1px solid var(--member-accent-color, #444444); }
 .sao-image, .shikoshiko-image { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; height: 90%; object-fit: contain; }
 .shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
 @keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
@@ -155,8 +146,6 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 #shikoshikoFinishButton { background-color: #c62828; order: 3; }
 .control-button:disabled { background-color: #3a3a3e !important; color: #777 !important; opacity: 0.6;}
 
-/* 背景パルス機能は廃止 */
-
 /* --- モーダル --- */
 .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); animation: modalFadeIn 0.2s ease-out; }
 @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -168,24 +157,23 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .modal-body .setting-group { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid #38383a; }
 .modal-body .setting-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .modal-body .setting-group h4 { color: #e0e0e0; font-size: 1.05rem; margin-bottom: 12px; font-weight: 500; }
-.modal-body label { color: #d0d0d0; font-size: 0.9rem; }
+.modal-body label { color: #d0d0d0; font-size: 0.9rem; user-select: none;}
 .modal-body input[type="number"], .modal-body input[type="range"] { background-color: #3a3a3e; color: #fff; border: 1px solid #5a5a5f; padding: 8px 10px; border-radius: 4px; width: auto; }
 .modal-body input[type="number"] { width: 70px; text-align: center; }
 .modal-body .slider-container.member-sliders { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .modal-body .member-slider-item { display: flex; align-items: center; margin-bottom: 8px; }
 .modal-body .member-slider-item label { min-width: 80px; text-align: left; margin-right: 10px; }
-/* 背景エフェクト設定UIは廃止のため、.effect-slider-item のスタイルは不要 */
 .modal-body .bpm-setting { display: flex; align-items: center; margin-bottom: 8px; }
 .modal-body .bpm-setting label { min-width: 80px; text-align: left; margin-right: 10px; }
 .modal-body input[type="range"] { flex-grow: 1; }
 .modal-body .slider-value { background-color: #4a4a4e; color: #fff; padding: 3px 7px; border-radius: 4px; margin-left: 10px; font-size: 0.9em; }
 .selection-note { font-size: 0.8rem; color: #999; margin-top: 8px; }
+.toggle-setting-item { display: flex; align-items: center; margin-bottom: 10px; }
+.toggle-setting-item input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: var(--member-accent-color, #007bff); cursor: pointer; position: relative; top: 1px; }
+.toggle-setting-item label { cursor: pointer; font-size: 0.95rem; }
 .modal-footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #38383a; }
 .modal-footer .action-button { width: auto; padding: 10px 30px; background-color: var(--member-accent-color, #007bff); color: #fff;}
 .modal-footer .action-button.secondary { background-color: #6c757d; }
-/* モーダル内のステッカー設定は廃止 */
-
-/* --- ステッカー機能は廃止 --- */
 
 /* --- 通知 --- */
 .app-notification { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 6px; color: #fff; font-size: 0.9em; z-index: 9999; box-shadow: 0 3px 8px rgba(0,0,0,0.3); opacity: 1; transition: opacity 0.4s ease-out, top 0.4s ease-out; }
@@ -194,21 +182,15 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .app-notification.notification-info { background-color: #3182CE; }
 
 /* --- カウンターモード --- */
-.mode-section.standard-mode-layout { /* カウンターモードに適用 */
+.mode-section#counterSection {
     background-color: var(--default-main-bg); color: var(--default-text-color);
     padding: 20px; overflow-y: auto;
     max-width: var(--standard-mode-max-width); margin-left: auto; margin-right: auto;
     border-radius: 0; box-shadow: none; position: relative;
-    display: none; /* .active で表示 */
-    flex-direction: column;
+    display: none; flex-direction: column;
 }
-.mode-section.standard-mode-layout.active { display: flex !important; }
-.mode-section.standard-mode-layout h2 {
-    text-align: center; color: var(--default-text-color); margin-top: 0;
-    margin-bottom: 20px; font-size: 1.6rem; font-weight: 600;
-    border-bottom: 1px solid var(--default-border-color); padding-bottom:10px;
-    flex-shrink: 0;
-}
+.mode-section#counterSection.active { display: flex !important; }
+.mode-section#counterSection h2 { text-align: center; color: var(--default-text-color); margin-top: 0; margin-bottom: 20px; font-size: 1.6rem; font-weight: 600; border-bottom: 1px solid var(--default-border-color); padding-bottom:10px; flex-shrink: 0; }
 #counterGrid { flex-grow: 1; overflow-y: auto; padding: 5px; }
 .counter-instruction { text-align: center; color: #5a67d8; margin-bottom: 15px; font-weight: 500; flex-shrink: 0; }
 .counter-controls { text-align: right; margin-bottom: 15px; flex-shrink: 0; }
@@ -225,13 +207,11 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .counter-item .counter-member-name { font-weight: 500; color: #4a5568; font-size: 0.8rem; line-height: 1.2; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
 .counter-item .count-number { font-size: 1.2em; font-weight: bold; color: var(--member-accent-color, var(--default-accent-color)); margin-top: 3px; line-height: 1; }
 
-/* --- ギャラリー機能は廃止 --- */
-
 /* --- レスポンシブ対応 --- */
 @media (max-width: 768px) {
     .tab-navigation-global-footer .tab-button { font-size: 0.7rem; }
-    .mode-section.standard-mode-layout h2 { font-size: 1.3rem; margin-bottom: 15px; }
-    .mode-section.standard-mode-layout { padding: 10px; padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 10px); }
+    .mode-section#counterSection h2 { font-size: 1.3rem; margin-bottom: 15px; }
+    .mode-section#counterSection { padding: 10px; padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 10px); }
 
     .side-info-panel.left-panel { left: 5px; bottom: 5px; gap: 8px; }
     .profile-icon-wrapper { width: 32px; height: 32px; }
@@ -246,5 +226,6 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
     .control-button { font-size: 0.75em; padding: 6px 8px; }
 
     .modal-content { width: 95%; margin: 5vh auto; padding: 15px; max-height: 85vh; overflow-y: auto;}
+    .toggle-setting-item label { font-size: 0.9rem; }
     .counter-grid { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
 }
