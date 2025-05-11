@@ -541,3 +541,128 @@ const ShikoshikoMode = {
         }
     }
 };
+
+// js/modes/shikoshiko.js (抜粋 - ログ追加箇所)
+
+// ... init関数内 ...
+        this.loadSettings();
+        this.loadImageTags(); // 同期処理なので先に
+        this.loadMemberQuotes().then(() => { // ★ セリフロード完了後に実行する処理
+            console.log("ShikoshikoMode: Member quotes loaded or failed, proceeding with UI setup.");
+            this.buildDisplayableImageList();
+            this.currentCarouselCenterIndex = 0;
+            this.prepareCarouselItems();
+            // activate時にrenderCarouselを呼ぶのでここでは不要かも
+        });
+
+        this.initModalUI();
+        this.addEventListeners();
+        this.initAudio();
+        this.loadSounds(); // async
+
+        this.state.gameRunning = true;
+        this.state.isPaused = false;
+        this.applyFixedBpm();
+        console.log("Shikoshiko Mode Initialized (Carousel, Full Code, All Options, Auto-Start).");
+    },
+
+    cacheAllMemberEROImages: function() {
+        this.state.allMemberEROImages = {};
+        (this.config.members || []).forEach(member => {
+            // ... (既存の処理) ...
+        });
+        console.log("ShikoshikoMode CACHE: allMemberEROImages built:", JSON.parse(JSON.stringify(this.state.allMemberEROImages))); // ★ログ追加
+    },
+
+    buildDisplayableImageList: function() {
+        this.state.displayableImageList = [];
+        // ... (既存の処理) ...
+        console.log(`ShikoshikoMode BUILD: Displayable image list with ${this.state.displayableImageList.length} items.`);
+        if (this.state.displayableImageList.length === 0) {
+            console.warn("ShikoshikoMode BUILD: Displayable image list is EMPTY. Check config and filters.");
+        } else {
+            // console.log("ShikoshikoMode BUILD: First few items:", JSON.parse(JSON.stringify(this.state.displayableImageList.slice(0,5)))); // ★最初の数件をログ
+        }
+    },
+
+    prepareCarouselItems: function() {
+        this.state.carouselItemsData = [];
+        // ... (既存の処理) ...
+        console.log("ShikoshikoMode PREPARE: Prepared carousel items. Count:", this.state.carouselItemsData.length);
+        if (this.state.carouselItemsData.length > 0) {
+            // console.log("ShikoshikoMode PREPARE: Carousel data relativePaths:", this.state.carouselItemsData.map(item => item.relativePath)); // ★相対パスをログ
+        }
+    },
+
+    renderCarousel: function() {
+        if (!this.elements.carouselTrack) { console.error("renderCarousel: carouselTrack element not found."); return; }
+        this.dependencies.domUtils.empty(this.elements.carouselTrack);
+        console.log("ShikoshikoMode RENDER: Rendering carousel with items:", this.state.carouselItemsData.length); // ★アイテム数をログ
+
+        if (this.state.carouselItemsData.length === 0) {
+            // ... (既存のプレースホルダー処理) ...
+            this.clearMemberDisplay();
+            return;
+        }
+        this.state.carouselItemsData.forEach((itemData, index) => {
+            // ... (既存の要素生成) ...
+            console.log(`ShikoshikoMode RENDER item ${index}: Path: ${itemData.imagePath}, Member: ${itemData.member ? itemData.member.name : 'N/A'}`); // ★各アイテムのパスをログ
+            img.onerror = () => {
+                console.error(`ShikoshikoMode RENDER ERROR: Failed to load image ${itemData.imagePath}`); // ★エラーログ
+                img.src = 'images/placeholder.png'; this.dependencies.domUtils.addClass(img, 'image-error');
+            };
+            // ...
+        });
+        // ... (既存のトラック位置設定) ...
+        this.displayCentralCarouselItemInfo();
+    },
+
+    displayCentralCarouselItemInfo: function() {
+        console.log("ShikoshikoMode DISPLAY_INFO: Attempting to display info for central item."); // ★ログ追加
+        if (this.state.carouselItemsData.length === 0 || this.state.carouselItemsData.length <= this.config.carouselBufferSize) {
+            console.warn("ShikoshikoMode DISPLAY_INFO: Not enough items in carouselItemsData or empty.");
+            this.clearMemberDisplay(); return;
+        }
+        const centerItemData = this.state.carouselItemsData[this.config.carouselBufferSize];
+        if (!centerItemData || !centerItemData.member) {
+            console.warn("ShikoshikoMode DISPLAY_INFO: Central item data or member is missing.");
+            this.clearMemberDisplay(); return;
+        }
+        console.log("ShikoshikoMode DISPLAY_INFO: Central item data:", JSON.parse(JSON.stringify(centerItemData))); // ★中央アイテムデータをログ
+
+        // ... (既存のセリフ・タグ表示ロジック) ...
+        const memberName = this.state.currentMember.name; // currentMember はここで設定済みのはず
+        const memberQuotes = this.state.memberQuotes[memberName] || [];
+        console.log(`ShikoshikoMode DISPLAY_INFO: Quotes for ${memberName}:`, memberQuotes.length); // ★セリフの数をログ
+
+        const currentImageRelPath = this.elements.weakPointButton.dataset.relpath;
+        const tagsForCurrentImage = currentImageRelPath ? (this.state.imageTags[currentImageRelPath] || []) : [];
+        console.log(`ShikoshikoMode DISPLAY_INFO: Tags for ${currentImageRelPath}:`, tagsForCurrentImage); // ★タグをログ
+        // ...
+    },
+
+    activate: function() {
+        // ...
+        this.loadMemberQuotes().then(() => { // ★ セリフロード完了を待つ
+            console.log("ShikoshikoMode ACTIVATE: Quotes loaded, proceeding to build/render carousel.");
+            this.buildDisplayableImageList();
+            if (this.state.displayableImageList.length === 0) {
+                console.error("ShikoshikoMode ACTIVATE: No displayable images after build. Cannot proceed.");
+                this.clearMemberDisplayAndUpdate();
+                this.dependencies.uiComponents.showNotification("表示可能な画像がありません。設定を確認してください。", "error");
+                if (this.state.gameRunning) this.togglePauseGame(); // 問題があれば一時停止
+                return;
+            }
+            this.currentCarouselCenterIndex = this.dependencies.utils.getRandomInt(0, this.state.displayableImageList.length - 1); // ★ランダムな位置から開始
+            this.prepareCarouselItems();
+            this.renderCarousel();
+
+            if (this.state.gameRunning && this.state.isPaused) {
+                // ...
+            } else if (this.state.gameRunning && !this.state.isPaused) {
+                // ...
+            }
+            this.updateUI();
+        });
+        // ...
+    },
