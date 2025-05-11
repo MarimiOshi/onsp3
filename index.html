@@ -10,8 +10,7 @@
 <body>
 
     <main id="appContainer" class="app-main-content">
-
-        <!-- しこしこモード セクション -->
+        <!-- しこしこモード セクション (変更なし) -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
                 <div class="shikoshiko-box1">
@@ -28,7 +27,6 @@
                     </div>
                     <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
                 </div>
-
                 <div class="serif-animation-container">
                     <div class="serif-area">
                         <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
@@ -39,19 +37,17 @@
                         <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
                     </div>
                 </div>
-
                 <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
-                        <button id="shikoshikoStartButton" class="control-button pause-resume-button">一時停止</button>
-                        <button id="shikoshikoAutoPlayButton" class="control-button autoplay-button">再生</button> <!-- ★ 追加 ★ -->
-                        <button id="shikoshikoFinishButton" class="control-button finish-button">フィニッシュ</button>
+                        <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
+                        <button id="shikoshikoFinishButton" class="control-button start-finish-button">フィニッシュ</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- カウンターセクション -->
+        <!-- カウンターセクション (変更なし) -->
         <section id="counterSection" class="mode-section standard-mode-layout" style="display:none;">
             <h2>回数カウンター</h2>
             <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
@@ -62,10 +58,9 @@
                 <p class="loading-message">カウンター読み込み中...</p>
             </div>
         </section>
-
     </main>
 
-    <!-- しこしこモード設定モーダル -->
+    <!-- しこしこモード設定モーダル (UI追加) -->
     <div id="shikoshikoSettingsModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="modal-close-button" id="closeShikoshikoSettingsModal">×</span>
@@ -83,13 +78,19 @@
                         <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
                     </div>
                 </div>
-                 <div class="setting-group">
-                    <h4>自動スキップ間隔 (ミリ秒)</h4>
-                    <div class="autoplay-interval-setting">
-                        <label for="modalAutoplayIntervalInput">間隔:</label>
-                        <input type="number" id="modalAutoplayIntervalInput" min="1000" max="30000" step="1000" value="5000">
+                <!-- ★★★ 新しい設定UIを追加 ★★★ -->
+                <div class="setting-group">
+                    <h4>再生オプション</h4>
+                    <div class="toggle-setting-item">
+                        <input type="checkbox" id="modalAutoSkipToggle" checked> <!-- 初期はON -->
+                        <label for="modalAutoSkipToggle">画像の自動スキップ</label>
+                    </div>
+                    <div class="toggle-setting-item">
+                        <input type="checkbox" id="modalWeakPointOnlyToggle">
+                        <label for="modalWeakPointOnlyToggle">弱点画像のみ表示</label>
                     </div>
                 </div>
+                <!-- ★★★ ここまで ★★★ -->
             </div>
             <div class="modal-footer">
                 <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
@@ -97,7 +98,7 @@
         </div>
     </div>
 
-    <!-- グローバルな下部タブナビゲーション -->
+    <!-- グローバルな下部タブナビゲーション (変更なし) -->
     <nav id="tabNavigation" class="tab-navigation-global-footer">
         <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
         <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
