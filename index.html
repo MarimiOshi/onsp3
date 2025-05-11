@@ -14,7 +14,6 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
-
                 <div class="shikoshiko-box1">
                     <div class="member-image-container main-image-area" id="shikoshikoMemberImageContainer">
                         <img id="shikoshikoMemberImage" src="images/placeholder.png" alt="メンバー画像">
@@ -41,31 +40,28 @@
                     </div>
                 </div>
 
-                <div class="shikoshiko-controls-bottom-area"> <!-- 操作ボタン専用エリア -->
+                <div class="shikoshiko-box2-controls-only">
                     <div class="main-controls" id="shikoshikoControlsArea">
                         <button id="shikoshikoSkipButton" class="control-button skip-button">スキップ</button>
-                        <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
-                        <button id="shikoshikoFinishButton" class="control-button start-finish-button">フィニッシュ</button>
+                        <button id="shikoshikoStartButton" class="control-button pause-resume-button">一時停止</button>
+                        <button id="shikoshikoAutoPlayButton" class="control-button autoplay-button">再生</button> <!-- ★ 追加 ★ -->
+                        <button id="shikoshikoFinishButton" class="control-button finish-button">フィニッシュ</button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- カウンターセクション -->
-        <section id="counterSection" class="mode-section standard-mode-container" style="display:none;">
-            <div class="standard-mode-content">
-                <h2>回数カウンター</h2>
-                <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
-                <div class="counter-controls">
-                    <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
-                </div>
-                <div class="counter-grid" id="counterGrid">
-                    <p class="loading-message">カウンター読み込み中...</p>
-                </div>
+        <section id="counterSection" class="mode-section standard-mode-layout" style="display:none;">
+            <h2>回数カウンター</h2>
+            <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
+            <div class="counter-controls">
+                <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
+            </div>
+            <div class="counter-grid" id="counterGrid">
+                <p class="loading-message">カウンター読み込み中...</p>
             </div>
         </section>
-
-        <!-- ギャラリーセクション (廃止) -->
 
     </main>
 
@@ -87,6 +83,13 @@
                         <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
                     </div>
                 </div>
+                 <div class="setting-group">
+                    <h4>自動スキップ間隔 (ミリ秒)</h4>
+                    <div class="autoplay-interval-setting">
+                        <label for="modalAutoplayIntervalInput">間隔:</label>
+                        <input type="number" id="modalAutoplayIntervalInput" min="1000" max="30000" step="1000" value="5000">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
@@ -94,7 +97,7 @@
         </div>
     </div>
 
-    <!-- グローバルな下部タブナビゲーション (mainの外に配置) -->
+    <!-- グローバルな下部タブナビゲーション -->
     <nav id="tabNavigation" class="tab-navigation-global-footer">
         <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
         <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
