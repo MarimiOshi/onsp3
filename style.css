@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* style.css - ONSP Project (Fully Restored, New Options)           */
+/* style.css - ONSP Project (Fully Restored for Carousel)           */
 /* ================================================================== */
 
 :root {
@@ -93,20 +93,54 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .mode-section.active { display: flex; flex-direction: column; }
 
 
-/* --- しこしこモード 新レイアウト --- */
+/* --- しこしこモード 新レイアウト (カルーセル対応) --- */
 .shikoshiko-layout-container {
     width: 100%; height: 100%; display: flex; flex-direction: column;
-    color: var(--global-text-on-light-bg);
+    color: var(--global-text-on-light-bg); /* BOX1が黒なので、ここは暫定。各BOX内で調整 */
 }
 .shikoshiko-box1 {
     flex-grow: 1; position: relative; display: flex;
     align-items: center; justify-content: center; overflow: hidden;
-    background-color: #000000;
+    background-color: #000000; /* 画像の余白は黒固定 */
     color: var(--global-text-on-dark-bg);
 }
-.member-image-container.main-image-area { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
-#shikoshikoMemberImage { max-width: 100%; max-height: 100%; object-fit: contain; }
-#shikoshikoMemberImage.image-error { content: url(images/placeholder.png); }
+
+.carousel-viewport {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+.carousel-track {
+    display: flex;
+    height: 100%;
+    position: relative;
+    left: 0; /* JSで制御: -(現在のインデックス * 100)% */
+    transition: left 0.35s cubic-bezier(0.25, 0.1, 0.25, 1); /* スムーズな移動 */
+}
+.carousel-item {
+    min-width: 100%; /* 各アイテムがビューポート幅を占める */
+    height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0; /* アイテムが縮まないように */
+}
+.carousel-item img { /* カルーセル内の画像スタイル */
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    display: block; /* inline残りのスペースを消す */
+    /* filter: brightness(0.7); カルーセルの左右の画像を少し暗くする場合 */
+    /* transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out; */
+}
+.carousel-item.active-slide img { /* 中央の画像を目立たせる（オプション） */
+    /* filter: brightness(1); */
+    /* transform: scale(1.05); */
+}
+#shikoshikoMemberImage.image-error { /* カルーセル内の画像がエラーの場合 */
+    content: url(images/placeholder.png); /* JSでのsrc変更と併用 */
+    border: 2px dashed #555 !important; /* 枠線でエラーを示す */
+    background-color: #111;
+}
+
+
 .side-info-panel.left-panel { position: absolute; left: 10px; bottom: 10px; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 20; }
 .profile-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.5); }
 .profile-icon { width: 100%; height: 100%; object-fit: cover; }
@@ -123,21 +157,17 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
     border-bottom: 1px solid var(--member-accent-color, #444444);
     color: var(--member-text-color, var(--global-text-on-dark-bg));
 }
-.serif-area { flex-grow: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.serif-area { flex-grow: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; background-color: rgba(0, 0, 0, 0.65); color: #f0f0f0; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); }
 .image-tags-container { text-align: left; font-size: 0.65em; opacity: 0.8; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: inherit; }
 .image-tag-item { background-color: rgba(255,255,255,0.15); color: inherit; padding: 1px 5px; margin-right: 4px; border-radius: 3px;}
 .member-quote { font-size: 0.95em; font-weight: 500; margin: 0; text-align: left; max-height: 3em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.5; color: inherit;}
-.animation-area { flex-shrink: 0; width: var(--serif-anime-container-height); height: 100%; position: relative; display: flex; justify-content: center; align-items: center; border-left: 1px solid var(--member-accent-color, #444444); }
+.animation-area { flex-shrink: 0; width: var(--serif-anime-container-height); height: 100%; position: relative; display: flex; justify-content: center; align-items: center; border-left: 1px solid var(--member-accent-color, #444444); background-color: var(--member-content-bg, #222222);}
 .sao-image, .shikoshiko-image { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; height: 90%; object-fit: contain; }
 .shikoshiko-image { z-index: 2; } .sao-image { z-index: 1; }
 @keyframes shikoUpDown { 0% { transform: translate(-50%, -45%); } 50% { transform: translate(-50%, -55%); } 100% { transform: translate(-50%, -45%); } }
 .shikoshiko-image.play { animation-name: shikoUpDown; animation-duration: var(--shiko-animation-duration); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); animation-iteration-count: infinite; animation-play-state: running; }
 
-.shikoshiko-box2-controls-only {
-    flex-shrink: 0;
-    background-color: var(--member-content-bg, #1c1c1e);
-    color: var(--member-text-color, var(--global-text-on-dark-bg));
-}
+.shikoshiko-box2-controls-only { flex-shrink: 0; background-color: var(--member-content-bg, #1c1c1e); color: var(--member-text-color, var(--global-text-on-dark-bg)); border-top: 1px solid var(--member-accent-color, #333); }
 .main-controls { display: flex; justify-content: space-between; align-items: center; height: var(--shiko-controls-height); padding: 0 10px; }
 .control-button { padding: 9px 14px; font-size: 0.85em; cursor: pointer; background-color: var(--member-accent-color, #4a4a4e); color: var(--member-button-text-color, var(--global-text-on-dark-bg)); border: none; border-radius: 5px; font-weight: 500; text-align: center; flex-basis: 31%; margin: 0 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; transition: opacity 0.2s, background-color 0.2s; }
 .control-button:hover:not(:disabled) { opacity: 1; filter: brightness(110%); }
@@ -145,6 +175,8 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .control-button.start-finish-button { order: 2; }
 #shikoshikoFinishButton { background-color: #c62828; order: 3; }
 .control-button:disabled { background-color: #3a3a3e !important; color: #777 !important; opacity: 0.6;}
+
+/* 背景パルス機能は廃止 */
 
 /* --- モーダル --- */
 .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); animation: modalFadeIn 0.2s ease-out; }
@@ -157,7 +189,7 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .modal-body .setting-group { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid #38383a; }
 .modal-body .setting-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .modal-body .setting-group h4 { color: #e0e0e0; font-size: 1.05rem; margin-bottom: 12px; font-weight: 500; }
-.modal-body label { color: #d0d0d0; font-size: 0.9rem; user-select: none;}
+.modal-body label { color: #d0d0d0; font-size: 0.9rem; user-select: none; }
 .modal-body input[type="number"], .modal-body input[type="range"] { background-color: #3a3a3e; color: #fff; border: 1px solid #5a5a5f; padding: 8px 10px; border-radius: 4px; width: auto; }
 .modal-body input[type="number"] { width: 70px; text-align: center; }
 .modal-body .slider-container.member-sliders { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -182,13 +214,7 @@ body { scrollbar-width: thin; scrollbar-color: #4a4a4a #1a1a1a; }
 .app-notification.notification-info { background-color: #3182CE; }
 
 /* --- カウンターモード --- */
-.mode-section#counterSection {
-    background-color: var(--default-main-bg); color: var(--default-text-color);
-    padding: 20px; overflow-y: auto;
-    max-width: var(--standard-mode-max-width); margin-left: auto; margin-right: auto;
-    border-radius: 0; box-shadow: none; position: relative;
-    display: none; flex-direction: column;
-}
+.mode-section#counterSection { background-color: var(--default-main-bg); color: var(--default-text-color); padding: 20px; overflow-y: auto; max-width: var(--standard-mode-max-width); margin-left: auto; margin-right: auto; border-radius: 0; box-shadow: none; position: relative; display: none; flex-direction: column; }
 .mode-section#counterSection.active { display: flex !important; }
 .mode-section#counterSection h2 { text-align: center; color: var(--default-text-color); margin-top: 0; margin-bottom: 20px; font-size: 1.6rem; font-weight: 600; border-bottom: 1px solid var(--default-border-color); padding-bottom:10px; flex-shrink: 0; }
 #counterGrid { flex-grow: 1; overflow-y: auto; padding: 5px; }
