@@ -1,38 +1,37 @@
 // card_ui.js
+console.log("card_ui.js executing"); // ファイル読み込み確認用
 
 const CardUI = {
     elements: {
         stackArea: null,
         likeButtonMain: null,
         nopeButton: null,
-        profileIcon: null,          // しこしこモードの左パネルのプロフィールアイコン
-        weakPointButtonSide: null,  // しこしこモードの左パネルの弱点ボタン
-        feverGaugeBar: null,        // しこしこモードの左パネルのフィーバーゲージ
-        // モーダル内の設定要素は app.js または settings_modal.js(今回はapp.jsに統合)が管理
-        modalMemberSlidersContainer: null, // モーダル内のスライダーコンテナへの参照 (app.jsから渡される想定)
+        profileIcon: null,
+        weakPointButtonSide: null,
+        feverGaugeBar: null,
+        modalMemberSlidersContainer: null, // モーダル内のスライダーコンテナも参照できるように
     },
     state: {
-        cards: [], // 現在DOM上にあるカード要素の配列 [bottom, ..., top]
-        topCard: null, // 現在操作対象の最前面カード要素
-        nextCardData: null, // 次に表示するために事前に読み込んだカードデータ
+        cards: [],
+        topCard: null,
+        nextCardData: null,
         isDragging: false,
-        startX: 0, startY: 0, // ドラッグ開始座標
-        currentX: 0, currentY: 0, // ドラッグ中の現在座標
+        startX: 0, startY: 0, currentX: 0, currentY: 0,
         feverGauge: 0,
         isFeverActive: false,
         feverTimeoutId: null,
-        likedImageHistoryForFever: [], // フィーバー中に表示する画像のリスト {member, imagePath, relativePath}
-        _stickerInterval: null, // フィーバー中のステッカー表示用インターバルID
+        likedImageHistoryForFever: [],
+        _stickerInterval: null,
     },
     config: null,
     dataHandler: null,
-    appInterface: null, // app.js のメソッドを呼び出すためのインターフェース
+    appInterface: null,
 
     async init(appConfig, dataHandlerInstance, appInterfaceInstance) {
         this.config = appConfig;
         this.dataHandler = dataHandlerInstance;
         this.appInterface = appInterfaceInstance;
-        console.log("CardUI: Initializing (Full Code)...");
+        console.log("CardUI: Initializing (Syntax Error Fix)...");
 
         this.elements.stackArea = DOMUtils.qs('#cardStackArea');
         this.elements.likeButtonMain = DOMUtils.qs('#likeButtonMain');
@@ -40,27 +39,23 @@ const CardUI = {
         this.elements.profileIcon = DOMUtils.qs('#memberProfileIcon');
         this.elements.weakPointButtonSide = DOMUtils.qs('#weakPointButton');
         this.elements.feverGaugeBar = DOMUtils.qs('#feverGaugeBarVertical');
-        // モーダル内の要素への参照は app.js 側で持ち、必要に応じてこのモジュールに渡す
-        this.elements.modalMemberSlidersContainer = DOMUtils.qs('#modalMemberSliders');
-
+        this.elements.modalMemberSlidersContainer = DOMUtils.qs('#modalMemberSliders'); // app.jsから参照を移すことも検討
 
         if (!this.elements.stackArea || !this.elements.likeButtonMain || !this.elements.nopeButton || !this.elements.profileIcon || !this.elements.weakPointButtonSide || !this.elements.feverGaugeBar) {
             console.error("CardUI: One or more essential elements not found in DOM. Initialization may fail.");
         }
 
         this.addEventListeners();
-        await this.preloadNextCardData(); // 最初のカードデータを読み込む
-        this.addCardToStack(true);     // 最初のカードをスタックに追加
+        await this.preloadNextCardData();
+        this.addCardToStack(true);
         if (this.config.cardSwipeSettings.nextCardPreloadCount > 0 && this.state.nextCardData) {
-            await this.preloadNextCardData(); // 2枚目のカードデータも読み込む
-            this.addCardToStack(false, true);  // 2枚目を裏に追加
+            await this.preloadNextCardData();
+            this.addCardToStack(false, true);
         }
-        // さらに3枚目も裏に追加する場合
         if (this.config.cardSwipeSettings.nextCardPreloadCount > 1 && this.state.nextCardData) {
             await this.preloadNextCardData();
             this.addCardToStack(false, true);
         }
-
 
         this.updateFeverGaugeDisplay();
         console.log("CardUI: Initialization complete.");
@@ -79,13 +74,11 @@ const CardUI = {
 
         if (this.state.isFeverActive) {
             if (this.state.likedImageHistoryForFever.length > 0) {
-                // フィーバー中は likedImageHistoryForFever からランダムに選択
                 cardDataToLoad = Utils.getRandomElement(this.state.likedImageHistoryForFever);
-                // 一度表示したものはリストから削除するか、別の管理をする（ここでは単純にランダム選択）
             } else {
                 console.warn("CardUI: No liked images for Fever Mode. Ending fever.");
                 this.endFeverMode();
-                cardDataToLoad = this.dataHandler.getNextCardData(currentSettings, false); // 通常モードで再取得
+                cardDataToLoad = this.dataHandler.getNextCardData(currentSettings, false);
             }
         } else {
             cardDataToLoad = this.dataHandler.getNextCardData(currentSettings, false);
@@ -94,7 +87,7 @@ const CardUI = {
 
         if (this.state.nextCardData && this.state.nextCardData.imagePath) {
             const img = new Image();
-            img.src = this.state.nextCardData.imagePath; // 画像の事前読み込み
+            img.src = this.state.nextCardData.imagePath;
             console.log("CardUI: Preloaded next card data for:", this.state.nextCardData.member.name, this.state.nextCardData.relativePath);
         } else if (!this.state.nextCardData) {
              console.error("CardUI: Failed to preload next card data. No eligible images could be found by DataHandler.");
@@ -119,9 +112,8 @@ const CardUI = {
         if (!cardElement || !this.elements.stackArea) return;
 
         if (isBehind && this.elements.stackArea.children.length > 0) {
-            // 裏に追加する場合、現在のカードの1つ手前（DOM上では次の兄弟）に挿入
             this.elements.stackArea.insertBefore(cardElement, this.elements.stackArea.children[this.elements.stackArea.children.length -1]);
-            this.state.cards.splice(this.state.cards.length -1, 0, cardElement); // 配列の最後から2番目に挿入
+            this.state.cards.splice(this.state.cards.length -1, 0, cardElement);
         } else {
             this.elements.stackArea.appendChild(cardElement);
             this.state.cards.push(cardElement);
@@ -129,14 +121,13 @@ const CardUI = {
         this.updateTopCard();
 
         if (isInitial && this.state.topCard) {
-            this.updateSidePanelInfo(cardData); // サイドパネル情報更新
+            this.updateSidePanelInfo(cardData);
             if (this.appInterface && typeof this.appInterface.applyCardOuterTheme === 'function') {
                 this.appInterface.applyCardOuterTheme(cardData.member.color);
             }
         }
 
-        // さらに次のカードを事前読み込み (スタックに表示枚数+バッファ枚数より少ない場合)
-        const requiredCards = 1 + (this.config.cardSwipeSettings.nextCardPreloadCount || 1); // 最低でも操作対象の1枚 + バッファ
+        const requiredCards = 1 + (this.config.cardSwipeSettings.nextCardPreloadCount || 1);
         if (this.state.cards.length < requiredCards) {
              this.preloadNextCardData().then(() => {
                 if (this.state.nextCardData && this.state.cards.length < requiredCards) {
@@ -153,8 +144,22 @@ const CardUI = {
         }
 
         const card = DOMUtils.createElement('div', { class: 'card', dataset: { relativePath: cardData.relativePath } });
-        card.style.borderColor = cardData.member.color; // カードの縁の色
-        card.style.boxShadow = `0 5px 15px ${Utils.hexToHsl(cardData.member.color) ? `hsla(${Utils.hexToHsl(cardData.member.color)[0]}, 50%, 30%, 0.4)` : 'rgba(0,0,0,0.3)'}`; // 影もメンバーカラーに
+
+        // ★★★ シンタックスエラー修正箇所 ★★★
+        if (cardData.member && cardData.member.color) {
+            card.style.borderColor = cardData.member.color;
+            // グローバルスコープの Utils を使用
+            const hslColor = Utils.hexToHsl(cardData.member.color);
+            if (hslColor) {
+                card.style.boxShadow = `0 5px 15px hsla(${hslColor[0]}, 50%, 30%, 0.4)`;
+            } else {
+                card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            }
+        } else {
+            card.style.borderColor = 'transparent';
+            card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+        }
+        // ★★★ ここまで ★★★
 
         const imageArea = DOMUtils.createElement('div', { class: 'card-image-area' });
         const img = DOMUtils.createElement('img', { src: cardData.imagePath, alt: cardData.member.name });
@@ -182,9 +187,8 @@ const CardUI = {
             const likeImg = DOMUtils.createElement('img', { src: this.config.cardSwipeSettings.likeImageSrc, alt: 'シコい!!'});
             likeOverlay.appendChild(likeImg);
         } else {
-            likeOverlay.textContent = "シコい!!"; // 画像がない場合のフォールバック
+            likeOverlay.textContent = "シコい!!";
         }
-
 
         const nopeOverlay = DOMUtils.createElement('div', { class: 'swipe-overlay nope' });
          if(this.config.cardSwipeSettings.nopeImageSrc){
@@ -193,7 +197,6 @@ const CardUI = {
         } else {
             nopeOverlay.textContent = "萎え";
         }
-
 
         card.appendChild(imageArea);
         card.appendChild(infoArea);
@@ -210,12 +213,11 @@ const CardUI = {
         this.state.topCard = this.state.cards.length > 0 ? this.state.cards[this.state.cards.length - 1] : null;
         this.state.cards.forEach((card, index) => {
             const isTop = (card === this.state.topCard);
-            card.style.zIndex = index; // 重なり順
+            card.style.zIndex = index;
             if (isTop) {
                 card.style.transform = 'translateY(0px) scale(1)';
                 card.style.opacity = 1;
             } else {
-                // 背後のカードのスタイル（少し小さく、下にずらすなど）
                 const depth = this.state.cards.length - 1 - index;
                 card.style.transform = `translateY(${depth * 8}px) scale(${1 - depth * 0.04})`;
                 card.style.opacity = 1 - depth * 0.3;
@@ -268,9 +270,8 @@ const CardUI = {
         const touch = event.type === 'touchstart' ? event.touches[0] : event;
         this.state.startX = touch.clientX;
         this.state.startY = touch.clientY;
-        this.state.currentX = touch.clientX; // currentXも初期化
-        this.state.currentY = touch.clientY; // currentYも初期化
-
+        this.state.currentX = touch.clientX;
+        this.state.currentY = touch.clientY;
         this._dragMoveListener = (e) => this.handleDragMove(e, card);
         this._dragEndListener = (e) => this.handleDragEnd(e, card);
         document.addEventListener('mousemove', this._dragMoveListener);
@@ -284,20 +285,13 @@ const CardUI = {
         event.preventDefault();
         const touch = event.type === 'touchmove' ? event.touches[0] : event;
         const offsetX = touch.clientX - this.state.startX;
-        const offsetY = touch.clientY - this.state.startY; // Y方向の移動も考慮
-        const rotateDeg = offsetX * 0.05; // X方向の移動量に応じてカードを傾ける（少し抑えめ）
-
+        const offsetY = touch.clientY - this.state.startY;
+        const rotateDeg = offsetX * 0.05;
         card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotateDeg}deg)`;
-
-        const threshold = card.offsetWidth * 0.2; // 閾値を少し小さく
-        if (offsetX > threshold) {
-            DOMUtils.addClass(card, 'show-like-overlay'); DOMUtils.removeClass(card, 'show-nope-overlay');
-        } else if (offsetX < -threshold) {
-            DOMUtils.addClass(card, 'show-nope-overlay'); DOMUtils.removeClass(card, 'show-like-overlay');
-        } else {
-            DOMUtils.removeClass(card, 'show-like-overlay'); DOMUtils.removeClass(card, 'show-nope-overlay');
-        }
-        // currentX, currentY はドラッグ終了時に使うので、ここでは更新しない
+        const threshold = card.offsetWidth * 0.2;
+        if (offsetX > threshold) { DOMUtils.addClass(card, 'show-like-overlay'); DOMUtils.removeClass(card, 'show-nope-overlay'); }
+        else if (offsetX < -threshold) { DOMUtils.addClass(card, 'show-nope-overlay'); DOMUtils.removeClass(card, 'show-like-overlay'); }
+        else { DOMUtils.removeClass(card, 'show-like-overlay'); DOMUtils.removeClass(card, 'show-nope-overlay'); }
     },
 
     handleDragEnd: function(event, card) {
@@ -305,21 +299,17 @@ const CardUI = {
         this.state.isDragging = false;
         DOMUtils.removeClass(card, 'dragging');
         DOMUtils.removeClass(card, 'show-like-overlay'); DOMUtils.removeClass(card, 'show-nope-overlay');
-
         document.removeEventListener('mousemove', this._dragMoveListener);
         document.removeEventListener('touchmove', this._dragMoveListener);
         document.removeEventListener('mouseup', this._dragEndListener);
         document.removeEventListener('touchend', this._dragEndListener);
-
-        // ドラッグ終了時の位置を取得
         const touch = event.type === 'touchend' ? event.changedTouches[0] : event;
         const finalOffsetX = touch.clientX - this.state.startX;
-        const swipeThreshold = card.offsetWidth * 0.35; // スワイプと判定する閾値
-
+        const swipeThreshold = card.offsetWidth * 0.35;
         if (Math.abs(finalOffsetX) > swipeThreshold) {
             this.swipeTopCard(finalOffsetX > 0 ? 'right' : 'left');
         } else {
-            card.style.transform = ''; // 元の位置に戻すアニメーション
+            card.style.transform = '';
         }
     },
 
@@ -327,9 +317,7 @@ const CardUI = {
         if (!this.state.topCard) return;
         const cardToRemove = this.state.topCard;
         const cardData = this.dataHandler.memberData.find(d => d.relativePath === cardToRemove.dataset.relativePath);
-
         DOMUtils.addClass(cardToRemove, direction === 'right' ? 'removing-right' : 'removing-left');
-
         if (direction === 'right') {
             console.log("CardUI: Swiped Right (Like)");
             if (cardData) this.dataHandler.addLikedImage(cardData);
@@ -337,12 +325,11 @@ const CardUI = {
         } else {
             console.log("CardUI: Swiped Left (Nope)");
         }
-
         setTimeout(() => {
             if (cardToRemove.parentNode) cardToRemove.parentNode.removeChild(cardToRemove);
-            this.state.cards = this.state.cards.filter(c => c !== cardToRemove); // 配列から正しく削除
+            this.state.cards = this.state.cards.filter(c => c !== cardToRemove);
             this.updateTopCard();
-            this.preloadNextCardData().then(() => { // 次のカードを準備してから追加
+            this.preloadNextCardData().then(() => {
                 this.addCardToStack(false, true);
                 if (this.state.topCard) {
                     const topCardRelPath = this.state.topCard.dataset.relativePath;
@@ -373,9 +360,8 @@ const CardUI = {
     },
     updateFeverGaugeDisplay: function() {
         if (!this.elements.feverGaugeBar) return;
-        const percentage = Math.min(100, (this.state.feverGauge / (this.config.cardSwipeSettings.feverThreshold || 10)) * 100); // 0除算防止
+        const percentage = Math.min(100, (this.state.feverGauge / (this.config.cardSwipeSettings.feverThreshold || 10)) * 100);
         this.elements.feverGaugeBar.style.height = `${percentage}%`;
-        // 次のカードのメンバーカラーに連動 (app.jsから呼ばれるapplyCardOuterThemeで処理)
     },
     startFeverMode: function() {
         if (this.state.isFeverActive) return;
@@ -388,7 +374,6 @@ const CardUI = {
         }
         if(this.appInterface && typeof this.appInterface.showNotification === 'function') this.appInterface.showNotification("フィーバー突入！", "info", 2000);
         if (this.appInterface && typeof this.appInterface.DOMUtils !== 'undefined') this.appInterface.DOMUtils.addClass(document.body, 'fever-active');
-
         let feverTimeLeft = this.config.cardSwipeSettings.feverDuration;
         if (this.elements.feverGaugeBar) this.elements.feverGaugeBar.style.transition = 'height 0.1s linear';
         this.state.feverTimeoutId = setInterval(() => {
@@ -414,7 +399,7 @@ const CardUI = {
     },
     startStickerShower: function() {
         if (!this.config.cardSwipeSettings.stickerPaths || this.config.cardSwipeSettings.stickerPaths.length === 0 || !this.elements.stackArea) return;
-        this.stopStickerShower(); // 既存のインターバルがあればクリア
+        this.stopStickerShower();
         this._stickerInterval = setInterval(() => {
             const stickerSrc = Utils.getRandomElement(this.config.cardSwipeSettings.stickerPaths);
             const stickerEl = DOMUtils.createElement('img', { src: stickerSrc, class: 'fever-sticker' });
@@ -437,11 +422,7 @@ const CardUI = {
         if (this.elements.stackArea) DOMUtils.qsa('.fever-sticker', this.elements.stackArea).forEach(el => el.remove());
     },
 
-    // --- メソッド (app.jsから呼ばれる想定) ---
     activate: function() {
-        // カードスタックの初期化や最初のカード表示など
-        // app.js の init で preloadNextCardData と addCardToStack が呼ばれるので、
-        // ここでは主に表示状態の確認と、必要なら再描画
         if (this.state.cards.length === 0 && this.state.nextCardData) {
             this.addCardToStack(true);
         } else if (this.state.topCard) {
@@ -451,16 +432,13 @@ const CardUI = {
         console.log("CardUI Activated.");
     },
     deactivate: function() {
-        // 必要なら、タイマーやアニメーションを停止
-        if (this.state.isFeverActive) this.endFeverMode(); // フィーバー中なら終了
+        if (this.state.isFeverActive) this.endFeverMode();
         console.log("CardUI Deactivated.");
     },
-    handleSettingsChange: function() { // app.js から設定変更が通知された場合
+    handleSettingsChange: function() {
         console.log("CardUI: Settings changed, rebuilding card stack if necessary.");
-        // 設定（特にメンバー出現率）が変わったので、カードスタックを再構築
         this.state.cards.forEach(card => { if(card.parentNode) card.parentNode.removeChild(card); });
-        this.state.cards = [];
-        this.state.topCard = null;
+        this.state.cards = []; this.state.topCard = null;
         this.preloadNextCardData().then(() => {
             this.addCardToStack(true);
             if (this.config.cardSwipeSettings.nextCardPreloadCount > 0 && this.state.nextCardData) {
@@ -468,18 +446,11 @@ const CardUI = {
             }
         });
     },
-    populateSettingsModal: function(currentMemberWeights) { // app.js から呼ばれ、モーダル内のUIを現在の設定値で更新
-        if (this.elements.modalMemberSlidersContainer && this.config.members) {
-            // createMemberWeightSliders は app.js の UIComponents にある想定
-            // ここでは、appInterface 経由で呼び出すか、DOMUtils を使って直接操作
-            if (this.appInterface && this.appInterface.UIComponents && typeof this.appInterface.UIComponents.createMemberWeightSliders === 'function') {
-                this.appInterface.UIComponents.createMemberWeightSliders(
-                    '#modalMemberSliders',
-                    this.config.members,
-                    currentMemberWeights,
-                    () => {} // モーダル内でのスライダー変更は即時保存しない
-                );
-            }
+    populateSettingsModal: function(currentMemberWeights) {
+        if (this.elements.modalMemberSlidersContainer && this.config.members && this.appInterface && this.appInterface.UIComponents) {
+            this.appInterface.UIComponents.createMemberWeightSliders(
+                '#modalMemberSliders', this.config.members, currentMemberWeights, () => {}
+            );
         }
     },
     updateWeakPointIconOnCurrentCard: function(relativePath, isNowWeak) {
