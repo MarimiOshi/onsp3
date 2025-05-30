@@ -1,5 +1,5 @@
 // card_ui.js
-console.log("card_ui.js executing"); // ファイル読み込み確認用
+console.log("card_ui.js executing (Syntax Error Re-Fix Attempt)"); // ファイル読み込み確認用
 
 const CardUI = {
     elements: {
@@ -9,7 +9,7 @@ const CardUI = {
         profileIcon: null,
         weakPointButtonSide: null,
         feverGaugeBar: null,
-        modalMemberSlidersContainer: null, // モーダル内のスライダーコンテナも参照できるように
+        modalMemberSlidersContainer: null,
     },
     state: {
         cards: [],
@@ -31,7 +31,7 @@ const CardUI = {
         this.config = appConfig;
         this.dataHandler = dataHandlerInstance;
         this.appInterface = appInterfaceInstance;
-        console.log("CardUI: Initializing (Syntax Error Fix)...");
+        console.log("CardUI: Initializing (Syntax Error Re-Fix)...");
 
         this.elements.stackArea = DOMUtils.qs('#cardStackArea');
         this.elements.likeButtonMain = DOMUtils.qs('#likeButtonMain');
@@ -39,7 +39,7 @@ const CardUI = {
         this.elements.profileIcon = DOMUtils.qs('#memberProfileIcon');
         this.elements.weakPointButtonSide = DOMUtils.qs('#weakPointButton');
         this.elements.feverGaugeBar = DOMUtils.qs('#feverGaugeBarVertical');
-        this.elements.modalMemberSlidersContainer = DOMUtils.qs('#modalMemberSliders'); // app.jsから参照を移すことも検討
+        this.elements.modalMemberSlidersContainer = DOMUtils.qs('#modalMemberSliders');
 
         if (!this.elements.stackArea || !this.elements.likeButtonMain || !this.elements.nopeButton || !this.elements.profileIcon || !this.elements.weakPointButtonSide || !this.elements.feverGaugeBar) {
             console.error("CardUI: One or more essential elements not found in DOM. Initialization may fail.");
@@ -145,21 +145,20 @@ const CardUI = {
 
         const card = DOMUtils.createElement('div', { class: 'card', dataset: { relativePath: cardData.relativePath } });
 
-        // ★★★ シンタックスエラー修正箇所 ★★★
         if (cardData.member && cardData.member.color) {
             card.style.borderColor = cardData.member.color;
-            // グローバルスコープの Utils を使用
-            const hslColor = Utils.hexToHsl(cardData.member.color);
+            const hslColor = Utils.hexToHsl(cardData.member.color); // グローバル Utils を使用
+            let shadowCssValue;
             if (hslColor) {
-                card.style.boxShadow = `0 5px 15px hsla(${hslColor[0]}, 50%, 30%, 0.4)`;
+                shadowCssValue = `hsla(${hslColor[0]}, 50%, 30%, 0.4)`;
             } else {
-                card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                shadowCssValue = 'rgba(0,0,0,0.3)';
             }
+            card.style.boxShadow = `0 5px 15px ${shadowCssValue}`; // ★★★ 修正箇所 ★★★
         } else {
             card.style.borderColor = 'transparent';
             card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
         }
-        // ★★★ ここまで ★★★
 
         const imageArea = DOMUtils.createElement('div', { class: 'card-image-area' });
         const img = DOMUtils.createElement('img', { src: cardData.imagePath, alt: cardData.member.name });
@@ -354,13 +353,14 @@ const CardUI = {
         if (this.state.isFeverActive) return;
         this.state.feverGauge++;
         this.updateFeverGaugeDisplay();
-        if (this.state.feverGauge >= this.config.cardSwipeSettings.feverThreshold) {
+        if (this.config.cardSwipeSettings && this.state.feverGauge >= this.config.cardSwipeSettings.feverThreshold) {
             this.startFeverMode();
         }
     },
     updateFeverGaugeDisplay: function() {
         if (!this.elements.feverGaugeBar) return;
-        const percentage = Math.min(100, (this.state.feverGauge / (this.config.cardSwipeSettings.feverThreshold || 10)) * 100);
+        const threshold = (this.config.cardSwipeSettings && this.config.cardSwipeSettings.feverThreshold) || 10;
+        const percentage = Math.min(100, (this.state.feverGauge / threshold) * 100);
         this.elements.feverGaugeBar.style.height = `${percentage}%`;
     },
     startFeverMode: function() {
@@ -374,11 +374,12 @@ const CardUI = {
         }
         if(this.appInterface && typeof this.appInterface.showNotification === 'function') this.appInterface.showNotification("フィーバー突入！", "info", 2000);
         if (this.appInterface && typeof this.appInterface.DOMUtils !== 'undefined') this.appInterface.DOMUtils.addClass(document.body, 'fever-active');
-        let feverTimeLeft = this.config.cardSwipeSettings.feverDuration;
+        let feverTimeLeft = (this.config.cardSwipeSettings && this.config.cardSwipeSettings.feverDuration) || 60000;
         if (this.elements.feverGaugeBar) this.elements.feverGaugeBar.style.transition = 'height 0.1s linear';
         this.state.feverTimeoutId = setInterval(() => {
             feverTimeLeft -= 100;
-            const percentage = Math.max(0, (feverTimeLeft / this.config.cardSwipeSettings.feverDuration) * 100);
+            const duration = (this.config.cardSwipeSettings && this.config.cardSwipeSettings.feverDuration) || 60000;
+            const percentage = Math.max(0, (feverTimeLeft / duration) * 100);
             if (this.elements.feverGaugeBar) this.elements.feverGaugeBar.style.height = `${percentage}%`;
             if (feverTimeLeft <= 0) this.endFeverMode();
         }, 100);
@@ -398,7 +399,7 @@ const CardUI = {
         this.preloadNextCardData().then(() => { if(this.state.cards.length === 0 && this.state.nextCardData) this.addCardToStack(true); });
     },
     startStickerShower: function() {
-        if (!this.config.cardSwipeSettings.stickerPaths || this.config.cardSwipeSettings.stickerPaths.length === 0 || !this.elements.stackArea) return;
+        if (!this.config.cardSwipeSettings || !this.config.cardSwipeSettings.stickerPaths || this.config.cardSwipeSettings.stickerPaths.length === 0 || !this.elements.stackArea) return;
         this.stopStickerShower();
         this._stickerInterval = setInterval(() => {
             const stickerSrc = Utils.getRandomElement(this.config.cardSwipeSettings.stickerPaths);
@@ -426,7 +427,8 @@ const CardUI = {
         if (this.state.cards.length === 0 && this.state.nextCardData) {
             this.addCardToStack(true);
         } else if (this.state.topCard) {
-            const topCardData = this.dataHandler.memberData.find(d => d.relativePath === this.state.topCard.dataset.relativePath);
+            const topCardRelPath = this.state.topCard.dataset.relativePath;
+            const topCardData = this.dataHandler.memberData.find(d => d.relativePath === topCardRelPath);
             if (topCardData) this.updateSidePanelInfo(topCardData);
         }
         console.log("CardUI Activated.");
@@ -439,6 +441,8 @@ const CardUI = {
         console.log("CardUI: Settings changed, rebuilding card stack if necessary.");
         this.state.cards.forEach(card => { if(card.parentNode) card.parentNode.removeChild(card); });
         this.state.cards = []; this.state.topCard = null;
+        // データハンドラに設定を反映させる必要があるかもしれない
+        // this.dataHandler.updateSettings(this.appInterface.getCurrentSettings());
         this.preloadNextCardData().then(() => {
             this.addCardToStack(true);
             if (this.config.cardSwipeSettings.nextCardPreloadCount > 0 && this.state.nextCardData) {
@@ -449,7 +453,10 @@ const CardUI = {
     populateSettingsModal: function(currentMemberWeights) {
         if (this.elements.modalMemberSlidersContainer && this.config.members && this.appInterface && this.appInterface.UIComponents) {
             this.appInterface.UIComponents.createMemberWeightSliders(
-                '#modalMemberSliders', this.config.members, currentMemberWeights, () => {}
+                '#modalMemberSliders',
+                this.config.members,
+                currentMemberWeights,
+                () => {}
             );
         }
     },
