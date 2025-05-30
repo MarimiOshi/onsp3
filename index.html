@@ -2,62 +2,36 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ONSP Project</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/placeholder.png">
 </head>
 <body>
-
-    <main id="appContainer" class="app-main-content">
-
-        <!-- しこしこモード セクション -->
-        <section id="shikoshikoModeSection" class="mode-section active">
-            <div class="shikoshiko-layout-container">
-
-                <div class="shikoshiko-box1">
-                    <div class="card-stack-area" id="cardStackArea">
-                        <!-- JSでカードがここに挿入される -->
-                    </div>
-
-                    <div class="side-info-panel left-panel">
-                        <div class="profile-icon-wrapper">
-                            <img id="memberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
-                        </div>
-                        <button class="action-icon-button like-button" id="likeButton" title="シコい!!">
-                            <span class="icon-display">❤️</span>
-                        </button>
-                        <button class="action-icon-button weak-point-button" id="weakPointButton" title="弱点/お気に入り">
-                            <span class="icon-display">⭐</span>
-                        </button>
-                         <div class="fever-gauge-container-vertical">
-                            <div class="fever-gauge-bar-vertical" id="feverGaugeBarVertical"></div>
-                        </div>
-                    </div>
-
-                    <button class="settings-button-右上" id="openSettingsModal">⚙️</button>
-                </div>
-
-                <div class="serif-animation-container">
-                    <div class="serif-area">
-                        <div class="image-tags-container" id="imageTagsContainer" style="display: none;"></div>
-                        <p id="memberQuote" class="member-quote">ここにセリフが表示されます</p>
-                    </div>
-                     <!-- アニメーションエリアは廃止 -->
-                </div>
-
-                <div class="shikoshiko-box2-controls-only">
-                    <div class="main-controls" id="shikoshikoControlsArea">
-                        <button id="nopeButton" class="control-button swipe-button nope-button">萎え</button>
-                        <button id="superLikeButton" class="control-button swipe-button super-like-button" style="display:none;">SUPER</button>
-                        <button id="likeButtonMain" class="control-button swipe-button like-button">シコい!!</button>
-                    </div>
-                </div>
+    <div class="app-container" id="appContainer">
+        <div class="top-progress-area">
+            <div class="story-progress-bar" id="storyProgressBar">
+                <!-- JSでセグメントを生成 -->
             </div>
-        </section>
+            <div class="fever-gauge-container">
+                <div class="fever-gauge-fill" id="feverGaugeFill"></div>
+                <span class="fever-text">FEVER</span>
+            </div>
+        </div>
 
-        <!-- カウンターセクションは廃止 -->
-    </main>
+        <main class="main-content-area">
+            <div class="card-stack-area" id="cardStackArea">
+                <!-- JSでカードがここに挿入される (Tinder風カード) -->
+            </div>
+        </main>
+
+        <!-- 設定モーダルを開くボタン -->
+        <button class="settings-icon-button top-right-button" id="openSettingsModal">
+            <img src="images/icons/settings.svg" alt="設定"> <!-- settings.svg は用意する必要あり -->
+        </button>
+
+        <!-- 右スワイプ・左スワイプの評価画像はカード内でJSによりオーバーレイ表示 -->
+    </div>
 
     <!-- 設定モーダル -->
     <div id="settingsModal" class="modal" style="display:none;">
@@ -70,7 +44,8 @@
                     <div class="slider-container member-sliders" id="modalMemberSliders"><p>読み込み中...</p></div>
                     <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
                 </div>
-                <!-- BPM設定と再生オプションは廃止 -->
+                 <!-- BPM設定は廃止 -->
+                 <!-- 自動スキップ、弱点フィルタも廃止 -->
             </div>
             <div class="modal-footer">
                 <button id="saveSettingsButton" class="action-button primary">設定を保存</button>
@@ -78,16 +53,9 @@
         </div>
     </div>
 
-    <!-- グローバルな下部タブナビゲーションは廃止（シングルモードのため） -->
-
-    <!-- JavaScriptファイル読み込み (順番重要!) -->
     <script src="config.js"></script>
-    <!-- ユーティリティ関数群 (app.jsに統合されたため、個別のutils.jsは不要) -->
-    <!-- データ処理 -->
     <script src="data_handler.js"></script>
-    <!-- UIとインタラクション -->
     <script src="card_ui.js"></script>
-    <!-- アプリケーションメイン (最後に読み込む) -->
     <script src="app.js"></script>
 </body>
 </html>
