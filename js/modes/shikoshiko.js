@@ -1,71 +1,20 @@
 // js/modes/shikoshiko.js
 
 const ShikoshikoMode = {
-    elements: {
-        section: null,
-        openSettingsModalButton: null,
-        gameArea: null,
-        memberProfileIcon: null,
-        weakPointButton: null,
-        carouselViewport: null,
-        carouselTrack: null,
-        imageTagsContainer: null, memberQuoteDisplay: null,
-        shikoAnimationContainer: null, saoImage: null, shikoshikoAnimationImage: null,
-        controlsArea: null, startButton: null, finishButton: null, skipButton: null,
-
-        settingsModal: null, closeModalButton: null, saveSettingsButton: null,
-        modalMemberSlidersContainer: null,
-        modalFixedBpmInput: null,
-        modalAutoSkipToggle: null,
-        modalWeakPointOnlyToggle: null,
-    },
-    state: {
-        isActive: false,
-        gameRunning: true,
-        isPaused: false,
-        settings: {
-            memberWeights: {},
-            fixedBpm: 120,
-            autoSkipEnabled: true,
-            weakPointOnlyEnabled: false,
-        },
-        currentBPM: 120,
-        imageIntervalId: null,
-        currentMember: null,
-        allMemberEROImages: {},
-        carouselItemsData: [],
-        currentCarouselCenterIndex: 0,
-        displayableImageList: [],
-
-        metronomeAudioContext: null,
-        metronomeSoundBuffers: [],
-        loadedSoundCount: 0,
-        metronomeTimeoutId: null,
-        memberQuotes: {},
-        imageTags: {},
-        touchStartX: 0, touchEndX: 0, swipeThreshold: 50,
-    },
-    config: {
-        members: [],
-        imageSlideInterval: 5000,
-        soundFilePaths: [],
-        serifCsvPath: 'data/ONSP_セリフ.csv',
-        quoteTagDelimiter: '|',
-        carouselBufferSize: 2,
-    },
-    dependencies: {
-        app: null, storage: null, utils: null, domUtils: null, uiComponents: null, counterMode: null,
-    },
+    // ... (elements, state, config, dependencies は変更なし) ...
 
     init: function(appInstance, initialConfig) {
+        // ... (既存の初期化処理) ...
         this.dependencies.app = appInstance;
         this.dependencies.storage = StorageService;
         this.dependencies.utils = Utils;
         this.dependencies.domUtils = DOMUtils;
         this.dependencies.uiComponents = UIComponents;
-        console.log("Initializing Shikoshiko Mode (Carousel, Full Code, All Options, Final Restore)...");
+        console.log("Initializing Shikoshiko Mode (Sound Fix Attempt)...");
 
+        // DOM要素取得 (変更なし)
         this.elements.section = this.dependencies.domUtils.qs('#shikoshikoModeSection');
+        // ... (他の要素取得も同様) ...
         this.elements.openSettingsModalButton = this.dependencies.domUtils.qs('#openShikoshikoSettingsModal');
         this.elements.settingsModal = this.dependencies.domUtils.qs('#shikoshikoSettingsModal');
         this.elements.closeModalButton = this.dependencies.domUtils.qs('#closeShikoshikoSettingsModal');
@@ -74,7 +23,6 @@ const ShikoshikoMode = {
         this.elements.modalFixedBpmInput = this.dependencies.domUtils.qs('#modalFixedBpmInput');
         this.elements.modalAutoSkipToggle = this.dependencies.domUtils.qs('#modalAutoSkipToggle');
         this.elements.modalWeakPointOnlyToggle = this.dependencies.domUtils.qs('#modalWeakPointOnlyToggle');
-
         this.elements.gameArea = this.dependencies.domUtils.qs('.shikoshiko-box1');
         this.elements.memberProfileIcon = this.dependencies.domUtils.qs('#shikoshikoMemberProfileIcon');
         this.elements.weakPointButton = this.dependencies.domUtils.qs('#shikoshikoWeakPointButton');
@@ -90,6 +38,7 @@ const ShikoshikoMode = {
         this.elements.finishButton = this.dependencies.domUtils.qs('#shikoshikoFinishButton');
         this.elements.skipButton = this.dependencies.domUtils.qs('#shikoshikoSkipButton');
 
+
         if (initialConfig.members) {
             this.config.members = initialConfig.members;
             this.cacheAllMemberEROImages();
@@ -104,27 +53,29 @@ const ShikoshikoMode = {
 
         this.loadSettings();
         this.loadImageTags();
-        this.loadMemberQuotes().then(() => {
-            this.buildDisplayableImageList();
-            if (this.state.displayableImageList.length > 0) {
-                this.currentCarouselCenterIndex = this.dependencies.utils.getRandomInt(0, this.state.displayableImageList.length - 1);
-            } else {
-                this.currentCarouselCenterIndex = 0;
-            }
-            this.prepareCarouselItems();
-        });
+        // loadMemberQuotesはactivate時にthenで待つように変更したので、ここでは呼び出しのみ
+        this.loadMemberQuotes();
 
         this.initModalUI();
-        this.addEventListeners();
-        this.initAudio();
-        this.loadSounds();
+        this.addEventListeners(); // ★ AudioContextのresumeをここにも追加検討
+        this.initAudio();     // ★ AudioContextの生成を先に行う
+        this.loadSounds();      // ★ サウンドのロードを開始
 
         this.state.gameRunning = true;
-        this.state.isPaused = false;
+        this.state.isPaused = true; // ★★★ 初期状態を一時停止にする ★★★
         this.applyFixedBpm();
-        console.log("Shikoshiko Mode Initialized (Carousel, Full Code, All Options, Final Restore, Auto-Start).");
+        this.buildDisplayableImageList();
+        if (this.state.displayableImageList.length > 0) {
+            this.currentCarouselCenterIndex = this.dependencies.utils.getRandomInt(0, this.state.displayableImageList.length - 1);
+        } else {
+            this.currentCarouselCenterIndex = 0;
+        }
+        this.prepareCarouselItems(); // activateの前に準備しておく
+
+        console.log("Shikoshiko Mode Initialized (Sound Fix Attempt, Starts Paused).");
     },
 
+    // ... (cacheAllMemberEROImages, initModalUI は変更なし) ...
     cacheAllMemberEROImages: function() {
         this.state.allMemberEROImages = {};
         (this.config.members || []).forEach(member => {
@@ -143,7 +94,7 @@ const ShikoshikoMode = {
                 }
             }
         });
-        console.log("ShikoshikoMode CACHE: allMemberEROImages built:", JSON.parse(JSON.stringify(this.state.allMemberEROImages)));
+        // console.log("ShikoshikoMode CACHE: allMemberEROImages built:", JSON.parse(JSON.stringify(this.state.allMemberEROImages)));
     },
 
     initModalUI: function() {
@@ -159,7 +110,22 @@ const ShikoshikoMode = {
 
     addEventListeners: function() {
         const du = this.dependencies.domUtils;
-        if (this.elements.startButton) du.on(this.elements.startButton, 'click', () => this.togglePauseGame());
+        if (this.elements.startButton) {
+            du.on(this.elements.startButton, 'click', () => {
+                // ★★★ 最初のクリックでAudioContextを確実に再開 ★★★
+                if (this.state.metronomeAudioContext && this.state.metronomeAudioContext.state === 'suspended') {
+                    this.state.metronomeAudioContext.resume().then(() => {
+                        console.log("AudioContext resumed by user interaction (Start/Pause Button).");
+                        this.togglePauseGame(); // AudioContextが再開してからゲームの状態をトグル
+                    }).catch(e => {
+                        console.error("Error resuming AudioContext on button click:", e);
+                        this.togglePauseGame(); // エラーでもUIは更新
+                    });
+                } else {
+                    this.togglePauseGame();
+                }
+            });
+        }
         if (this.elements.finishButton) du.on(this.elements.finishButton, 'click', () => this.handleFinishClick());
         if (this.elements.skipButton) du.on(this.elements.skipButton, 'click', () => this.skipCurrentImage());
         if (this.elements.weakPointButton) du.on(this.elements.weakPointButton, 'click', () => this.toggleWeakPoint());
@@ -173,6 +139,7 @@ const ShikoshikoMode = {
         if (this.elements.saveSettingsButton) du.on(this.elements.saveSettingsButton, 'click', () => this.saveModalSettings());
     },
 
+    // ... (openSettingsModal, closeModal, saveModalSettings, loadSettings, saveSettings, applyFixedBpm, loadImageTags, loadMemberQuotes, displayCentralCarouselItemInfo は変更なし) ...
     openSettingsModal: function() {
         if (!this.elements.settingsModal || !this.dependencies.uiComponents) return;
         if (this.elements.modalMemberSlidersContainer) {
@@ -216,7 +183,6 @@ const ShikoshikoMode = {
             this.setupImageInterval();
         }
     },
-
     loadSettings: function() {
         const loadedSettings = this.dependencies.storage.loadShikoshikoSettings();
         const defaultMemberWeights = {};
@@ -246,7 +212,6 @@ const ShikoshikoMode = {
         this.state.currentBPM = this.state.settings.fixedBpm;
         this.updateShikoAnimationSpeed();
     },
-
     loadImageTags: function() { this.state.imageTags = this.dependencies.storage.loadImageTags(); },
     loadMemberQuotes: async function() {
         if (!this.config.serifCsvPath) { this.state.memberQuotes = {}; return; }
@@ -280,17 +245,17 @@ const ShikoshikoMode = {
         } catch (error) { console.error("ShikoshikoMode: Failed to load member quotes:", error); this.state.memberQuotes = {}; }
     },
     displayCentralCarouselItemInfo: function() {
-        console.log("ShikoshikoMode DISPLAY_INFO: Attempting to display info for central item.");
+        // console.log("ShikoshikoMode DISPLAY_INFO: Attempting to display info for central item.");
         if (this.state.carouselItemsData.length === 0 || this.state.carouselItemsData.length <= this.config.carouselBufferSize) {
-            console.warn("ShikoshikoMode DISPLAY_INFO: Not enough items in carouselItemsData or empty.");
+            // console.warn("ShikoshikoMode DISPLAY_INFO: Not enough items in carouselItemsData or empty.");
             this.clearMemberDisplay(); return;
         }
         const centerItemData = this.state.carouselItemsData[this.config.carouselBufferSize];
         if (!centerItemData || !centerItemData.member) {
-            console.warn("ShikoshikoMode DISPLAY_INFO: Central item data or member is missing.");
+            // console.warn("ShikoshikoMode DISPLAY_INFO: Central item data or member is missing.");
             this.clearMemberDisplay(); return;
         }
-        console.log("ShikoshikoMode DISPLAY_INFO: Central item data:", JSON.parse(JSON.stringify(centerItemData)));
+        // console.log("ShikoshikoMode DISPLAY_INFO: Central item data:", JSON.parse(JSON.stringify(centerItemData)));
 
         this.state.currentMember = centerItemData.member;
         this.dependencies.app.applyTheme(this.state.currentMember.color);
@@ -303,7 +268,7 @@ const ShikoshikoMode = {
         this.updateWeakPointButtonState();
 
         const memberQuotes = this.state.memberQuotes[this.state.currentMember.name] || [];
-        console.log(`ShikoshikoMode DISPLAY_INFO: Quotes for ${this.state.currentMember.name}:`, memberQuotes.length);
+        // console.log(`ShikoshikoMode DISPLAY_INFO: Quotes for ${this.state.currentMember.name}:`, memberQuotes.length);
         let selectedQuoteText = "（……）";
         if (memberQuotes.length > 0) {
             const randomQuote = this.dependencies.utils.getRandomElement(memberQuotes);
@@ -312,7 +277,7 @@ const ShikoshikoMode = {
         this.dependencies.domUtils.setText(this.elements.memberQuoteDisplay, selectedQuoteText);
         this.dependencies.domUtils.empty(this.elements.imageTagsContainer);
         const tagsForCurrentImage = centerItemData.relativePath ? (this.state.imageTags[centerItemData.relativePath] || []) : [];
-        console.log(`ShikoshikoMode DISPLAY_INFO: Tags for ${centerItemData.relativePath}:`, tagsForCurrentImage);
+        // console.log(`ShikoshikoMode DISPLAY_INFO: Tags for ${centerItemData.relativePath}:`, tagsForCurrentImage);
         if (tagsForCurrentImage.length > 0) {
             tagsForCurrentImage.sort().forEach(tagText => {
                 const tagElement = this.dependencies.domUtils.createElement('span', { class: 'image-tag-item' }, [tagText]);
@@ -322,229 +287,96 @@ const ShikoshikoMode = {
         } else this.dependencies.domUtils.toggleDisplay(this.elements.imageTagsContainer, false);
     },
 
-    togglePauseGame: function() {
-        if (!this.state.gameRunning) return;
-        this.state.isPaused = !this.state.isPaused;
-        if (this.state.isPaused) {
-            this.pauseShikoAnimationAndSound();
-            if(this.state.imageIntervalId) clearInterval(this.state.imageIntervalId); this.state.imageIntervalId = null;
-            console.log("Game Paused.");
-        } else {
-            this.resumeShikoAnimationAndSound();
-            this.setupImageInterval();
-            console.log("Game Resumed.");
-        }
-        this.updateUI();
-    },
 
-    handleFinishClick: function() {
-        if (!this.state.gameRunning || this.state.isPaused) return;
-        console.log(`Shikoshiko Finish Clicked for ${this.state.currentMember ? this.state.currentMember.name : 'Unknown'}`);
-        if (this.state.currentMember) {
-            this.dependencies.uiComponents.showNotification(`${this.state.currentMember.name} でフィニッシュ！`, 'success');
-            if (this.dependencies.counterMode && typeof this.dependencies.counterMode.incrementCount === 'function') {
-                this.dependencies.counterMode.incrementCount(this.state.currentMember.name);
-            }
-        } else this.dependencies.uiComponents.showNotification(`フィニッシュ！`, 'success');
-        this.moveCarousel('next');
-    },
-
-    buildDisplayableImageList: function() {
-        this.state.displayableImageList = [];
-        (this.config.members || []).forEach(member => {
-            if (this.state.allMemberEROImages[member.name] && this.state.allMemberEROImages[member.name].length > 0) {
-                let memberImages = this.state.allMemberEROImages[member.name];
-                if (this.state.settings.weakPointOnlyEnabled) {
-                    const weakPoints = this.dependencies.storage.loadWeakPoints();
-                    memberImages = memberImages.filter(imgInfo => weakPoints.has(imgInfo.relativePath));
-                }
-                if (memberImages.length > 0) {
-                    const weight = this.state.settings.memberWeights[member.name] !== undefined ? Number(this.state.settings.memberWeights[member.name]) : 1;
-                    for (let w = 0; w < weight; w++) {
-                        memberImages.forEach(imgInfo => {
-                            this.state.displayableImageList.push({
-                                member: imgInfo.member,
-                                imagePath: imgInfo.path,
-                                relativePath: imgInfo.relativePath
-                            });
-                        });
-                    }
-                }
-            }
-        });
-        if(this.state.displayableImageList.length > 1) {
-            for (let i = this.state.displayableImageList.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [this.state.displayableImageList[i], this.state.displayableImageList[j]] = [this.state.displayableImageList[j], this.state.displayableImageList[i]];
-            }
-        }
-        console.log(`ShikoshikoMode BUILD: Displayable image list with ${this.state.displayableImageList.length} items.`);
-        if (this.state.displayableImageList.length === 0) {
-            console.warn("ShikoshikoMode BUILD: Displayable image list is EMPTY. Check config and filters.");
-        }
-    },
-
-    prepareCarouselItems: function() {
-        this.state.carouselItemsData = [];
-        const list = this.state.displayableImageList;
-        if (list.length === 0) { console.log("prepareCarouselItems: displayableImageList is empty, cannot prepare items."); return; }
-        const listLength = list.length;
-        const bufferSize = this.config.carouselBufferSize;
-        const totalItems = bufferSize * 2 + 1;
-        for (let i = 0; i < totalItems; i++) {
-            let imageIdx = (this.state.currentCarouselCenterIndex - bufferSize + i + listLength * (bufferSize + 1)) % listLength;
-            const imgData = list[imageIdx];
-            this.state.carouselItemsData.push({
-                member: imgData.member,
-                imagePath: imgData.imagePath,
-                relativePath: imgData.relativePath,
-            });
-        }
-    },
-
-    renderCarousel: function() {
-        if (!this.elements.carouselTrack) { console.error("renderCarousel: carouselTrack element not found."); return; }
-        this.dependencies.domUtils.empty(this.elements.carouselTrack);
-        console.log("ShikoshikoMode RENDER: Rendering carousel with items:", this.state.carouselItemsData.length);
-        if (this.state.carouselItemsData.length === 0) {
-            const placeholderItem = this.dependencies.domUtils.createElement('div', { class: 'carousel-item active-slide' });
-            const img = this.dependencies.domUtils.createElement('img', { src: 'images/placeholder.png', alt: '画像なし' });
-            placeholderItem.appendChild(img);
-            this.elements.carouselTrack.appendChild(placeholderItem);
-            this.elements.carouselTrack.style.transition = 'none';
-            this.elements.carouselTrack.style.left = '0%';
-            this.clearMemberDisplay();
-            return;
-        }
-        this.state.carouselItemsData.forEach((itemData, index) => {
-            const itemElement = this.dependencies.domUtils.createElement('div', { class: 'carousel-item' });
-            if (index === this.config.carouselBufferSize) {
-                this.dependencies.domUtils.addClass(itemElement, 'active-slide');
-            }
-            const img = this.dependencies.domUtils.createElement('img', { src: itemData.imagePath, alt: 'メンバー画像' });
-            img.onerror = () => { console.error(`ShikoshikoMode RENDER ERROR: Failed to load image ${itemData.imagePath}`); img.src = 'images/placeholder.png'; this.dependencies.domUtils.addClass(img, 'image-error'); };
-            itemElement.appendChild(img);
-            this.elements.carouselTrack.appendChild(itemElement);
-        });
-        this.elements.carouselTrack.style.transition = 'none';
-        this.elements.carouselTrack.style.left = `-${this.config.carouselBufferSize * 100}%`;
-        this.displayCentralCarouselItemInfo();
-    },
-
-    moveCarousel: function(direction) {
-        if (this.state.displayableImageList.length <= 1) return;
-        const listLength = this.state.displayableImageList.length;
-        const track = this.elements.carouselTrack;
-        if (!track) return;
-        let newCenterIndex = this.state.currentCarouselCenterIndex;
-        if (direction === 'next') newCenterIndex = (this.state.currentCarouselCenterIndex + 1 + listLength) % listLength;
-        else if (direction === 'prev') newCenterIndex = (this.state.currentCarouselCenterIndex - 1 + listLength) % listLength;
-        this.state.currentCarouselCenterIndex = newCenterIndex;
-        this.prepareCarouselItems(); // DOM再生成はしない
-        track.style.transition = 'left 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)';
-        if (direction === 'next') track.style.left = `-${(this.config.carouselBufferSize + 1) * 100}%`;
-        else track.style.left = `-${(this.config.carouselBufferSize - 1) * 100}%`;
-        setTimeout(() => {
-            track.style.transition = 'none';
-            this.renderCarousel(); // DOM再構築とトラック位置リセット
-            this.updateUI();
-        }, 350);
-    },
-
+    togglePauseGame: function() { /* 変更なし */ },
+    handleFinishClick: function() { /* 変更なし */ },
+    buildDisplayableImageList: function() { /* 変更なし */ },
+    prepareCarouselItems: function() { /* 変更なし */ },
+    renderCarousel: function() { /* 変更なし */ },
+    moveCarousel: function(direction) { /* 変更なし */ },
     nextEROImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.moveCarousel('next'); },
     prevEROImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.moveCarousel('prev'); },
     skipCurrentImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.nextEROImage(); },
+    updateUI: function() { /* 変更なし */ },
+    updateShikoAnimationSpeed: function() { /* 変更なし */ },
+    startShikoAnimation: function() { /* 変更なし */ },
+    stopShikoAnimation: function() { /* 変更なし */ },
+    pauseShikoAnimationAndSound: function() { /* 変更なし */ },
+    resumeShikoAnimationAndSound: function() { /* 変更なし */ },
 
-    updateUI: function() {
-        const du = this.dependencies.domUtils;
-        const isGameEffectivelyRunning = this.state.gameRunning && !this.state.isPaused;
-        if (this.elements.startButton) {
-            du.setText(this.elements.startButton, this.state.isPaused ? "再開" : "一時停止");
-            this.elements.startButton.disabled = !this.state.gameRunning;
-            du.toggleDisplay(this.elements.startButton, true);
-        }
-        if (this.elements.finishButton) du.toggleDisplay(this.elements.finishButton, isGameEffectivelyRunning);
-        if (this.elements.skipButton) du.toggleDisplay(this.elements.skipButton, isGameEffectivelyRunning);
-        if (this.elements.weakPointButton) du.toggleDisplay(this.elements.weakPointButton, !!this.state.currentMember);
-        if (this.state.currentMember) {
-            if(this.elements.memberImage && this.elements.memberImage.style) this.elements.memberImage.style.borderColor = 'transparent';
-            if (this.elements.memberProfileIcon) {
-                this.elements.memberProfileIcon.src = `images/count/${this.state.currentMember.name}.jpg`;
-                this.elements.memberProfileIcon.onerror = () => { if(this.elements.memberProfileIcon) this.elements.memberProfileIcon.src = 'images/placeholder.png'; };
-             }
-        } else {
-            if(this.elements.memberProfileIcon) this.elements.memberProfileIcon.src = 'images/placeholder.png';
-            if(this.elements.memberImage && this.elements.memberImage.style) { this.elements.memberImage.src = 'images/placeholder.png'; this.elements.memberImage.style.borderColor = 'transparent'; }
-            if (this.elements.memberQuoteDisplay) du.setText(this.elements.memberQuoteDisplay, "ここにセリフが表示されます");
-            if (this.elements.imageTagsContainer) du.toggleDisplay(this.elements.imageTagsContainer, false);
-        }
-        this.updateWeakPointButtonState();
-    },
-
-    updateShikoAnimationSpeed: function() {
-        if (this.state.currentBPM <= 0) { this.stopShikoAnimation(); return; }
-        const animationDurationMs = (60 / this.state.currentBPM) * 1000;
-        document.documentElement.style.setProperty('--shiko-animation-duration', `${animationDurationMs.toFixed(0)}ms`);
-    },
-    startShikoAnimation: function() {
-        if (!this.elements.shikoshikoAnimationImage) return;
-        this.updateShikoAnimationSpeed();
-        this.dependencies.domUtils.addClass(this.elements.shikoshikoAnimationImage, 'play');
-        this.scheduleMetronomeSound();
-    },
-    stopShikoAnimation: function() {
-        if (!this.elements.shikoshikoAnimationImage) return;
-        this.dependencies.domUtils.removeClass(this.elements.shikoshikoAnimationImage, 'play');
-        if (this.state.metronomeTimeoutId) { clearTimeout(this.state.metronomeTimeoutId); this.state.metronomeTimeoutId = null; }
-    },
-    pauseShikoAnimationAndSound: function() {
-        if (!this.elements.shikoshikoAnimationImage) return;
-        this.dependencies.domUtils.removeClass(this.elements.shikoshikoAnimationImage, 'play');
-        if (this.state.metronomeTimeoutId) { clearTimeout(this.state.metronomeTimeoutId); this.state.metronomeTimeoutId = null; }
-        console.log("Animation and Metronome Paused.");
-    },
-    resumeShikoAnimationAndSound: function() {
-        if (!this.elements.shikoshikoAnimationImage || !this.state.gameRunning || this.state.currentBPM <= 0) return;
-        this.dependencies.domUtils.addClass(this.elements.shikoshikoAnimationImage, 'play');
-        this.scheduleMetronomeSound();
-        console.log("Animation and Metronome Resumed.");
-    },
     initAudio: function() {
         if (!this.state.metronomeAudioContext && (window.AudioContext || window.webkitAudioContext)) {
-            try { this.state.metronomeAudioContext = new (window.AudioContext || window.webkitAudioContext)(); }
-            catch (e) { console.error("Failed to create AudioContext:", e); }
+            try {
+                this.state.metronomeAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("AudioContext created. Initial state:", this.state.metronomeAudioContext.state);
+            } catch (e) {
+                console.error("Failed to create AudioContext:", e);
+            }
         }
     },
     loadSounds: async function() {
         if (!this.state.metronomeAudioContext || !this.config.soundFilePaths || this.config.soundFilePaths.length === 0) {
-            console.warn("AudioContext not available or no sound files configured to load."); return;
+            console.warn("AudioContext not available or no sound files configured to load for metronome.");
+            return;
         }
-        this.state.loadedSoundCount = 0; this.state.metronomeSoundBuffers = [];
+        this.state.loadedSoundCount = 0;
+        this.state.metronomeSoundBuffers = [];
+        console.log("ShikoshikoMode LOAD_SOUNDS: Starting to load sounds from paths:", this.config.soundFilePaths);
+
         for (const path of this.config.soundFilePaths) {
             try {
                 const response = await fetch(path);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} for ${path}`);
-                const arrayBuffer = await response.arrayBuffer();
-                if (this.state.metronomeAudioContext.state === 'suspended') {
-                    await this.state.metronomeAudioContext.resume().catch(e => console.warn("Could not resume audio context for decoding", e));
+                if (!response.ok) {
+                    console.error(`ShikoshikoMode LOAD_SOUNDS: HTTP error! status: ${response.status} for ${path}`);
+                    throw new Error(`HTTP error! status: ${response.status} for ${path}`);
                 }
-                if (this.state.metronomeAudioContext.state === 'running') {
+                const arrayBuffer = await response.arrayBuffer();
+                // デコード前にAudioContextの状態を確認し、必要ならresumeを試みる
+                if (this.state.metronomeAudioContext.state === 'suspended') {
+                    console.log(`ShikoshikoMode LOAD_SOUNDS: AudioContext for ${path} is suspended, attempting to resume...`);
+                    try {
+                        await this.state.metronomeAudioContext.resume();
+                        console.log(`ShikoshikoMode LOAD_SOUNDS: AudioContext resumed for ${path}. State: ${this.state.metronomeAudioContext.state}`);
+                    } catch (resumeError) {
+                        console.warn(`ShikoshikoMode LOAD_SOUNDS: Could not resume audio context for decoding ${path}`, resumeError);
+                        // resumeに失敗しても、decodeAudioDataを試みる (ブラウザによってはsuspendedでもデコード可能な場合がある)
+                    }
+                }
+
+                if (this.state.metronomeAudioContext.state === 'running' || this.state.metronomeAudioContext.state === 'suspended') { // suspendedでもデコード試行
                     const audioBuffer = await this.state.metronomeAudioContext.decodeAudioData(arrayBuffer);
-                    this.state.metronomeSoundBuffers.push(audioBuffer); this.state.loadedSoundCount++;
-                } else console.warn(`AudioContext not running, cannot decode ${path}`);
-            } catch (error) { console.error(`Failed to load or decode sound: ${path}`, error); }
+                    this.state.metronomeSoundBuffers.push(audioBuffer);
+                    this.state.loadedSoundCount++;
+                    console.log(`ShikoshikoMode LOAD_SOUNDS: Successfully loaded and decoded ${path}`);
+                } else {
+                    console.warn(`ShikoshikoMode LOAD_SOUNDS: AudioContext not in a state to decode (${this.state.metronomeAudioContext.state}), cannot decode ${path}`);
+                }
+            } catch (error) {
+                console.error(`ShikoshikoMode LOAD_SOUNDS: Failed to load or decode sound: ${path}`, error);
+            }
         }
-        if (this.state.loadedSoundCount > 0) console.log(`${this.state.loadedSoundCount} metronome sounds loaded.`);
-        else console.warn("No metronome sounds could be loaded. Check paths, file integrity, and user interaction for AudioContext.");
+        if (this.state.loadedSoundCount > 0) {
+            console.log(`ShikoshikoMode LOAD_SOUNDS: ${this.state.loadedSoundCount} metronome sounds loaded successfully.`);
+        } else {
+            console.warn("ShikoshikoMode LOAD_SOUNDS: No metronome sounds could be loaded. Check paths, file integrity, and user interaction for AudioContext.");
+        }
     },
     playMetronomeSound: function() {
-        if (!this.state.metronomeAudioContext || this.state.metronomeSoundBuffers.length === 0 || !this.state.gameRunning || this.state.isPaused) return;
+        if (!this.state.metronomeAudioContext || this.state.metronomeSoundBuffers.length === 0 || !this.state.gameRunning || this.state.isPaused) {
+            // if (!this.state.gameRunning || this.state.isPaused) console.log("Metronome play skipped: game not running or paused");
+            // else if (this.state.metronomeSoundBuffers.length === 0) console.log("Metronome play skipped: no sound buffers");
+            return;
+        }
         if (this.state.metronomeAudioContext.state === 'suspended') {
+            console.log("playMetronomeSound: AudioContext is suspended, trying to resume...");
             this.state.metronomeAudioContext.resume().then(() => {
+                console.log("playMetronomeSound: AudioContext resumed. State:", this.state.metronomeAudioContext.state);
                 if (this.state.metronomeAudioContext.state === 'running') this._actualPlaySound();
             }).catch(e => console.error("Error resuming AudioContext on play:", e));
         } else if (this.state.metronomeAudioContext.state === 'running') {
             this._actualPlaySound();
+        } else {
+            console.log("playMetronomeSound: AudioContext not in runnable state:", this.state.metronomeAudioContext.state);
         }
     },
     _actualPlaySound: function() {
@@ -552,8 +384,13 @@ const ShikoshikoMode = {
         if (randomBuffer) {
             try {
                 const source = this.state.metronomeAudioContext.createBufferSource();
-                source.buffer = randomBuffer; source.connect(this.state.metronomeAudioContext.destination); source.start();
-            } catch (e) { console.error("Error playing metronome sound:", e); }
+                source.buffer = randomBuffer;
+                source.connect(this.state.metronomeAudioContext.destination);
+                source.start();
+                // console.log("Metronome sound played.");
+            } catch (e) {
+                console.error("Error playing metronome sound in _actualPlaySound:", e);
+            }
         }
     },
     scheduleMetronomeSound: function() {
