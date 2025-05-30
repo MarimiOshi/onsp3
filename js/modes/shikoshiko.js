@@ -34,7 +34,7 @@ const ShikoshikoMode = {
         currentMember: null,
         allMemberEROImages: {},
         carouselItemsData: [],
-        currentCarouselCenterIndex: 0, // displayableImageList内のインデックス
+        currentCarouselCenterIndex: 0,
         displayableImageList: [],
 
         metronomeAudioContext: null,
@@ -51,7 +51,7 @@ const ShikoshikoMode = {
         soundFilePaths: [],
         serifCsvPath: 'data/ONSP_セリフ.csv',
         quoteTagDelimiter: '|',
-        carouselBufferSize: 2, // 中央の左右に表示する画像の数
+        carouselBufferSize: 2,
     },
     dependencies: {
         app: null, storage: null, utils: null, domUtils: null, uiComponents: null, counterMode: null,
@@ -63,7 +63,7 @@ const ShikoshikoMode = {
         this.dependencies.utils = Utils;
         this.dependencies.domUtils = DOMUtils;
         this.dependencies.uiComponents = UIComponents;
-        console.log("Initializing Shikoshiko Mode (Carousel, Full Code, Debug Logs)...");
+        console.log("Initializing Shikoshiko Mode (Carousel, Full Code, All Options, Final Restore)...");
 
         this.elements.section = this.dependencies.domUtils.qs('#shikoshikoModeSection');
         this.elements.openSettingsModalButton = this.dependencies.domUtils.qs('#openShikoshikoSettingsModal');
@@ -104,16 +104,14 @@ const ShikoshikoMode = {
 
         this.loadSettings();
         this.loadImageTags();
-        this.loadMemberQuotes().then(() => { // セリフとタグの読み込み完了を待つ
-            console.log("ShikoshikoMode: Member quotes and tags loaded (or failed), proceeding with UI setup.");
-            this.buildDisplayableImageList(); // 表示可能リスト構築
+        this.loadMemberQuotes().then(() => {
+            this.buildDisplayableImageList();
             if (this.state.displayableImageList.length > 0) {
                 this.currentCarouselCenterIndex = this.dependencies.utils.getRandomInt(0, this.state.displayableImageList.length - 1);
             } else {
                 this.currentCarouselCenterIndex = 0;
             }
-            this.prepareCarouselItems(); // カルーセルアイテム準備
-            // renderCarouselはactivate時に行う
+            this.prepareCarouselItems();
         });
 
         this.initModalUI();
@@ -124,7 +122,7 @@ const ShikoshikoMode = {
         this.state.gameRunning = true;
         this.state.isPaused = false;
         this.applyFixedBpm();
-        console.log("Shikoshiko Mode Initialized (Carousel, Full Code, Debug Logs, Auto-Start).");
+        console.log("Shikoshiko Mode Initialized (Carousel, Full Code, All Options, Final Restore, Auto-Start).");
     },
 
     cacheAllMemberEROImages: function() {
@@ -361,9 +359,8 @@ const ShikoshikoMode = {
                     memberImages = memberImages.filter(imgInfo => weakPoints.has(imgInfo.relativePath));
                 }
                 if (memberImages.length > 0) {
-                    // メンバー出現率に基づいて画像を追加
                     const weight = this.state.settings.memberWeights[member.name] !== undefined ? Number(this.state.settings.memberWeights[member.name]) : 1;
-                    for (let w = 0; w < weight; w++) { // 重み分だけ各画像セットを追加（またはメンバーごとに追加回数を変える）
+                    for (let w = 0; w < weight; w++) {
                         memberImages.forEach(imgInfo => {
                             this.state.displayableImageList.push({
                                 member: imgInfo.member,
@@ -391,28 +388,24 @@ const ShikoshikoMode = {
         this.state.carouselItemsData = [];
         const list = this.state.displayableImageList;
         if (list.length === 0) { console.log("prepareCarouselItems: displayableImageList is empty, cannot prepare items."); return; }
-
         const listLength = list.length;
         const bufferSize = this.config.carouselBufferSize;
         const totalItems = bufferSize * 2 + 1;
-
         for (let i = 0; i < totalItems; i++) {
-            let imageIndex = (this.state.currentCarouselCenterIndex - bufferSize + i + listLength * (bufferSize + 1)) % listLength;
-            const imgData = list[imageIndex];
+            let imageIdx = (this.state.currentCarouselCenterIndex - bufferSize + i + listLength * (bufferSize + 1)) % listLength;
+            const imgData = list[imageIdx];
             this.state.carouselItemsData.push({
                 member: imgData.member,
                 imagePath: imgData.imagePath,
                 relativePath: imgData.relativePath,
             });
         }
-        // console.log("ShikoshikoMode PREPARE: Prepared carousel items. Count:", this.state.carouselItemsData.length);
     },
 
     renderCarousel: function() {
         if (!this.elements.carouselTrack) { console.error("renderCarousel: carouselTrack element not found."); return; }
         this.dependencies.domUtils.empty(this.elements.carouselTrack);
         console.log("ShikoshikoMode RENDER: Rendering carousel with items:", this.state.carouselItemsData.length);
-
         if (this.state.carouselItemsData.length === 0) {
             const placeholderItem = this.dependencies.domUtils.createElement('div', { class: 'carousel-item active-slide' });
             const img = this.dependencies.domUtils.createElement('img', { src: 'images/placeholder.png', alt: '画像なし' });
@@ -443,22 +436,14 @@ const ShikoshikoMode = {
         const listLength = this.state.displayableImageList.length;
         const track = this.elements.carouselTrack;
         if (!track) return;
-
         let newCenterIndex = this.state.currentCarouselCenterIndex;
-        if (direction === 'next') {
-            newCenterIndex = (this.state.currentCarouselCenterIndex + 1 + listLength) % listLength;
-        } else if (direction === 'prev') {
-            newCenterIndex = (this.state.currentCarouselCenterIndex - 1 + listLength) % listLength;
-        }
+        if (direction === 'next') newCenterIndex = (this.state.currentCarouselCenterIndex + 1 + listLength) % listLength;
+        else if (direction === 'prev') newCenterIndex = (this.state.currentCarouselCenterIndex - 1 + listLength) % listLength;
         this.state.currentCarouselCenterIndex = newCenterIndex;
-        this.prepareCarouselItems(); // 新しい中央に基づいてカルーセルデータを再構築 (DOM再生成はしない)
-
+        this.prepareCarouselItems(); // DOM再生成はしない
         track.style.transition = 'left 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)';
-        if (direction === 'next') {
-            track.style.left = `-${(this.config.carouselBufferSize + 1) * 100}%`;
-        } else {
-            track.style.left = `-${(this.config.carouselBufferSize - 1) * 100}%`;
-        }
+        if (direction === 'next') track.style.left = `-${(this.config.carouselBufferSize + 1) * 100}%`;
+        else track.style.left = `-${(this.config.carouselBufferSize - 1) * 100}%`;
         setTimeout(() => {
             track.style.transition = 'none';
             this.renderCarousel(); // DOM再構築とトラック位置リセット
@@ -470,15 +455,133 @@ const ShikoshikoMode = {
     prevEROImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.moveCarousel('prev'); },
     skipCurrentImage: function() { if (!this.state.gameRunning || this.state.isPaused) return; this.nextEROImage(); },
 
-    updateUI: function() { /* 変更なし */ },
-    updateShikoAnimationSpeed: function() { /* 変更なし */ }, startShikoAnimation: function() { /* 変更なし */ },
-    stopShikoAnimation: function() { /* 変更なし */ },
-    pauseShikoAnimationAndSound: function() { /* 変更なし */ },
-    resumeShikoAnimationAndSound: function() { /* 変更なし */ },
-    initAudio: function() { /* 変更なし */ }, loadSounds: async function() { /* 変更なし */ },
-    playMetronomeSound: function() { /* 変更なし */ }, _actualPlaySound: function() { /* 変更なし */ },
-    scheduleMetronomeSound: function() { /* 変更なし */ },
-    toggleWeakPoint: function() { /* 変更なし */ }, updateWeakPointButtonState: function() { /* 変更なし */ },
+    updateUI: function() {
+        const du = this.dependencies.domUtils;
+        const isGameEffectivelyRunning = this.state.gameRunning && !this.state.isPaused;
+        if (this.elements.startButton) {
+            du.setText(this.elements.startButton, this.state.isPaused ? "再開" : "一時停止");
+            this.elements.startButton.disabled = !this.state.gameRunning;
+            du.toggleDisplay(this.elements.startButton, true);
+        }
+        if (this.elements.finishButton) du.toggleDisplay(this.elements.finishButton, isGameEffectivelyRunning);
+        if (this.elements.skipButton) du.toggleDisplay(this.elements.skipButton, isGameEffectivelyRunning);
+        if (this.elements.weakPointButton) du.toggleDisplay(this.elements.weakPointButton, !!this.state.currentMember);
+        if (this.state.currentMember) {
+            if(this.elements.memberImage && this.elements.memberImage.style) this.elements.memberImage.style.borderColor = 'transparent';
+            if (this.elements.memberProfileIcon) {
+                this.elements.memberProfileIcon.src = `images/count/${this.state.currentMember.name}.jpg`;
+                this.elements.memberProfileIcon.onerror = () => { if(this.elements.memberProfileIcon) this.elements.memberProfileIcon.src = 'images/placeholder.png'; };
+             }
+        } else {
+            if(this.elements.memberProfileIcon) this.elements.memberProfileIcon.src = 'images/placeholder.png';
+            if(this.elements.memberImage && this.elements.memberImage.style) { this.elements.memberImage.src = 'images/placeholder.png'; this.elements.memberImage.style.borderColor = 'transparent'; }
+            if (this.elements.memberQuoteDisplay) du.setText(this.elements.memberQuoteDisplay, "ここにセリフが表示されます");
+            if (this.elements.imageTagsContainer) du.toggleDisplay(this.elements.imageTagsContainer, false);
+        }
+        this.updateWeakPointButtonState();
+    },
+
+    updateShikoAnimationSpeed: function() {
+        if (this.state.currentBPM <= 0) { this.stopShikoAnimation(); return; }
+        const animationDurationMs = (60 / this.state.currentBPM) * 1000;
+        document.documentElement.style.setProperty('--shiko-animation-duration', `${animationDurationMs.toFixed(0)}ms`);
+    },
+    startShikoAnimation: function() {
+        if (!this.elements.shikoshikoAnimationImage) return;
+        this.updateShikoAnimationSpeed();
+        this.dependencies.domUtils.addClass(this.elements.shikoshikoAnimationImage, 'play');
+        this.scheduleMetronomeSound();
+    },
+    stopShikoAnimation: function() {
+        if (!this.elements.shikoshikoAnimationImage) return;
+        this.dependencies.domUtils.removeClass(this.elements.shikoshikoAnimationImage, 'play');
+        if (this.state.metronomeTimeoutId) { clearTimeout(this.state.metronomeTimeoutId); this.state.metronomeTimeoutId = null; }
+    },
+    pauseShikoAnimationAndSound: function() {
+        if (!this.elements.shikoshikoAnimationImage) return;
+        this.dependencies.domUtils.removeClass(this.elements.shikoshikoAnimationImage, 'play');
+        if (this.state.metronomeTimeoutId) { clearTimeout(this.state.metronomeTimeoutId); this.state.metronomeTimeoutId = null; }
+        console.log("Animation and Metronome Paused.");
+    },
+    resumeShikoAnimationAndSound: function() {
+        if (!this.elements.shikoshikoAnimationImage || !this.state.gameRunning || this.state.currentBPM <= 0) return;
+        this.dependencies.domUtils.addClass(this.elements.shikoshikoAnimationImage, 'play');
+        this.scheduleMetronomeSound();
+        console.log("Animation and Metronome Resumed.");
+    },
+    initAudio: function() {
+        if (!this.state.metronomeAudioContext && (window.AudioContext || window.webkitAudioContext)) {
+            try { this.state.metronomeAudioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+            catch (e) { console.error("Failed to create AudioContext:", e); }
+        }
+    },
+    loadSounds: async function() {
+        if (!this.state.metronomeAudioContext || !this.config.soundFilePaths || this.config.soundFilePaths.length === 0) {
+            console.warn("AudioContext not available or no sound files configured to load."); return;
+        }
+        this.state.loadedSoundCount = 0; this.state.metronomeSoundBuffers = [];
+        for (const path of this.config.soundFilePaths) {
+            try {
+                const response = await fetch(path);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} for ${path}`);
+                const arrayBuffer = await response.arrayBuffer();
+                if (this.state.metronomeAudioContext.state === 'suspended') {
+                    await this.state.metronomeAudioContext.resume().catch(e => console.warn("Could not resume audio context for decoding", e));
+                }
+                if (this.state.metronomeAudioContext.state === 'running') {
+                    const audioBuffer = await this.state.metronomeAudioContext.decodeAudioData(arrayBuffer);
+                    this.state.metronomeSoundBuffers.push(audioBuffer); this.state.loadedSoundCount++;
+                } else console.warn(`AudioContext not running, cannot decode ${path}`);
+            } catch (error) { console.error(`Failed to load or decode sound: ${path}`, error); }
+        }
+        if (this.state.loadedSoundCount > 0) console.log(`${this.state.loadedSoundCount} metronome sounds loaded.`);
+        else console.warn("No metronome sounds could be loaded. Check paths, file integrity, and user interaction for AudioContext.");
+    },
+    playMetronomeSound: function() {
+        if (!this.state.metronomeAudioContext || this.state.metronomeSoundBuffers.length === 0 || !this.state.gameRunning || this.state.isPaused) return;
+        if (this.state.metronomeAudioContext.state === 'suspended') {
+            this.state.metronomeAudioContext.resume().then(() => {
+                if (this.state.metronomeAudioContext.state === 'running') this._actualPlaySound();
+            }).catch(e => console.error("Error resuming AudioContext on play:", e));
+        } else if (this.state.metronomeAudioContext.state === 'running') {
+            this._actualPlaySound();
+        }
+    },
+    _actualPlaySound: function() {
+        const randomBuffer = this.dependencies.utils.getRandomElement(this.state.metronomeSoundBuffers);
+        if (randomBuffer) {
+            try {
+                const source = this.state.metronomeAudioContext.createBufferSource();
+                source.buffer = randomBuffer; source.connect(this.state.metronomeAudioContext.destination); source.start();
+            } catch (e) { console.error("Error playing metronome sound:", e); }
+        }
+    },
+    scheduleMetronomeSound: function() {
+        if (this.state.metronomeTimeoutId) clearTimeout(this.state.metronomeTimeoutId);
+        if (!this.state.gameRunning || this.state.isPaused || this.state.currentBPM <= 0 || this.state.metronomeSoundBuffers.length === 0) return;
+        this.playMetronomeSound();
+        const intervalMs = (60 / this.state.currentBPM) * 1000;
+        this.state.metronomeTimeoutId = setTimeout(() => { this.scheduleMetronomeSound(); }, intervalMs);
+    },
+
+    toggleWeakPoint: function() {
+        if (!this.elements.weakPointButton) return; const relPath = this.elements.weakPointButton.dataset.relpath; if (!relPath) return;
+        const weakPoints = this.dependencies.storage.loadWeakPoints();
+        if (weakPoints.has(relPath)) weakPoints.delete(relPath); else weakPoints.add(relPath);
+        this.dependencies.storage.saveWeakPoints(weakPoints); this.updateWeakPointButtonState();
+        if (this.dependencies.app && typeof this.dependencies.app.notifyWeakPointChange === 'function') {
+             this.dependencies.app.notifyWeakPointChange(relPath, weakPoints.has(relPath));
+        }
+    },
+    updateWeakPointButtonState: function() {
+        if (!this.elements.weakPointButton) return; const relPath = this.elements.weakPointButton.dataset.relpath;
+        if (!relPath || !this.state.currentMember) { this.dependencies.domUtils.toggleDisplay(this.elements.weakPointButton, false); return; }
+        this.dependencies.domUtils.toggleDisplay(this.elements.weakPointButton, true);
+        const weakPoints = this.dependencies.storage.loadWeakPoints(); const isWeak = weakPoints.has(relPath);
+        if(this.elements.weakPointButton.firstElementChild) this.dependencies.domUtils.setText(this.elements.weakPointButton.firstElementChild, isWeak ? '★' : '☆');
+        this.dependencies.domUtils.toggleClass(this.elements.weakPointButton, 'is-weak', isWeak);
+        this.elements.weakPointButton.title = isWeak ? '弱点解除' : '弱点登録';
+    },
 
     setupImageInterval: function() {
         if(this.state.imageIntervalId) clearInterval(this.state.imageIntervalId);
@@ -504,22 +607,24 @@ const ShikoshikoMode = {
                 if (this.state.gameRunning) this.togglePauseGame();
                 return;
             }
+            // currentCarouselCenterIndex は最後に表示していたものを復元するか、ランダムにするか
+            // ここでは activate のたびにランダムな位置から開始する
             this.currentCarouselCenterIndex = this.dependencies.utils.getRandomInt(0, this.state.displayableImageList.length - 1);
             this.prepareCarouselItems();
             this.renderCarousel();
 
             if (this.state.gameRunning && this.state.isPaused) {
-                this.state.isPaused = false; // 再開なので一時停止解除
+                this.state.isPaused = false; // 再開
                 this.resumeShikoAnimationAndSound();
                 this.setupImageInterval();
             } else if (this.state.gameRunning && !this.state.isPaused) {
-                // nextEROImageはrenderCarouselで初期表示されるため、ここでは不要
-                this.resumeShikoAnimationAndSound();
-                this.setupImageInterval();
+                // すでに実行中の場合（初回起動も含む）
+                this.resumeShikoAnimationAndSound(); // アニメーションと音を（再）開始
+                this.setupImageInterval(); // 自動スキップ設定を反映
             }
             this.updateUI();
         });
-        // テーマ適用はdisplayCentralCarouselItemInfoで行われる
+        // テーマ適用はdisplayCentralCarouselItemInfo内
         console.log("Shikoshiko Mode Activated (Carousel, Full Restore).");
     },
     deactivate: function() {
@@ -534,7 +639,7 @@ const ShikoshikoMode = {
     clearMemberDisplayAndUpdate: function() { this.clearMemberDisplay(); this.updateUI(); },
     clearMemberDisplay: function() {
         if(this.elements.memberProfileIcon) this.elements.memberProfileIcon.src = 'images/placeholder.png';
-        if(this.elements.carouselTrack) this.dependencies.domUtils.empty(this.elements.carouselTrack); // カルーセルもクリア
+        if(this.elements.carouselTrack) this.dependencies.domUtils.empty(this.elements.carouselTrack);
         if(this.elements.memberQuoteDisplay) this.dependencies.domUtils.setText(this.elements.memberQuoteDisplay, "ここにセリフが表示されます");
         if(this.elements.imageTagsContainer) this.dependencies.domUtils.toggleDisplay(this.elements.imageTagsContainer, false);
         if(this.elements.weakPointButton) this.elements.weakPointButton.dataset.relpath = "";
