@@ -14,113 +14,77 @@
         <!-- しこしこモード セクション -->
         <section id="shikoshikoModeSection" class="mode-section active">
             <div class="shikoshiko-layout-container">
+
                 <div class="shikoshiko-box1">
-                    <!-- ★★★ カルーセルコンテナに変更 ★★★ -->
-                    <div class="carousel-viewport" id="shikoshikoCarouselViewport">
-                        <div class="carousel-track" id="shikoshikoCarouselTrack">
-                            <!-- JSでカルーセルアイテム (画像コンテナ) を5つ生成 -->
-                            <!-- 例:
-                            <div class="carousel-item">
-                                <img src="images/placeholder.png" alt="メンバー画像">
-                            </div>
-                            -->
-                        </div>
+                    <div class="card-stack-area" id="cardStackArea">
+                        <!-- JSでカードがここに挿入される -->
                     </div>
-                    <!-- ★★★ ここまで ★★★ -->
+
                     <div class="side-info-panel left-panel">
                         <div class="profile-icon-wrapper">
-                            <img id="shikoshikoMemberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
+                            <img id="memberProfileIcon" src="images/placeholder.png" alt="Member Icon" class="profile-icon">
                         </div>
-                        <button class="action-icon-button weak-point-button" id="shikoshikoWeakPointButton" title="弱点登録/解除" data-relpath="">
-                            <span class="icon-display">☆</span>
+                        <button class="action-icon-button like-button" id="likeButton" title="シコい!!">
+                            <span class="icon-display">❤️</span> <!-- ハートアイコンなどに変更も可 -->
                         </button>
+                        <button class="action-icon-button weak-point-button" id="weakPointButton" title="弱点/お気に入り">
+                            <span class="icon-display">⭐</span> <!-- 星アイコンなどに変更も可 -->
+                        </button>
+                         <div class="fever-gauge-container-vertical">
+                            <div class="fever-gauge-bar-vertical" id="feverGaugeBarVertical"></div>
+                        </div>
                     </div>
-                    <button class="settings-button-右上" id="openShikoshikoSettingsModal">⚙️</button>
+
+                    <button class="settings-button-右上" id="openSettingsModal">⚙️</button>
                 </div>
 
-                <div class="serif-animation-container">
+                <div class="serif-animation-container"> <!-- セリフと（旧）アニメーションエリア -->
                     <div class="serif-area">
-                        <div class="image-tags-container" id="shikoshikoImageTagsContainer" style="display: none;"></div>
-                        <p id="shikoshikoMemberQuote" class="member-quote">ここにセリフが表示されます</p>
+                        <div class="image-tags-container" id="imageTagsContainer" style="display: none;"></div>
+                        <p id="memberQuote" class="member-quote">ここにセリフが表示されます</p>
                     </div>
-                    <div class="animation-area" id="shikoAnimationContainer">
-                        <img src="images/sao.png" alt="竿" id="saoImage" class="sao-image">
-                        <img src="images/shikoshiko_anim.png" alt="しこしこ" id="shikoshikoAnimationImage" class="shikoshiko-image">
-                    </div>
+                     <!-- アニメーションエリアは廃止 -->
                 </div>
 
-                <div class="shikoshiko-box2-controls-only">
+                <div class="shikoshiko-box2-controls-only"> <!-- 操作ボタン専用エリア -->
                     <div class="main-controls" id="shikoshikoControlsArea">
-                        <button id="shikoshikoSkipButton" class="control-button skip-button">次へ</button> <!-- テキスト変更 -->
-                        <button id="shikoshikoStartButton" class="control-button start-finish-button">一時停止</button>
-                        <button id="shikoshikoFinishButton" class="control-button start-finish-button">フィニッシュ</button>
+                        <button id="nopeButton" class="control-button swipe-button nope-button">萎え</button>
+                        <button id="superLikeButton" class="control-button swipe-button super-like-button" style="display:none;">SUPER</button> <!-- SUPER LIKEは将来用 -->
+                        <button id="likeButtonMain" class="control-button swipe-button like-button">シコい!!</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- カウンターセクション (変更なし) -->
-        <section id="counterSection" class="mode-section standard-mode-layout" style="display:none;">
-            <h2>回数カウンター</h2>
-            <p class="counter-instruction">画像をクリックするとカウントが増えます。</p>
-            <div class="counter-controls">
-                <button id="decreaseModeButton" class="counter-mode-button">減らすモード OFF</button>
-            </div>
-            <div class="counter-grid" id="counterGrid">
-                <p class="loading-message">カウンター読み込み中...</p>
-            </div>
-        </section>
+        <!-- カウンターセクションは廃止 -->
     </main>
 
-    <!-- しこしこモード設定モーダル (変更なし) -->
-    <div id="shikoshikoSettingsModal" class="modal" style="display:none;">
+    <!-- 設定モーダル -->
+    <div id="settingsModal" class="modal" style="display:none;">
         <div class="modal-content">
-            <span class="modal-close-button" id="closeShikoshikoSettingsModal">×</span>
-            <h2>しこしこ設定</h2>
+            <span class="modal-close-button" id="closeSettingsModal">×</span>
+            <h2>設定</h2>
             <div class="modal-body">
                 <div class="setting-group">
                     <h4>メンバー出現率</h4>
-                    <div class="slider-container member-sliders" id="modalShikoshikoMemberSliders"><p>読み込み中...</p></div>
+                    <div class="slider-container member-sliders" id="modalMemberSliders"><p>読み込み中...</p></div>
                     <p class="selection-note">数値が高いほど出やすくなります (0は出ません)</p>
                 </div>
-                <div class="setting-group">
-                    <h4>BPM設定</h4>
-                    <div class="bpm-setting">
-                        <label for="modalFixedBpmInput">BPM:</label>
-                        <input type="number" id="modalFixedBpmInput" min="30" max="300" value="120">
-                    </div>
-                </div>
-                <div class="setting-group">
-                    <h4>再生オプション</h4>
-                    <div class="toggle-setting-item">
-                        <input type="checkbox" id="modalAutoSkipToggle" checked>
-                        <label for="modalAutoSkipToggle">画像の自動スキップ</label>
-                    </div>
-                    <div class="toggle-setting-item">
-                        <input type="checkbox" id="modalWeakPointOnlyToggle">
-                        <label for="modalWeakPointOnlyToggle">弱点画像のみ表示</label>
-                    </div>
-                </div>
+                <!-- BPM設定は廃止 -->
+                <!-- 再生オプションも一旦シンプル化のため廃止（自動スキップなし、弱点フィルタなしが前提） -->
             </div>
             <div class="modal-footer">
-                <button id="saveShikoshikoSettingsButton" class="action-button primary">設定を保存</button>
+                <button id="saveSettingsButton" class="action-button primary">設定を保存</button>
             </div>
         </div>
     </div>
 
-    <!-- グローバルな下部タブナビゲーション (変更なし) -->
-    <nav id="tabNavigation" class="tab-navigation-global-footer">
-        <button class="tab-button active" data-tab-target="#shikoshikoModeSection">しこしこ</button>
-        <button class="tab-button" data-tab-target="#counterSection">カウンター</button>
-    </nav>
+    <!-- グローバルな下部タブナビゲーションは廃止（シングルモードのため） -->
 
     <script src="config.js"></script>
-    <script src="js/utils/helpers.js"></script>
-    <script src="js/services/storage.js"></script>
-    <script src="js/ui/dom_utils.js"></script>
-    <script src="js/ui/components.js"></script>
-    <script src="js/modes/shikoshiko.js"></script>
-    <script src="js/modes/counter.js"></script>
-    <script src="js/app.js"></script>
+    <!-- utils.js は app.js に統合されるイメージ -->
+    <script src="data_handler.js"></script>
+    <script src="card_ui.js"></script>
+    <script src="app.js"></script> <!-- 最後にapp.jsを読み込む -->
 </body>
 </html>
